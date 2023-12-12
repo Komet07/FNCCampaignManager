@@ -23,6 +23,8 @@ public class MapManager : MonoBehaviour
     #endregion
 
     public List<Sector> _sectors = new List<Sector>() { };
+
+
     // Start is called before the first frame update
     void Start()
     {
