@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
+
+    #region Singleton
+    public static MapManager Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
+    #endregion
     // Start is called before the first frame update
     void Start()
     {
