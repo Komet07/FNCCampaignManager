@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<MapObject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sectors>
+    <Sector name="Outbound Star" control="-1">
+      <_posXInt>0</_posXInt>
+      <_posYInt>0</_posYInt>
+    </Sector>
+  </Sectors>
+</MapObject>
