@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<MapObject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sectors>
+    <Sector name="Outbound Star" control="-1">
+      <_posXInt>0</_posXInt>
+      <_posYInt>-1</_posYInt>
+    </Sector>
+    <Sector name="Getsu Fune" control="-1">
+      <_posXInt>1</_posXInt>
+      <_posYInt>-1</_posYInt>
+    </Sector>
+    <Sector name="Frontier Edge" control="-1">
+      <_posXInt>1</_posXInt>
+      <_posYInt>0</_posYInt>
+    </Sector>
+    <Sector name="Home of Light" control="-1">
+      <_posXInt>0</_posXInt>
+      <_posYInt>1</_posYInt>
+    </Sector>
+    <Sector name="Aladna Hill" control="-1">
+      <_posXInt>-1</_posXInt>
+      <_posYInt>0</_posYInt>
+    </Sector>
+    <Sector name="Harka Prime" control="-1">
+      <_posXInt>-2</_posXInt>
+      <_posYInt>0</_posYInt>
+    </Sector>
+    <Sector name="Ore Belt" control="-1">
+      <_posXInt>-2</_posXInt>
+      <_posYInt>1</_posYInt>
+    </Sector>
+    <Sector name="Bastion" control="-1">
+      <_posXInt>-1</_posXInt>
+      <_posYInt>2</_posYInt>
+    </Sector>
+    <Sector name="Blind Trust" control="-1">
+      <_posXInt>-4</_posXInt>
+      <_posYInt>2</_posYInt>
+    </Sector>
+    <Sector name="Outer Reach" control="-1">
+      <_posXInt>-4</_posXInt>
+      <_posYInt>0</_posYInt>
+    </Sector>
+    <Sector name="Trantor" control="-1">
+      <_posXInt>-5</_posXInt>
+      <_posYInt>-2</_posYInt>
+    </Sector>
+    <Sector name="Brazen Shore" control="-1">
+      <_posXInt>-3</_posXInt>
+      <_posYInt>-2</_posYInt>
+    </Sector>
+    <Sector name="Matrix #130" control="-1">
+      <_posXInt>-2</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
+    <Sector name="Matrix #89A" control="-1">
+      <_posXInt>-4</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
+    <Sector name="Matrix #89B" control="-1">
+      <_posXInt>-4</_posXInt>
+      <_posYInt>4</_posYInt>
+    </Sector>
+    <Sector name="Matrix #115" control="-1">
+      <_posXInt>-5</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
+    <Sector name="Ascendant Legacy" control="-1">
+      <_posXInt>-3</_posXInt>
+      <_posYInt>-3</_posYInt>
+    </Sector>
+    <Sector name="Profitable Frontier" control="-1">
+      <_posXInt>-1</_posXInt>
+      <_posYInt>-3</_posYInt>
+    </Sector>
+    <Sector name="Paladin's Fortune" control="-1">
+      <_posXInt>0</_posXInt>
+      <_posYInt>-2</_posYInt>
+    </Sector>
+    <Sector name="Barren Oasis" control="-1">
+      <_posXInt>2</_posXInt>
+      <_posYInt>-2</_posYInt>
+    </Sector>
+    <Sector name="Turqoise Sea" control="-1">
+      <_posXInt>3</_posXInt>
+      <_posYInt>-1</_posYInt>
+    </Sector>
+    <Sector name="Rakana's Terror" control="-1">
+      <_posXInt>-3</_posXInt>
+      <_posYInt>3</_posYInt>
+    </Sector>
+    <Sector name="Forward Unto Dawn" control="-1">
+      <_posXInt>2</_posXInt>
+      <_posYInt>2</_posYInt>
+    </Sector>
+  </Sectors>
+</MapObject>
