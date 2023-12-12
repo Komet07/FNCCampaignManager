@@ -2,6 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class Sector
+{
+    public string _name = "";
+    public int _controlFaction = "";
+    public int _posXInt = 0;
+    public int _posYInt = 0;
+}
+
 public class MapManager : MonoBehaviour
 {
 
