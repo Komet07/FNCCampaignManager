@@ -46,6 +46,8 @@ public class XMLWriter : MonoBehaviour
             _load = false;
             var _map = Map.Load(Path.Combine(Application.dataPath, "saves/"+_saveFileName+".xml"));
             MapManager.Instance._map = _map;
+
+            GalaxyMap.Instance._regen = true;
         }
     }
 }

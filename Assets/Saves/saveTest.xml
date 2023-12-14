@@ -1,75 +1,75 @@
 <?xml version="1.0"?>
 <MapObject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Sectors>
-    <Sector name="Outbound Star" control="-1">
+    <Sector name="Outbound Star" control="6">
       <_posXInt>0</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Getsu Fune" control="-1">
+    <Sector name="Getsu Fune" control="9">
       <_posXInt>1</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Frontier Edge" control="-1">
+    <Sector name="Frontier Edge" control="3">
       <_posXInt>1</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Home of Light" control="-1">
+    <Sector name="Home of Light" control="2">
       <_posXInt>0</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="Aladna Hill" control="-1">
+    <Sector name="Aladna Hill" control="1">
       <_posXInt>-1</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Harka Prime" control="-1">
+    <Sector name="Harka Prime" control="1">
       <_posXInt>-2</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Ore Belt" control="-1">
+    <Sector name="Ore Belt" control="1">
       <_posXInt>-2</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="Bastion" control="-1">
+    <Sector name="Bastion" control="7">
       <_posXInt>-1</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="Blind Trust" control="-1">
+    <Sector name="Blind Trust" control="0">
       <_posXInt>-4</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="Outer Reach" control="-1">
+    <Sector name="Outer Reach" control="4">
       <_posXInt>-4</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Trantor" control="-1">
+    <Sector name="Trantor" control="4">
       <_posXInt>-5</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Brazen Shore" control="-1">
+    <Sector name="Brazen Shore" control="5">
       <_posXInt>-3</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Matrix #130" control="-1">
+    <Sector name="Matrix #130" control="0">
       <_posXInt>-2</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Matrix #89A" control="-1">
+    <Sector name="Matrix #89A" control="0">
       <_posXInt>-4</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Matrix #89B" control="-1">
+    <Sector name="Matrix #89B" control="0">
       <_posXInt>-4</_posXInt>
       <_posYInt>4</_posYInt>
     </Sector>
-    <Sector name="Matrix #115" control="-1">
+    <Sector name="Matrix #115" control="0">
       <_posXInt>-5</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Ascendant Legacy" control="-1">
+    <Sector name="Ascendant Legacy" control="11">
       <_posXInt>-3</_posXInt>
       <_posYInt>-3</_posYInt>
     </Sector>
-    <Sector name="Profitable Frontier" control="-1">
+    <Sector name="Profitable Frontier" control="8">
       <_posXInt>-1</_posXInt>
       <_posYInt>-3</_posYInt>
     </Sector>
@@ -77,21 +77,307 @@
       <_posXInt>0</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Barren Oasis" control="-1">
+    <Sector name="Barren Oasis" control="10">
       <_posXInt>2</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Turqoise Sea" control="-1">
+    <Sector name="Turquoise Sea" control="-1">
       <_posXInt>3</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Rakana's Terror" control="-1">
+    <Sector name="Rakana's Terror" control="0">
       <_posXInt>-3</_posXInt>
       <_posYInt>3</_posYInt>
     </Sector>
-    <Sector name="Forward Unto Dawn" control="-1">
+    <Sector name="Forward Unto Dawn" control="12">
       <_posXInt>2</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
+    <Sector name="Rakana's Demise" control="-1">
+      <_posXInt>3</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
+    <Sector name="Fargo's Remnant" control="-1">
+      <_posXInt>4</_posXInt>
+      <_posYInt>4</_posYInt>
+    </Sector>
+    <Sector name="X635" control="-1">
+      <_posXInt>4</_posXInt>
+      <_posYInt>6</_posYInt>
+    </Sector>
+    <Sector name="X754" control="-1">
+      <_posXInt>6</_posXInt>
+      <_posYInt>4</_posYInt>
+    </Sector>
+    <Sector name="X176" control="-1">
+      <_posXInt>5</_posXInt>
+      <_posYInt>1</_posYInt>
+    </Sector>
+    <Sector name="X836" control="-1">
+      <_posXInt>7</_posXInt>
+      <_posYInt>1</_posYInt>
+    </Sector>
+    <Sector name="X831" control="-1">
+      <_posXInt>7</_posXInt>
+      <_posYInt>2</_posYInt>
+    </Sector>
+    <Sector name="X834" control="-1">
+      <_posXInt>8</_posXInt>
+      <_posYInt>2</_posYInt>
+    </Sector>
+    <Sector name="X944" control="-1">
+      <_posXInt>8</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
+    <Sector name="X975" control="-1">
+      <_posXInt>7</_posXInt>
+      <_posYInt>5</_posYInt>
+    </Sector>
   </Sectors>
+  <Factions>
+    <Faction name="United Sentient Engine Alliance" shorthand="USEA" nationType="" allianceId="0">
+      <_factionColor>
+        <r>207</r>
+        <g>44</g>
+        <b>44</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Harka Communion" shorthand="HRK" nationType="" allianceId="1">
+      <_factionColor>
+        <r>0</r>
+        <g>71</g>
+        <b>255</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Lightrunner Confederation" shorthand="LGH" nationType="" allianceId="1">
+      <_factionColor>
+        <r>43</r>
+        <g>164</g>
+        <b>185</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Edge Explorer Coalition" shorthand="EEC" nationType="" allianceId="1">
+      <_factionColor>
+        <r>43</r>
+        <g>178</g>
+        <b>108</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Trantorian Coalition" shorthand="TCO" nationType="" allianceId="1">
+      <_factionColor>
+        <r>0</r>
+        <g>231</g>
+        <b>255</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Syndicate of Arranthia" shorthand="SYR" nationType="" allianceId="1">
+      <_factionColor>
+        <r>81</r>
+        <g>203</g>
+        <b>229</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Outbound Republic" shorthand="OUR" nationType="" allianceId="1">
+      <_factionColor>
+        <r>28</r>
+        <g>128</g>
+        <b>219</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Frontier Prospecting Company" shorthand="FPC" nationType="" allianceId="4">
+      <_factionColor>
+        <r>42</r>
+        <g>67</g>
+        <b>168</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Lathinian Trading Guilds" shorthand="LTG" nationType="" allianceId="3">
+      <_factionColor>
+        <r>11</r>
+        <g>255</g>
+        <b>188</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Halcyon Trading Company" shorthand="HTC" nationType="" allianceId="2">
+      <_factionColor>
+        <r>46</r>
+        <g>76</g>
+        <b>99</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Tranquility" shorthand="TRQ" nationType="" allianceId="2">
+      <_factionColor>
+        <r>222</r>
+        <g>255</g>
+        <b>121</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Ascendant Empire" shorthand="ASC" nationType="" allianceId="2">
+      <_factionColor>
+        <r>217</r>
+        <g>205</g>
+        <b>95</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Magellan Diktat" shorthand="MAG" nationType="" allianceId="2">
+      <_factionColor>
+        <r>79</r>
+        <g>79</g>
+        <b>79</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+  </Factions>
+  <Alliances>
+    <Alliance name="United Sentient Engine Alliance" shorthand="USEA">
+      <_allianceColor>
+        <r>200</r>
+        <g>10</g>
+        <b>10</b>
+        <a>255</a>
+      </_allianceColor>
+      <Members>
+        <Member>0</Member>
+      </Members>
+    </Alliance>
+    <Alliance name="Grand Terran Union" shorthand="GTU">
+      <_allianceColor>
+        <r>41</r>
+        <g>161</g>
+        <b>233</b>
+        <a>255</a>
+      </_allianceColor>
+      <Members>
+        <Member>1</Member>
+        <Member>2</Member>
+        <Member>4</Member>
+        <Member>5</Member>
+        <Member>6</Member>
+      </Members>
+    </Alliance>
+    <Alliance name="Outer Systems Federation" shorthand="OSF">
+      <_allianceColor>
+        <r>55</r>
+        <g>55</g>
+        <b>55</b>
+        <a>255</a>
+      </_allianceColor>
+      <Members>
+        <Member>3</Member>
+        <Member>9</Member>
+        <Member>10</Member>
+        <Member>11</Member>
+        <Member>12</Member>
+      </Members>
+    </Alliance>
+    <Alliance name="Lathinian Trading Guilds" shorthand="LTG">
+      <_allianceColor>
+        <r>11</r>
+        <g>255</g>
+        <b>188</b>
+        <a>255</a>
+      </_allianceColor>
+      <Members>
+        <Member>8</Member>
+      </Members>
+    </Alliance>
+    <Alliance name="Frontier Prospecting Company" shorthand="FPC">
+      <_allianceColor>
+        <r>43</r>
+        <g>67</g>
+        <b>169</b>
+        <a>255</a>
+      </_allianceColor>
+      <Members>
+        <Member>7</Member>
+      </Members>
+    </Alliance>
+  </Alliances>
+  <Connections>
+    <Connection name="Outbound Star - Getsu Fune Route" name1="Gate: Getsu Fune" name2="Gate: Outbound Star">
+      <_sector1Id>0</_sector1Id>
+      <_sector2Id>1</_sector2Id>
+    </Connection>
+    <Connection name="Outbound Star - Profitable Frontier Route" name1="Gate: Profitable Frontier" name2="Gate: Outbound Star">
+      <_sector1Id>0</_sector1Id>
+      <_sector2Id>17</_sector2Id>
+    </Connection>
+    <Connection name="Outbound Star - Brazen Shore Route" name1="Gate: Brazen Shore" name2="Gate: Outbound Star">
+      <_sector1Id>0</_sector1Id>
+      <_sector2Id>11</_sector2Id>
+    </Connection>
+    <Connection name="Brazen Shore - Ascendant Legacy Route" name1="Gate: Ascendant Legacy" name2="Gate: Brazen Shore">
+      <_sector1Id>11</_sector1Id>
+      <_sector2Id>16</_sector2Id>
+    </Connection>
+    <Connection name="Brazen Shore - Outer Reach Route" name1="Gate: Outer Reach" name2="Gate: Brazen Shore">
+      <_sector1Id>11</_sector1Id>
+      <_sector2Id>9</_sector2Id>
+    </Connection>
+    <Connection name="Brazen Shore - Trantor Route" name1="Gate: Trantor" name2="Gate: Brazen Shore">
+      <_sector1Id>11</_sector1Id>
+      <_sector2Id>10</_sector2Id>
+    </Connection>
+    <Connection name="Trantor - Outer Reach Route" name1="Gate: Outer Reach" name2="Gate: Trantor">
+      <_sector1Id>10</_sector1Id>
+      <_sector2Id>9</_sector2Id>
+    </Connection>
+    <Connection name="Brazen Shore - Harka Prime Route" name1="Gate: Harka Prime" name2="Gate: Brazen Shore">
+      <_sector1Id>11</_sector1Id>
+      <_sector2Id>5</_sector2Id>
+    </Connection>
+    <Connection name="Aladna Hill - Harka Prime Route" name1="Gate: Harka Prime" name2="Gate: Aladna Hill">
+      <_sector1Id>4</_sector1Id>
+      <_sector2Id>5</_sector2Id>
+    </Connection>
+    <Connection name="Aladna Hill - Ore Belt Route" name1="Gate: Ore Belt" name2="Gate: Aladna Hill">
+      <_sector1Id>4</_sector1Id>
+      <_sector2Id>6</_sector2Id>
+    </Connection>
+    <Connection name="Aladna Hill - Home of Light Route" name1="Gate: Home of Light" name2="Gate: Aladna Hill">
+      <_sector1Id>4</_sector1Id>
+      <_sector2Id>3</_sector2Id>
+    </Connection>
+    <Connection name="Bastion - Ore Belt Route" name1="Gate: Ore Belt" name2="Gate: Bastion">
+      <_sector1Id>7</_sector1Id>
+      <_sector2Id>6</_sector2Id>
+    </Connection>
+    <Connection name="Home of Light - Frontier Edge Route" name1="Gate: Frontier Edge" name2="Gate: Home of Light">
+      <_sector1Id>3</_sector1Id>
+      <_sector2Id>2</_sector2Id>
+    </Connection>
+    <Connection name="Getsu Fune - Frontier Edge" name1="Gate: Frontier Edge" name2="Gate: Getsu Fune">
+      <_sector1Id>1</_sector1Id>
+      <_sector2Id>2</_sector2Id>
+    </Connection>
+    <Connection name="Home of Light - Forward Unto Dawn Route" name1="Gate: Forward Unto Dawn" name2="Gate: Home of Light">
+      <_sector1Id>3</_sector1Id>
+      <_sector2Id>22</_sector2Id>
+    </Connection>
+  </Connections>
 </MapObject>

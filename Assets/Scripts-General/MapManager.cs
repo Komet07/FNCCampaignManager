@@ -23,6 +23,16 @@ public class Map
     [XmlArray("Sectors"), XmlArrayItem("Sector")]
     public List<Sector> _sectors = new List<Sector>() { };
 
+    [XmlArray("Factions"), XmlArrayItem("Faction")]
+    public List<Faction> _factions = new List<Faction>() { };
+
+    [XmlArray("Alliances"), XmlArrayItem("Alliance")]
+    public List<Alliance> _alliances = new List<Alliance>() { };
+
+    [XmlArray("Connections"), XmlArrayItem("Connection")]
+    public List<JumpGateConnection> _jumpGates = new List<JumpGateConnection>() { };
+
+
     public static Map Load(string path)
     {
         var serializer = new XmlSerializer(typeof(Map));
@@ -31,6 +41,57 @@ public class Map
             return serializer.Deserialize(stream) as Map;
         }
     }
+}
+
+[System.Serializable]
+public class Faction
+{
+    [XmlAttribute("name")]
+    public string _name = "";
+
+    [XmlAttribute("shorthand")]
+    public string _shorthand = "";
+
+    public Color32 _factionColor = new Color32(255, 255, 255, 255);
+
+    public string _GovType = "";
+
+    [XmlAttribute("nationType")]
+    public string _nationType = "";
+
+    [XmlAttribute("allianceId")]
+    public int _allianceId = -1;
+}
+
+[System.Serializable]
+public class Alliance
+{
+    [XmlAttribute("name")]
+    public string _name = "";
+
+    [XmlAttribute("shorthand")]
+    public string _shorthand = "";
+
+    public Color32 _allianceColor = new Color32(150, 150, 150, 255);
+
+    [XmlArray("Members"), XmlArrayItem("Member")]
+    public List<int> _memberStates = new List<int>();
+}
+
+[System.Serializable]
+public class JumpGateConnection
+{
+    [XmlAttribute("name")]
+    public string _name = ""; // i.e. Outbound Star - Getsu Fune
+
+    [XmlAttribute("name1")]
+    public string _name1 = ""; // [System Name] Jumpgate
+
+    [XmlAttribute("name2")]
+    public string _name2 = ""; // [System Name] Jumpgate
+
+    public int _sector1Id = 0; // Id of sector 1
+    public int _sector2Id = 0; // Id of sector 2
 }
 
 public class MapManager : MonoBehaviour
