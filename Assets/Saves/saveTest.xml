@@ -252,6 +252,15 @@
       </_factionColor>
       <_GovType />
     </Faction>
+    <Faction name="Sojourn Mercenary Company" shorthand="SMC" nationType="" allianceId="-1">
+      <_factionColor>
+        <r>39</r>
+        <g>255</g>
+        <b>0</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
   </Factions>
   <Alliances>
     <Alliance name="United Sentient Engine Alliance" shorthand="USEA">
@@ -380,4 +389,24 @@
       <_sector2Id>22</_sector2Id>
     </Connection>
   </Connections>
+  <PlayerFactions>
+    <PlayerFaction factionID="13">
+      <_playerIDs>
+        <int>0</int>
+        <int>1</int>
+        <int>2</int>
+        <int>3</int>
+        <int>4</int>
+        <int>5</int>
+      </_playerIDs>
+    </PlayerFaction>
+  </PlayerFactions>
+  <Players>
+    <Player name="Yggy" playerFactionID="0" />
+    <Player name="BlueNexa" playerFactionID="0" />
+    <Player name="Rurawk" playerFactionID="0" />
+    <Player name="Katherine Cyndar" playerFactionID="0" />
+    <Player name="QuirkyTurtle" playerFactionID="0" />
+    <Player name="Gamma" playerFactionID="0" />
+  </Players>
 </MapObject>

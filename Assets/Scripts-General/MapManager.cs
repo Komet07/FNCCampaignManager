@@ -32,6 +32,12 @@ public class Map
     [XmlArray("Connections"), XmlArrayItem("Connection")]
     public List<JumpGateConnection> _jumpGates = new List<JumpGateConnection>() { };
 
+    [XmlArray("PlayerFactions"), XmlArrayItem("PlayerFaction")]
+    public List<PlayerFaction> _playerFactions = new List<PlayerFaction>() { };
+
+    [XmlArray("Players"), XmlArrayItem("Player")]
+    public List<Player> _players = new List<Player>() { };
+
 
     public static Map Load(string path)
     {
@@ -92,6 +98,25 @@ public class JumpGateConnection
 
     public int _sector1Id = 0; // Id of sector 1
     public int _sector2Id = 0; // Id of sector 2
+}
+
+[System.Serializable]
+public class PlayerFaction
+{
+    [XmlAttribute("factionID")]
+    public int _regFactionID = 0; // Points to faction ID that this belongs to, if -1 then GM faction
+
+    public List<int> _playerIDs = new List<int>() { };
+}
+
+[System.Serializable]
+public class Player
+{
+    [XmlAttribute("name")]
+    public string _name = ""; // Player name, i.e. "Yggy" or "BlueNexa"
+
+    [XmlAttribute("playerFactionID")]
+    public int _factionID = -1; // Player faction this player belongs to, -1 = independent
 }
 
 public class MapManager : MonoBehaviour
