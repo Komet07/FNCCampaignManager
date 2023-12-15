@@ -14,12 +14,24 @@ public class Sector
     public int _controlFaction = -1;
     public int _posXInt = 0;
     public int _posYInt = 0;
+
+    public string _description = "";
+    public string _lore = "";
+
+    [XmlAttribute("id")]
+    public int _refID = 0;
+
+
 }
 
 [System.Serializable]
 [XmlRoot("MapObject")]
 public class Map
 {
+
+    public float _playerFactionId = -1; // if -1 then GM
+    public bool _lockSelection = false; // If locked, then selection *cannot* be changed again
+
     [XmlArray("Sectors"), XmlArrayItem("Sector")]
     public List<Sector> _sectors = new List<Sector>() { };
 
@@ -67,6 +79,13 @@ public class Faction
 
     [XmlAttribute("allianceId")]
     public int _allianceId = -1;
+
+    [XmlAttribute("id")]
+    public int _refId = 0;
+
+
+    public string _description = "";
+    public string _lore = "";
 }
 
 [System.Serializable]
@@ -82,6 +101,13 @@ public class Alliance
 
     [XmlArray("Members"), XmlArrayItem("Member")]
     public List<int> _memberStates = new List<int>();
+
+    [XmlAttribute("id")]
+    public int _refId = 0;
+
+
+    public string _description = "";
+    public string _lore = "";
 }
 
 [System.Serializable]
@@ -117,6 +143,9 @@ public class Player
 
     [XmlAttribute("playerFactionID")]
     public int _factionID = -1; // Player faction this player belongs to, -1 = independent
+
+    [XmlAttribute("id")]
+    public int _refId = 0;
 }
 
 public class MapManager : MonoBehaviour

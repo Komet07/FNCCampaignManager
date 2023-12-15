@@ -1,141 +1,143 @@
 <?xml version="1.0"?>
 <MapObject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <_playerFactionId>-1</_playerFactionId>
+  <_lockSelection>false</_lockSelection>
   <Sectors>
-    <Sector name="Outbound Star" control="6">
+    <Sector name="Outbound Star" control="6" id="0">
       <_posXInt>0</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Getsu Fune" control="9">
+    <Sector name="Getsu Fune" control="9" id="1">
       <_posXInt>1</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Frontier Edge" control="3">
+    <Sector name="Frontier Edge" control="3" id="2">
       <_posXInt>1</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Home of Light" control="2">
+    <Sector name="Home of Light" control="2" id="3">
       <_posXInt>0</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="Aladna Hill" control="1">
+    <Sector name="Aladna Hill" control="1" id="4">
       <_posXInt>-1</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Harka Prime" control="1">
+    <Sector name="Harka Prime" control="1" id="5">
       <_posXInt>-2</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Ore Belt" control="1">
+    <Sector name="Ore Belt" control="1" id="6">
       <_posXInt>-2</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="Bastion" control="7">
+    <Sector name="Bastion" control="7" id="7">
       <_posXInt>-1</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="Blind Trust" control="0">
+    <Sector name="Blind Trust" control="0" id="8">
       <_posXInt>-4</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="Outer Reach" control="4">
+    <Sector name="Outer Reach" control="4" id="9">
       <_posXInt>-4</_posXInt>
       <_posYInt>0</_posYInt>
     </Sector>
-    <Sector name="Trantor" control="4">
+    <Sector name="Trantor" control="4" id="10">
       <_posXInt>-5</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Brazen Shore" control="5">
+    <Sector name="Brazen Shore" control="5" id="11">
       <_posXInt>-3</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Matrix #130" control="0">
+    <Sector name="Matrix #130" control="15" id="12">
       <_posXInt>-2</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Matrix #89A" control="0">
+    <Sector name="Matrix #89A" control="0" id="13">
       <_posXInt>-4</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Matrix #89B" control="0">
+    <Sector name="Matrix #89B" control="0" id="14">
       <_posXInt>-4</_posXInt>
       <_posYInt>4</_posYInt>
     </Sector>
-    <Sector name="Matrix #115" control="0">
+    <Sector name="Matrix #115" control="14" id="15">
       <_posXInt>-5</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Ascendant Legacy" control="11">
+    <Sector name="Ascendant Legacy" control="11" id="16">
       <_posXInt>-3</_posXInt>
       <_posYInt>-3</_posYInt>
     </Sector>
-    <Sector name="Profitable Frontier" control="8">
+    <Sector name="Profitable Frontier" control="8" id="17">
       <_posXInt>-1</_posXInt>
       <_posYInt>-3</_posYInt>
     </Sector>
-    <Sector name="Paladin's Fortune" control="-1">
+    <Sector name="Paladin's Fortune" control="-1" id="18">
       <_posXInt>0</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Barren Oasis" control="10">
+    <Sector name="Barren Oasis" control="10" id="19">
       <_posXInt>2</_posXInt>
       <_posYInt>-2</_posYInt>
     </Sector>
-    <Sector name="Turquoise Sea" control="-1">
+    <Sector name="Turquoise Sea" control="-1" id="20">
       <_posXInt>3</_posXInt>
       <_posYInt>-1</_posYInt>
     </Sector>
-    <Sector name="Rakana's Terror" control="0">
+    <Sector name="Rakana's Terror" control="0" id="21">
       <_posXInt>-3</_posXInt>
       <_posYInt>3</_posYInt>
     </Sector>
-    <Sector name="Forward Unto Dawn" control="12">
+    <Sector name="Forward Unto Dawn" control="12" id="22">
       <_posXInt>2</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="Rakana's Demise" control="-1">
+    <Sector name="Rakana's Demise" control="-1" id="23">
       <_posXInt>3</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="Fargo's Remnant" control="-1">
+    <Sector name="Fargo's Remnant" control="-1" id="24">
       <_posXInt>4</_posXInt>
       <_posYInt>4</_posYInt>
     </Sector>
-    <Sector name="X635" control="-1">
+    <Sector name="X635" control="-1" id="25">
       <_posXInt>4</_posXInt>
       <_posYInt>6</_posYInt>
     </Sector>
-    <Sector name="X754" control="-1">
+    <Sector name="X754" control="-1" id="26">
       <_posXInt>6</_posXInt>
       <_posYInt>4</_posYInt>
     </Sector>
-    <Sector name="X176" control="-1">
+    <Sector name="X176" control="-1" id="27">
       <_posXInt>5</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="X836" control="-1">
+    <Sector name="X836" control="-1" id="28">
       <_posXInt>7</_posXInt>
       <_posYInt>1</_posYInt>
     </Sector>
-    <Sector name="X831" control="-1">
+    <Sector name="X831" control="-1" id="29">
       <_posXInt>7</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="X834" control="-1">
+    <Sector name="X834" control="-1" id="30">
       <_posXInt>8</_posXInt>
       <_posYInt>2</_posYInt>
     </Sector>
-    <Sector name="X944" control="-1">
+    <Sector name="X944" control="-1" id="31">
       <_posXInt>8</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
-    <Sector name="X975" control="-1">
+    <Sector name="X975" control="-1" id="32">
       <_posXInt>7</_posXInt>
       <_posYInt>5</_posYInt>
     </Sector>
   </Sectors>
   <Factions>
-    <Faction name="United Sentient Engine Alliance" shorthand="USEA" nationType="" allianceId="0">
+    <Faction name="Subunit Federation of OSEA" shorthand="OSEA" nationType="" allianceId="0" id="0">
       <_factionColor>
         <r>207</r>
         <g>44</g>
@@ -144,7 +146,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Harka Communion" shorthand="HRK" nationType="" allianceId="1">
+    <Faction name="Harka Communion" shorthand="HRK" nationType="" allianceId="1" id="1">
       <_factionColor>
         <r>0</r>
         <g>71</g>
@@ -153,7 +155,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Lightrunner Confederation" shorthand="LGH" nationType="" allianceId="1">
+    <Faction name="Lightrunner Confederation" shorthand="LGH" nationType="" allianceId="1" id="2">
       <_factionColor>
         <r>43</r>
         <g>164</g>
@@ -162,7 +164,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Edge Explorer Coalition" shorthand="EEC" nationType="" allianceId="1">
+    <Faction name="Edge Explorer Coalition" shorthand="EEC" nationType="" allianceId="1" id="3">
       <_factionColor>
         <r>43</r>
         <g>178</g>
@@ -171,7 +173,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Trantorian Coalition" shorthand="TCO" nationType="" allianceId="1">
+    <Faction name="Trantorian Coalition" shorthand="TCO" nationType="" allianceId="1" id="4">
       <_factionColor>
         <r>0</r>
         <g>231</g>
@@ -180,7 +182,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Syndicate of Arranthia" shorthand="SYR" nationType="" allianceId="1">
+    <Faction name="Syndicate of Arranthia" shorthand="SYR" nationType="" allianceId="1" id="5">
       <_factionColor>
         <r>81</r>
         <g>203</g>
@@ -189,7 +191,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Outbound Republic" shorthand="OUR" nationType="" allianceId="1">
+    <Faction name="Outbound Republic" shorthand="OUR" nationType="" allianceId="1" id="6">
       <_factionColor>
         <r>28</r>
         <g>128</g>
@@ -198,7 +200,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Frontier Prospecting Company" shorthand="FPC" nationType="" allianceId="4">
+    <Faction name="Frontier Prospecting Company" shorthand="FPC" nationType="" allianceId="4" id="7">
       <_factionColor>
         <r>42</r>
         <g>67</g>
@@ -207,7 +209,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Lathinian Trading Guilds" shorthand="LTG" nationType="" allianceId="3">
+    <Faction name="Lathinian Trading Guilds" shorthand="LTG" nationType="" allianceId="3" id="8">
       <_factionColor>
         <r>11</r>
         <g>255</g>
@@ -216,7 +218,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Halcyon Trading Company" shorthand="HTC" nationType="" allianceId="2">
+    <Faction name="Halcyon Trading Company" shorthand="HTC" nationType="" allianceId="2" id="9">
       <_factionColor>
         <r>46</r>
         <g>76</g>
@@ -225,7 +227,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Tranquility" shorthand="TRQ" nationType="" allianceId="2">
+    <Faction name="Tranquility" shorthand="TRQ" nationType="" allianceId="2" id="10">
       <_factionColor>
         <r>222</r>
         <g>255</g>
@@ -234,7 +236,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Ascendant Empire" shorthand="ASC" nationType="" allianceId="2">
+    <Faction name="Ascendant Empire" shorthand="ASC" nationType="" allianceId="2" id="11">
       <_factionColor>
         <r>217</r>
         <g>205</g>
@@ -243,7 +245,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Magellan Diktat" shorthand="MAG" nationType="" allianceId="2">
+    <Faction name="Magellan Diktat" shorthand="MAG" nationType="" allianceId="2" id="12">
       <_factionColor>
         <r>79</r>
         <g>79</g>
@@ -252,7 +254,7 @@
       </_factionColor>
       <_GovType />
     </Faction>
-    <Faction name="Sojourn Mercenary Company" shorthand="SMC" nationType="" allianceId="-1">
+    <Faction name="Sojourn Mercenary Company" shorthand="SMC" nationType="" allianceId="-1" id="13">
       <_factionColor>
         <r>39</r>
         <g>255</g>
@@ -261,9 +263,27 @@
       </_factionColor>
       <_GovType />
     </Faction>
+    <Faction name="Technamid League" shorthand="TNL" nationType="" allianceId="0" id="14">
+      <_factionColor>
+        <r>255</r>
+        <g>100</g>
+        <b>100</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
+    <Faction name="Autonomous Exploration Front" shorthand="AEF" nationType="" allianceId="0" id="15">
+      <_factionColor>
+        <r>255</r>
+        <g>100</g>
+        <b>0</b>
+        <a>255</a>
+      </_factionColor>
+      <_GovType />
+    </Faction>
   </Factions>
   <Alliances>
-    <Alliance name="United Sentient Engine Alliance" shorthand="USEA">
+    <Alliance name="United Sentient Engine Alliance" shorthand="USEA" id="0">
       <_allianceColor>
         <r>200</r>
         <g>10</g>
@@ -274,7 +294,7 @@
         <Member>0</Member>
       </Members>
     </Alliance>
-    <Alliance name="Grand Terran Union" shorthand="GTU">
+    <Alliance name="Grand Terran Union" shorthand="GTU" id="1">
       <_allianceColor>
         <r>41</r>
         <g>161</g>
@@ -289,7 +309,7 @@
         <Member>6</Member>
       </Members>
     </Alliance>
-    <Alliance name="Outer Systems Federation" shorthand="OSF">
+    <Alliance name="Outer Systems Federation" shorthand="OSF" id="2">
       <_allianceColor>
         <r>55</r>
         <g>55</g>
@@ -304,7 +324,7 @@
         <Member>12</Member>
       </Members>
     </Alliance>
-    <Alliance name="Lathinian Trading Guilds" shorthand="LTG">
+    <Alliance name="Lathinian Trading Guilds" shorthand="LTG" id="3">
       <_allianceColor>
         <r>11</r>
         <g>255</g>
@@ -315,7 +335,7 @@
         <Member>8</Member>
       </Members>
     </Alliance>
-    <Alliance name="Frontier Prospecting Company" shorthand="FPC">
+    <Alliance name="Frontier Prospecting Company" shorthand="FPC" id="4">
       <_allianceColor>
         <r>43</r>
         <g>67</g>
@@ -402,11 +422,11 @@
     </PlayerFaction>
   </PlayerFactions>
   <Players>
-    <Player name="Yggy" playerFactionID="0" />
-    <Player name="BlueNexa" playerFactionID="0" />
-    <Player name="Rurawk" playerFactionID="0" />
-    <Player name="Katherine Cyndar" playerFactionID="0" />
-    <Player name="QuirkyTurtle" playerFactionID="0" />
-    <Player name="Gamma" playerFactionID="0" />
+    <Player name="Yggy" playerFactionID="0" id="0" />
+    <Player name="BlueNexa" playerFactionID="0" id="0" />
+    <Player name="Rurawk" playerFactionID="0" id="0" />
+    <Player name="Katherine Cyndar" playerFactionID="0" id="0" />
+    <Player name="QuirkyTurtle" playerFactionID="0" id="0" />
+    <Player name="Gamma" playerFactionID="0" id="0" />
   </Players>
 </MapObject>

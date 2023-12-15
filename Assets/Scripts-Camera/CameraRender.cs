@@ -18,6 +18,8 @@ public class CameraRender : MonoBehaviour
         // The Render Texture in RenderTexture.active is the one
         // that will be read by ReadPixels.
 
+        _renderCam.orthographicSize = this.GetComponent<Camera>().orthographicSize;
+
         rt = new RenderTexture(Screen.width*2, Screen.height*2, 16, RenderTextureFormat.ARGB32);
         rt.Create();
         camera.targetTexture = rt;

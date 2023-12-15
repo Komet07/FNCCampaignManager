@@ -28,11 +28,60 @@ public class GalaxyMap : MonoBehaviour
     public Text _viewModeText;
     public GameObject _viewModeButton;
 
+    // Info Display
+
+    public GameObject _InfoDisplay;
+    public Text _InfoDisplayName;
+    public Text _InfoDisplayControl;
+
     public bool _regen = false;
     public bool _enable = false;
     public bool _disable = false;
 
+    public int _selectedInt = -1;
+    public string _selectedType = "sector";
+
     public string _viewMode = "factions";
+
+    public void GalaxyMapInfoDisplay()
+    {
+        if (_selectedInt >= 0)
+        {
+            _InfoDisplay.SetActive(true);
+            if (_selectedType == "sector" && _selectedInt < MapManager.Instance._map._sectors.Count)
+            {
+                _InfoDisplayName.text = MapManager.Instance._map._sectors[_selectedInt]._name;
+                if (MapManager.Instance._map._sectors[_selectedInt]._controlFaction != -1)
+                {
+                    if (_viewMode != "alliances")
+                    {
+                        _InfoDisplayControl.text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_selectedInt]._controlFaction]._name;
+                    }
+                    else
+                    {
+                        if (MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_selectedInt]._controlFaction]._allianceId != -1)
+                        {
+                            _InfoDisplayControl.text = MapManager.Instance._map._alliances[MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_selectedInt]._controlFaction]._allianceId]._name;
+                        }
+                        else
+                        {
+                            _InfoDisplayControl.text = "Unaligned";
+                        }
+                    }
+                        
+                }
+                else
+                {
+                    _InfoDisplayControl.text = "Unaligned";
+                }
+                    
+            }
+        }
+        else
+        {
+            _InfoDisplay.SetActive(false);
+        }  
+    }
 
     public void SwitchViewMode()
     {
@@ -300,6 +349,19 @@ public class GalaxyMap : MonoBehaviour
                         _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "NEU";
                     }
                 }
+
+                
+            }
+
+            //Check if selecting a sector hexagon
+            Ray rayC;
+            RaycastHit hitC;
+
+            rayC = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(rayC, out hitC) && hitC.transform.gameObject == _hexagons[i] && Input.GetMouseButtonDown(0))
+            {
+                _selectedInt = i;
+                _selectedType = "sector";
             }
 
         }
@@ -312,7 +374,15 @@ public class GalaxyMap : MonoBehaviour
         if (Physics.Raycast(rayB, out hitB) && hitB.transform.gameObject == _viewModeButton && Input.GetMouseButtonDown(0))
         {
             SwitchViewMode();
-
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && _selectedInt >= 0)
+        {
+            _selectedInt = -1;
+        }
+
+        // Info Display
+
+        GalaxyMapInfoDisplay();
     }
 }

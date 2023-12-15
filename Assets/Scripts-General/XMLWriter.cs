@@ -4,13 +4,19 @@ using UnityEngine;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using UnityEngine.Networking;
 
 public class XMLWriter : MonoBehaviour
 {
 
+
     public bool _save = false;
     public bool _load = false;
+    public bool _download = false;
     public string _saveFileName = "save1";
+
+
+    
 
     void Save()
     {
