@@ -8,10 +8,6 @@ public class CamMovement : MonoBehaviour
     public float ZoomSpeed = 1f;
     public Camera Camera;
 
-    public float xBoundaryMin = -5;
-    public float xBoundaryMax = 5;
-    public float yBoundaryMin = -5;
-    public float yBoundaryMax = 5;
 
     public float orthoBoundaryMin = .25f;
     public float orthoBoundaryMax = 10f;
@@ -37,7 +33,7 @@ public class CamMovement : MonoBehaviour
         transform.Translate(HorizontalMovement, VerticalMovement, 0);
         Camera.orthographicSize += orthoMovement;
 
-        Camera.transform.position = new Vector3(Mathf.Clamp(Camera.transform.position.x, xBoundaryMin, xBoundaryMax), Mathf.Clamp(Camera.transform.position.y, yBoundaryMin, yBoundaryMax), -10);
+        Camera.transform.position = new Vector3(Mathf.Clamp(Camera.transform.position.x, MapManager.Instance._map.xBoundaryMin, MapManager.Instance._map.xBoundaryMax), Mathf.Clamp(Camera.transform.position.y, MapManager.Instance._map.yBoundaryMin, MapManager.Instance._map.yBoundaryMax), -10);
         Camera.orthographicSize = Mathf.Clamp(Camera.orthographicSize, orthoBoundaryMin, orthoBoundaryMax);
 
         if (Input.GetKeyDown("r"))

@@ -39,6 +39,7 @@ public class CameraRender : MonoBehaviour
 
         // Replace the original active Render Texture.
         RenderTexture.active = currentRT;
+
         return image;
     }
 
@@ -50,13 +51,15 @@ public class CameraRender : MonoBehaviour
             _image = RTImage(_renderCam);
 
             byte[] bytes = _image.EncodeToPNG();
-            var stream = Application.dataPath + "/../exports/";
+            var stream = Path.Combine(Application.persistentDataPath, "exports");
 
             if (!Directory.Exists(stream))
             {
                 Directory.CreateDirectory(stream);
             }
-            File.WriteAllBytes(stream + "MapImage.png", bytes);
+            File.WriteAllBytes(Path.Combine(stream,"MapImage.png"), bytes);
+
+            StartCoroutine(XMLWriter.Instance.DisplayPath(Path.Combine(Application.persistentDataPath, "exports", "MapImage.png")));
         }
     }
 }
