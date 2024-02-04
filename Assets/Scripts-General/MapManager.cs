@@ -86,6 +86,7 @@ public class Faction
 
     public string _GovType = "";
 
+
     [XmlAttribute("nationType")]
     public string _nationType = "";
 
@@ -227,6 +228,10 @@ public class MapManager : MonoBehaviour
     public GameObject _viewingAsButton;
     public Text _viewingAsText;
 
+    bool _savesDirCreated = false;
+    bool _exportsDirCreated = false;
+    bool _imgDirCreated = false;
+
     public List<string> _specialRelationConditions = new List<string>() { "War", "Allied" };
 
     void SwitchPlayer()
@@ -300,6 +305,7 @@ public class MapManager : MonoBehaviour
 
     public void RemoveObject(int a, int b)
     {
+        GalaxyMap.Instance._regen = true;
         if (a == 0) // Sector
         {
             // Remove Sector from _sector List
@@ -748,6 +754,31 @@ public class MapManager : MonoBehaviour
             }
         }
     }
+
+    public static Texture2D LoadImage(string path)
+    {
+        if (File.Exists(path))
+        {
+            byte[] bytes = File.ReadAllBytes(path);
+            Texture2D tex = new Texture2D(2, 2);
+            tex.LoadImage(bytes);
+
+            return tex;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public static Sprite LoadImageAsSprite(string path)
+    {
+        Sprite sprite = Sprite.Create(LoadImage(path), new Rect(0.0f, 0.0f, LoadImage(path).width,
+        LoadImage(path).height), new Vector2(0.5f, 0.5f), 100.0f);
+
+        return sprite;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -757,9 +788,50 @@ public class MapManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+
+        if (!_savesDirCreated)
+        {
+            if (!Directory.Exists(Path.Combine(Application.persistentDataPath, "saves")))
+            {
+                Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "saves"));
+                _savesDirCreated = !_savesDirCreated;
+            }
+            else
+            {
+                _savesDirCreated = !_savesDirCreated;
+            }
+        }
+
+        if (!_exportsDirCreated)
+        {
+            if (!Directory.Exists(Path.Combine(Application.persistentDataPath, "exports")))
+            {
+                Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "exports"));
+                _exportsDirCreated = !_exportsDirCreated;
+            }
+            else
+            {
+                _exportsDirCreated = !_exportsDirCreated;
+            }
+        }
+
+        if (!_imgDirCreated)
+        {
+            if (!Directory.Exists(Path.Combine(Application.persistentDataPath, "images")))
+            {
+                Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "images"));
+                _imgDirCreated = !_imgDirCreated;
+            }
+            else
+            {
+                _imgDirCreated = !_imgDirCreated;
+            }
+        }
+
+
         Ray rayC;
         RaycastHit hitC;
-
         rayC = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(rayC, out hitC) && hitC.transform.gameObject == _viewingAsButton && Input.GetMouseButtonDown(0))
         {

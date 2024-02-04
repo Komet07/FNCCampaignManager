@@ -77,16 +77,39 @@ public class XMLWriter : MonoBehaviour
             for (int i = 0; i < _mapCopy._sectors.Count; i++)
             {
                 bool _disco = false;
+                bool _kSO = false;
+                bool _explored = false;
                 for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._discoveredSectors.Count; j++)
                 {
                     if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._discoveredSectors[j] == i)
                     {
                         _disco = true;
                     }
+
                 }
                 if (_mapCopy._sectors[i]._controlFaction == _mapCopy._playerFactions[_player]._regFactionID)
                 {
                     _disco = true;
+                    _kSO = true;
+                    _explored = true;
+                }
+
+                for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership.Count; j++)
+                {
+                    if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership[j] == i)
+                    {
+                        _kSO = true;
+                    }
+
+                }
+
+                for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors.Count; j++)
+                {
+                    if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors[j] == i)
+                    {
+                        _explored = true;
+                    }
+
                 }
 
                 if (!_disco)
@@ -188,6 +211,28 @@ public class XMLWriter : MonoBehaviour
                         }
                     }
                     i--;
+                }
+                else if (!_kSO)
+                {
+                    _mapCopy._sectors[i]._controlFaction = -1;
+                }
+                if (!_explored)
+                {
+                    for (int j = 0; j < _mapCopy._jumpGates.Count; j++)
+                    {
+                        if (_mapCopy._jumpGates[j]._sector1Id == i || !_mapCopy._jumpGates[j]._discoverable1)
+                        {
+                            _mapCopy._jumpGates[j]._sector1Id = -1;
+                            _mapCopy._jumpGates[j]._name = "";
+                            _mapCopy._jumpGates[j]._name2 = "Gate: Unknown";
+                        }
+                        if (_mapCopy._jumpGates[j]._sector2Id == i || !_mapCopy._jumpGates[j]._discoverable2)
+                        {
+                            _mapCopy._jumpGates[j]._sector2Id = -1;
+                            _mapCopy._jumpGates[j]._name = "";
+                            _mapCopy._jumpGates[j]._name1 = "Gate: Unknown";
+                        }
+                    }
                 }
             }
 
@@ -333,6 +378,7 @@ public class XMLWriter : MonoBehaviour
                 }
             }
 
+            // Remove all reps between non-player factions
             for (int i = 0; i < _mapCopy._reps.Count; i++)
             {
                 if (_mapCopy._reps[i]._faction1 != _mapCopy._playerFactions[_mapCopy._playerFactionId]._regFactionID && _mapCopy._reps[i]._faction2 != _mapCopy._playerFactions[_mapCopy._playerFactionId]._regFactionID)

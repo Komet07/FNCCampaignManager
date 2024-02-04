@@ -11,6 +11,7 @@ public class EscapeMenuUI : MonoBehaviour
     public GameObject _saveButton;
     public GameObject _loadButton;
     public GameObject _newButton;
+    public GameObject _settingsButton;
     public GameObject _quitProgram;
 
     // Menu Canvas
@@ -30,8 +31,12 @@ public class EscapeMenuUI : MonoBehaviour
 
     public bool _loadMenuInputActive = false;
 
+    // Settings menu
+    public GameObject _settingsMenu;
+    
+
     // Confirmation menu
-    int _confirmationResponse = -1;
+    //int _confirmationResponse = -1;
 
     // Enter Text Function
     void EnterText(InputField _inputField, bool _lettersAllowed, bool _numbersAllowed, bool _spaceAllowed, int _maxLength, out bool _active)
@@ -343,6 +348,10 @@ public class EscapeMenuUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        
+
+
         Ray ray;
         RaycastHit hit;
 
@@ -356,14 +365,27 @@ public class EscapeMenuUI : MonoBehaviour
         {
             Application.Quit();
         }
-
-
-        if (Input.GetKeyDown(KeyCode.Escape))
+        else if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _settingsButton && Input.GetMouseButtonDown(0) && !_saveCanvas.activeSelf && !_loadCanvas.activeSelf)
         {
-            if (_saveCanvas.activeSelf || _loadCanvas.activeSelf)
+            _settingsMenu.SetActive(true);
+            
+        }
+
+
+        if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _settingsMenu.GetComponent<IndexScript>()._obj2 && Input.GetMouseButtonDown(0) && !_saveCanvas.activeSelf && !_loadCanvas.activeSelf)
+        {
+            Screen.fullScreen = !Screen.fullScreen;
+        }
+
+        _settingsMenu.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Fullscreen: " + Screen.fullScreen;
+
+        if (Input.GetKeyDown(KeyCode.Escape) && !GMMenu.Instance._menuObjectsL2.activeSelf && !GalaxyMap.Instance._InfoDisplay.activeSelf)
+        {
+            if (_saveCanvas.activeSelf || _loadCanvas.activeSelf || _settingsMenu.activeSelf)
             {
                 _loadCanvas.SetActive(false);
                 _saveCanvas.SetActive(false);
+                _settingsMenu.SetActive(false);
             }
             else {
                 if (_menuCanvas.activeSelf)

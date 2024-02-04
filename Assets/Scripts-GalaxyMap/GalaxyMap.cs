@@ -429,11 +429,12 @@ public class GalaxyMap : MonoBehaviour
             if (_viewMode == "relations")
             {
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
-                
+                // _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
             }
             else
             {
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(false);
+                
             }
             bool _discoveredSector = true;
             if (MapManager.Instance._map._playerFactionId >= 0)
@@ -474,7 +475,22 @@ public class GalaxyMap : MonoBehaviour
             }
             if (_viewMode == "factions")
             {
-                
+                /* if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
+                {
+                    if (MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._factionImg == null)
+                    {
+                        _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
+                    }
+                    else
+                    {
+                        _hexagons[i].GetComponent<IndexScript>()._obj7.GetComponent<RawImage>().texture = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._factionImg;
+                        _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(true);
+                    }
+                }
+                else
+                {
+                    _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
+                } */ 
                 if (MapManager.Instance._map._debug)
                 {
                     _hexagons[i].GetComponent<IndexScript>()._obj5.GetComponent<Text>().text = MapManager.Instance._map._sectors[i]._controlFaction.ToString();

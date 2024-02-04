@@ -1415,7 +1415,7 @@ public class GMMenu : MonoBehaviour
     void Update()
     {
         
-        if (MapManager.Instance._map._playerFactionId >= 0)
+        if (MapManager.Instance._map._lockSelection)
         {
             _menuMain.SetActive(false);
         }
@@ -1456,6 +1456,21 @@ public class GMMenu : MonoBehaviour
             }
         }
 
+        if (_menuObjectsL2.activeSelf && _currentL3Int >= 0 && Input.GetKeyDown(KeyCode.Escape))
+        {
+            _currentL3Int = -1;
+            _menuObjectsL3Sector.SetActive(false);
+            _menuObjectsL3Faction.SetActive(false);
+            _menuObjectsL3Alliance.SetActive(false);
+            _menuObjectsL3PlayerFaction.SetActive(false);
+            _menuObjectsL3Jumpgate.SetActive(false);
+            _contextMenu.SetActive(false);
+        }
+        else if (_menuObjects.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            _currentL2Int = -1;
+            _menuObjectsL2.SetActive(false);
+        }
 
         for (int i = 0; i < _menuObject1Objects.Count; i++)
         {
