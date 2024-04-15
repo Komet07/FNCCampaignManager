@@ -33,7 +33,8 @@ public class EscapeMenuUI : MonoBehaviour
 
     // Settings menu
     public GameObject _settingsMenu;
-    
+
+    bool _dontLoad = false;
 
     // Confirmation menu
     //int _confirmationResponse = -1;
@@ -379,7 +380,7 @@ public class EscapeMenuUI : MonoBehaviour
 
         _settingsMenu.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Fullscreen: " + Screen.fullScreen;
 
-        if (Input.GetKeyDown(KeyCode.Escape) && !GMMenu.Instance._menuObjectsL2.activeSelf && !GalaxyMap.Instance._InfoDisplay.activeSelf)
+        if (Input.GetKeyDown(KeyCode.Escape) && !GMMenu.Instance._menuObjectsL2.activeSelf && !_dontLoad)
         {
             if (_saveCanvas.activeSelf || _loadCanvas.activeSelf || _settingsMenu.activeSelf)
             {
@@ -469,6 +470,15 @@ public class EscapeMenuUI : MonoBehaviour
         {
             _loadMenuInputActive = false;
             _loadMenuInput.GetComponent<Image>().color = new Color32(180, 180, 180, 255);
+        }
+
+        if (GalaxyMap.Instance._InfoDisplay.activeSelf || GMMenu.Instance._menuObjects.activeSelf)
+        {
+            _dontLoad = true;
+        }
+        else
+        {
+            _dontLoad = false;
         }
     }
 }

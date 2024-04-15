@@ -35,6 +35,7 @@ public class GalaxyMap : MonoBehaviour
     public GameObject _InfoDisplay;
     public Text _InfoDisplayName;
     public Text _InfoDisplayControl;
+    public Text _InfoDisplayDesc;
 
     public bool _regen = false;
     public bool _enable = false;
@@ -74,6 +75,9 @@ public class GalaxyMap : MonoBehaviour
                 }
 
                 _InfoDisplayName.text = MapManager.Instance._map._sectors[_selectedInt]._name;
+
+                _InfoDisplayDesc.text = MapManager.Instance._map._sectors[_selectedInt]._description + "\n \n" + MapManager.Instance._map._sectors[_selectedInt]._lore;
+
                 bool _knowsOwner = true;
 
                 if (MapManager.Instance._map._playerFactionId >= 0)
@@ -141,6 +145,13 @@ public class GalaxyMap : MonoBehaviour
         {
             _viewMode = "relations";
             _viewModeText.text = "Mode: Relations";
+
+
+        }
+        else if (_viewMode == "relations")
+        {
+            _viewMode = "regions";
+            _viewModeText.text = "Mode: Regions";
 
 
         }
@@ -398,6 +409,20 @@ public class GalaxyMap : MonoBehaviour
         }
     }
 
+    void SwitchRegionCategory()
+    {
+        if (_selFacInt >= MapManager.Instance._map._regCats.Count - 1)
+        {
+            _selFacInt = 0;
+        }
+        else
+        {
+            _selFacInt++;
+        }
+    }
+
+
+
     // Update is called once per frame
     void Update()
     {
@@ -424,9 +449,13 @@ public class GalaxyMap : MonoBehaviour
         // Update Hexagons
         for (int i = 0; i < _hexagons.Count; i++)
         {
-
             _hexagons[i].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._sectors[i]._name;
             if (_viewMode == "relations")
+            {
+                _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
+                // _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
+            }
+            else if (_viewMode == "regions")
             {
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
                 // _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
@@ -792,6 +821,7 @@ public class GalaxyMap : MonoBehaviour
                         _viewModeText.text = "Mode: Relations (" + MapManager.Instance._map._factions[_selFacInt]._shorthand + ")";
 
                         _viewMode2Button.SetActive(true);
+                        _viewMode2Button.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Switch Factions";
                         if (MapManager.Instance._map._sectors[i]._controlFaction != -1 && MapManager.Instance._map._sectors[i]._controlFaction != _selFacInt)
                         {
                             float _val = 0;
@@ -877,6 +907,206 @@ public class GalaxyMap : MonoBehaviour
                     }
                 }
             }
+            else if (_viewMode == "regions" && MapManager.Instance._map._regCats.Count > 0)
+            {
+                if (_selFacInt >= MapManager.Instance._map._regCats.Count)
+                {
+                    _selFacInt = 0;
+                }
+                
+                bool _knowsSectorOwner = true;
+                bool _knownCategory = true;
+                if (MapManager.Instance._map._playerFactionId >= 0)
+                {
+                    _knowsSectorOwner = false;
+                    _knownCategory = false;
+                    if (MapManager.Instance._map._regCats[_selFacInt]._knowledgeType == 0) // Explored Sector
+                    {
+                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors.Count; j++)
+                        {
+                            if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors[j] == i)
+                            {
+                                _knowsSectorOwner = true;
+                            }
+
+                            if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
+                            {
+                                _knowsSectorOwner = true;
+                            }
+                        }
+
+                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors.Count; j++)
+                        {
+                            int a = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors[j];
+                            for (int k = 0; k < MapManager.Instance._map._sectors[a]._regionCats.Count; k++)
+                            {
+                                if (MapManager.Instance._map._sectors[a]._regionCats[k] == _selFacInt)
+                                {
+                                    _knownCategory = true;
+                                }
+                            }
+                        }
+                    }
+                    else if (MapManager.Instance._map._regCats[_selFacInt]._knowledgeType == 1) // Known Sector owner
+                    {
+                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
+                        {
+                            if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
+                            {
+                                _knowsSectorOwner = true;
+                            }
+
+                            if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
+                            {
+                                _knowsSectorOwner = true;
+                            }
+                        }
+
+                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
+                        {
+                            int a = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j];
+                            for (int k = 0; k < MapManager.Instance._map._sectors[a]._regionCats.Count; k++)
+                            {
+                                if (MapManager.Instance._map._sectors[a]._regionCats[k] == _selFacInt)
+                                {
+                                    _knownCategory = true;
+                                }
+                            }
+                        }
+                    }
+
+
+                    
+                }
+
+                if (MapManager.Instance._map._debug)
+                {
+                    _hexagons[i].GetComponent<IndexScript>()._obj5.GetComponent<Text>().text = MapManager.Instance._map._sectors[i]._controlFaction.ToString();
+                }
+                if (_knowsSectorOwner && _knownCategory)
+                {
+                    
+                    if (MapManager.Instance._map._regCats.Count == 0)
+                    {
+                        _viewMode = "factions";
+                        _viewModeText.text = "Mode: Factions";
+
+                        _viewMode2Button.SetActive(false);
+                        return;
+                    }
+                    if (_selFacInt >= MapManager.Instance._map._regCats.Count)
+                    {
+                        _selFacInt = 0;
+                    }
+                    
+
+                    int _secRegInt = -1;
+
+                    for (int j = 0; j < MapManager.Instance._map._sectors[i]._regionCats.Count; j++)
+                    {
+                        if (MapManager.Instance._map._sectors[i]._regionCats[j] == _selFacInt && MapManager.Instance._map._sectors[i]._regionCatsRegionIds.Count - 1 >= j)
+                        {
+                            _secRegInt = MapManager.Instance._map._sectors[i]._regionCatsRegionIds[j];
+                        }
+                    }
+
+                    _secRegInt = Mathf.Clamp(_secRegInt, -1, MapManager.Instance._map._regCats[_selFacInt]._regions.Count - 1);
+
+                    if (_secRegInt != -1)
+                    {
+                            
+                        
+                        _hexagons[i].GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = MapManager.Instance._map._regCats[_selFacInt]._regions[_secRegInt]._regionColor;
+                        _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = MapManager.Instance._map._regCats[_selFacInt]._regions[_secRegInt]._name;
+                    }
+                    else
+                    {
+                            
+                        _hexagons[i].GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = new Color32(150, 150, 150, 255);
+                        _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "No Data";
+                            
+
+                    }
+                    Ray ray;
+                    RaycastHit hit;
+
+                    ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    {
+                        bool _kso = true;
+                        if (MapManager.Instance._map._playerFactionId >= 0)
+                        {
+                            _kso = false;
+                            for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
+                            {
+                                if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
+                                {
+                                    _kso = true;
+                                }
+
+                                if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
+                                {
+                                    _kso = true;
+                                }
+                            }
+                        }
+                            
+
+                        if (MapManager.Instance._map._sectors[i]._controlFaction != -1 && _kso)
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._name;
+                        }
+                        else if (!_kso)
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Unknown";
+                        }
+                        else
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Neutral";
+                        }
+
+                    }
+                    else
+                    {
+                        bool _kso = true;
+                        if (MapManager.Instance._map._playerFactionId >= 0)
+                        {
+                            _kso = false;
+                            for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
+                            {
+                                if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
+                                {
+                                    _kso = true;
+                                }
+
+                                if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
+                                {
+                                    _kso = true;
+                                }
+                            }
+                        }
+
+                        if (MapManager.Instance._map._sectors[i]._controlFaction != -1 && _kso)
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._shorthand;
+                        }
+                        else if (!_kso)
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "UNK";
+                        }
+                        else
+                        {
+                            _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "NEU";
+                        }
+                    }
+                }
+                else
+                {
+                    _hexagons[i].GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = new Color32(150, 150, 150, 255);
+                    _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "Unknown";
+                    
+                }
+            }
             //Check if selecting a sector hexagon
             Ray rayC;
             RaycastHit hitC;
@@ -888,6 +1118,24 @@ public class GalaxyMap : MonoBehaviour
                 _selectedType = "sector";
             }
 
+        }
+
+        // Region stuff
+        if (_viewMode == "regions")
+        {
+            if (MapManager.Instance._map._regCats.Count > 0)
+            {
+                _selFacInt = Mathf.Clamp(_selFacInt, 0, MapManager.Instance._map._regCats.Count - 1);
+                _viewModeText.text = "Mode: Regions (" + MapManager.Instance._map._regCats[_selFacInt]._name + ")";
+
+                _viewMode2Button.SetActive(true);
+                _viewMode2Button.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Switch Regions";
+            }
+            else
+            {
+                SwitchViewMode();
+            }
+            
         }
 
         // Update Jump Gate Connections
@@ -961,7 +1209,14 @@ public class GalaxyMap : MonoBehaviour
         }
         else if (Physics.Raycast(rayB, out hitB) && hitB.transform.gameObject == _viewMode2Button && Input.GetMouseButtonDown(0))
         {
-            SwitchRelationsFaction();
+            if (_viewMode == "relations")
+            {
+                SwitchRelationsFaction();
+            }
+            else if (_viewMode == "regions")
+            {
+                SwitchRegionCategory();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && _selectedInt >= 0)

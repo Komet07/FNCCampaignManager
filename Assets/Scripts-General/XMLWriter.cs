@@ -235,7 +235,6 @@ public class XMLWriter : MonoBehaviour
                     }
                 }
             }
-
             // Remove all totally invisible jump gate links
             for (int i = 0; i < _mapCopy._jumpGates.Count; i++)
             {
@@ -245,10 +244,11 @@ public class XMLWriter : MonoBehaviour
                     i--;
                 }
             }
-
+            
             // Remove all unknown factions
             for (int i = 0; i < _mapCopy._factions.Count; i++)
             {
+                
                 bool _known = false;
                 for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownFactions.Count; j++)
                 {
@@ -257,12 +257,12 @@ public class XMLWriter : MonoBehaviour
                         _known = true;
                     }
                 }
-
+                
                 if (_mapCopy._playerFactions[_player]._regFactionID == i)
                 {
                     _known = true;
                 }
-
+                
                 if (!_known)
                 {
                     // Remove faction
@@ -277,6 +277,14 @@ public class XMLWriter : MonoBehaviour
                         }
                     }
 
+                    for (int j = 0; j < _mapCopy._playerFactions.Count; j++)
+                    {
+                        if (_mapCopy._playerFactions[j]._regFactionID > i)
+                        {
+                            _mapCopy._playerFactions[j]._regFactionID--;
+                        }
+                    }
+                    
                     // Set all sectors referencing the faction to -1 and update Ids of other factions
                     for (int j = 0; j < _mapCopy._sectors.Count; j++)
                     {
@@ -289,7 +297,7 @@ public class XMLWriter : MonoBehaviour
                             _mapCopy._sectors[j]._controlFaction--;
                         }
                     }
-
+                    
                     // Update membership IDs in alliances
                     for (int j = 0; j < _mapCopy._alliances.Count; j++)
                     {
@@ -307,7 +315,7 @@ public class XMLWriter : MonoBehaviour
                         }
 
                     }
-
+                    
                     // Remove faction from _knownFaction lists
                     for (int j = 0; j < _mapCopy._factions.Count; j++)
                     {
@@ -331,7 +339,7 @@ public class XMLWriter : MonoBehaviour
                         if (_mapCopy._reps[j]._faction1 == i || _mapCopy._reps[j]._faction2 == i)
                         {
                             _mapCopy._reps.Remove(_mapCopy._reps[j]);
-                            j--;
+                            
 
                             for (int k = 0; k < _mapCopy._factions.Count; k++)
                             {
@@ -340,7 +348,7 @@ public class XMLWriter : MonoBehaviour
                                     if (_mapCopy._factions[k]._repIds[l] == j)
                                     {
                                         _mapCopy._factions[k]._repIds.Remove(_mapCopy._factions[k]._repIds[l]);
-                                        k--;
+                                        l--;
                                     }
                                     else if (_mapCopy._factions[k]._repIds[l] > j)
                                     {
@@ -348,6 +356,9 @@ public class XMLWriter : MonoBehaviour
                                     }
                                 }
                             }
+
+
+                            j--;
                         }
                         else
                         {
@@ -364,9 +375,7 @@ public class XMLWriter : MonoBehaviour
                     }
                     i--;
                 }
-                
             }
-
 
             // Remove Alliances with 0 members
             for (int i = 0; i < _mapCopy._alliances.Count; i++)
@@ -402,6 +411,181 @@ public class XMLWriter : MonoBehaviour
                         }
                     }
                 }
+            }
+
+            // Remove all Region Categories that aren't known at all *or* Regions that aren't visible anyways
+            for (int i = 0; i < _mapCopy._regCats.Count; i++)
+            {
+                
+                bool _vis = false;
+                int _t = _mapCopy._regCats[i]._knowledgeType;
+                // 0 = Explored Sectors
+                // 1 = Known Sector Owner
+                if (_t == 0)
+                {
+                    bool _inc = false;
+                    for (int k = 0; k < _mapCopy._sectors.Count; k++)
+                    {
+                        for (int j = 0; j < _mapCopy._sectors[k]._regionCats.Count; j++)
+                        {
+                            if (_mapCopy._sectors[k]._regionCats[j] == i)
+                            {
+                                _inc = true;
+                            }
+                        }
+                        if (!_vis && _inc)
+                        {
+                            for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors.Count; j++)
+                            {
+                                if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors[j] == k)
+                                {
+                                    _vis = true;
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+                else if (_t == 1)
+                {
+                    bool _inc = false;
+                    for (int k = 0; k < _mapCopy._sectors.Count; k++)
+                    {
+                        
+                        for (int j = 0; j < _mapCopy._sectors[k]._regionCats.Count; j++)
+                        {
+                            if (_mapCopy._sectors[k]._regionCats[j] == i)
+                            {
+                                _inc = true;
+                            }
+                        }
+                        if (!_vis && _inc)
+                        {
+                            for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership.Count; j++)
+                            {
+                                if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership[j] == k)
+                                {
+                                    _vis = true;
+                                }
+
+                            }
+                        }
+                            
+                    }
+                }
+                Debug.Log(_vis);
+                if (!_vis) // Entire region category not known at all
+                {
+                    // Remove Region Category
+                    _mapCopy._regCats.Remove(_mapCopy._regCats[i]);
+
+                    // Remove all entries denoting the Region Category in sectors
+                    for (int j = 0; j < _mapCopy._sectors.Count; j++)
+                    {
+                        for (int k = 0; k < _mapCopy._sectors[j]._regionCats.Count; k++)
+                        {
+                            if (_mapCopy._sectors[j]._regionCats[k] == i)
+                            {
+                                _mapCopy._sectors[j]._regionCats.Remove(_mapCopy._sectors[j]._regionCats[k]);
+                                _mapCopy._sectors[j]._regionCatsRegionIds.Remove(_mapCopy._sectors[j]._regionCatsRegionIds[k]);
+                                k--;
+                            }
+                            else if (_mapCopy._sectors[j]._regionCats[k] > i)
+                            {
+                                _mapCopy._sectors[j]._regionCats[k]--;
+                            }
+                        }
+                    }
+
+                    i--;
+                }
+                else // Search for specifc unknown regions
+                {
+                    for (int m = 0; m < _mapCopy._regCats[i]._regions.Count; m++)
+                    {
+                        bool _visB = false;
+                        if (_t == 0) // Explored Sectors
+                        {
+                            bool _inc = false;
+                            for (int k = 0; k < _mapCopy._sectors.Count; k++)
+                            {
+                                
+                                for (int j = 0; j < _mapCopy._sectors[k]._regionCats.Count; j++)
+                                {
+                                    if (_mapCopy._sectors[k]._regionCats[j] == i && _mapCopy._sectors[k]._regionCatsRegionIds[j] == m)
+                                    {
+                                        _inc = true;
+                                    }
+                                }
+                                if (!_visB && _inc)
+                                {
+                                    for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors.Count; j++)
+                                    {
+                                        if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors[j] == k)
+                                        {
+                                            _visB = true;
+                                        }
+
+                                    }
+                                }
+
+                            }
+                        }
+                        else if (_t == 1) // Known Sector Owners
+                        {
+                            bool _inc = false;
+                            for (int k = 0; k < _mapCopy._sectors.Count; k++)
+                            {
+                                
+                                for (int j = 0; j < _mapCopy._sectors[k]._regionCats.Count; j++)
+                                {
+                                    if (_mapCopy._sectors[k]._regionCats[j] == i && _mapCopy._sectors[k]._regionCatsRegionIds[j] == m)
+                                    {
+                                        _inc = true;
+                                    }
+                                }
+                                if (!_visB && _inc)
+                                {
+                                    for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership.Count; j++)
+                                    {
+                                        if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership[j] == k)
+                                        {
+                                            _visB = true;
+                                        }
+
+                                    }
+                                }
+
+                            }
+                        }
+
+                        if (!_visB)
+                        {
+                            // Remove Region
+                            _mapCopy._regCats[i]._regions.Remove(_mapCopy._regCats[i]._regions[m]);
+
+                            // Set references to this region to -1, -- for all higher ones
+                            for (int j = 0; j < _mapCopy._sectors.Count; j++)
+                            {
+                                for (int k = 0; k < _mapCopy._sectors[j]._regionCats.Count; k++)
+                                {
+                                    if (_mapCopy._sectors[j]._regionCats[k] == i && _mapCopy._sectors[j]._regionCatsRegionIds[k] == m)
+                                    {
+                                        _mapCopy._sectors[j]._regionCatsRegionIds[k] = -1;
+                                    }
+                                    else if (_mapCopy._sectors[j]._regionCats[k] == i && _mapCopy._sectors[j]._regionCatsRegionIds[k] > m)
+                                    {
+                                        _mapCopy._sectors[j]._regionCatsRegionIds[k]--;
+                                    }
+                                }
+                            }
+
+                            m--;
+                        }
+                    }
+                }
+                
             }
         }
 

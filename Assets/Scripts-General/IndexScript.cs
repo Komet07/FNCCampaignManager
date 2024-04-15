@@ -28,4 +28,6 @@ public class IndexScript : MonoBehaviour
     public GameObject _obj22;
     public GameObject _obj23;
     public GameObject _obj24;
+    public GameObject _obj25;
+    public GameObject _obj26;
 }

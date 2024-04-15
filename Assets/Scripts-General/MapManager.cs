@@ -22,7 +22,11 @@ public class Sector
     [XmlAttribute("id")]
     public int _refID = 0;
 
+    [XmlArray("RegionCategoryIds")]
+    public List<int> _regionCats = new List<int>();
 
+    [XmlArray("RegionCategoryRegionIds")]
+    public List<int> _regionCatsRegionIds = new List<int>();
 }
 
 [System.Serializable]
@@ -61,6 +65,8 @@ public class Map
     [XmlArray("ReputationItems"), XmlArrayItem("ReputationItem")]
     public List<Rep> _reps = new List<Rep>() { };
 
+    [XmlArray("RegionCategories"), XmlArrayItem("RegionCategory")]
+    public List<RegionCategory> _regCats = new List<RegionCategory>() { };
     
 
     public static Map Load(string path)
@@ -212,6 +218,25 @@ public class Rep
     public string _specialVal = ""; // Stuff like 'war', 'rivals', 'allied', etc.
 }
 
+[System.Serializable]
+public class RegionCategory
+{
+    public string _name = "";
+
+    public int _knowledgeType = 0; // 0 = Sector has to be explored, 1 = Sector Owner has to be known
+
+    [XmlArray("Regions"), XmlArrayItem("Region")]
+    public List<Region> _regions = new List<Region>() { };
+}
+
+[System.Serializable]
+public class Region
+{
+    public string _name = "";
+
+    public Color32 _regionColor = new Color32(255, 255, 255, 255);
+}
+
 public class MapManager : MonoBehaviour
 {
 
@@ -300,6 +325,18 @@ public class MapManager : MonoBehaviour
 
 
             _map._playerFactions.Add(_pf);
+        }
+        else if (a == 5) // Region Category
+        {
+            RegionCategory _rg = new RegionCategory();
+            _rg._name = "New Category";
+            _rg._knowledgeType = 0;
+
+            Region _r1 = new Region();
+            _r1._regionColor = new Color32(255, 255, 255, 255);
+            _rg._regions.Add(_r1);
+
+            _map._regCats.Add(_rg);
         }
     }
 
@@ -592,6 +629,30 @@ public class MapManager : MonoBehaviour
                     _map._players[i]._factionID = -1;
                 }
             }
+        }
+        else if (a == 5) // Region Categories
+        {
+            // Remove faction
+            _map._regCats.Remove(_map._regCats[b]);
+
+            // Remove all regCat references
+            for (int j = 0; j < _map._sectors.Count; j++)
+            {
+                for(int k = 0; k < _map._sectors[j]._regionCats.Count; k++)
+                {
+                    if (_map._sectors[j]._regionCats[k] == b)
+                    {
+                        _map._sectors[j]._regionCats.Remove(_map._sectors[j]._regionCats[k]);
+                        _map._sectors[j]._regionCatsRegionIds.Remove(_map._sectors[j]._regionCatsRegionIds[k]);
+                        k--;
+                    }
+                    else if (_map._sectors[j]._regionCats[k] > b)
+                    {
+                        _map._sectors[j]._regionCats[k]--;
+                    }
+                }
+            }
+
         }
     }
 
