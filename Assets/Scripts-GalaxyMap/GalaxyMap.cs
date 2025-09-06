@@ -15,13 +15,16 @@ public class GalaxyMap : MonoBehaviour
     #endregion
 
     public List<GameObject> _hexagons = new List<GameObject>() { };
+    public List<GameObject> _backgroundTiles = new List<GameObject>() { }; 
     public List<GameObject> _jgConnections = new List<GameObject>() { };
 
     public GameObject _originHexagon;
+    public GameObject _originBackgroundTile;
     public GameObject _originJGC;
 
     public GameObject UI;
     public GameObject UIb;
+    public GameObject UIc;
 
     // _viewmode Text
 
@@ -38,6 +41,8 @@ public class GalaxyMap : MonoBehaviour
     public Text _InfoDisplayDesc;
 
     public bool _regen = false;
+    public bool _regen2 = false;
+    public bool _backgroundTilesVis = false;
     public bool _enable = false;
     public bool _disable = false;
 
@@ -74,7 +79,7 @@ public class GalaxyMap : MonoBehaviour
                     return;
                 }
 
-                _InfoDisplayName.text = MapManager.Instance._map._sectors[_selectedInt]._name;
+                _InfoDisplayName.text = MapManager.Instance._map._sectors[_selectedInt].GetName(true);
 
                 _InfoDisplayDesc.text = MapManager.Instance._map._sectors[_selectedInt]._description + "\n \n" + MapManager.Instance._map._sectors[_selectedInt]._lore;
 
@@ -94,6 +99,7 @@ public class GalaxyMap : MonoBehaviour
 
                 if (_knowsOwner)
                 {
+                    
                     if (MapManager.Instance._map._sectors[_selectedInt]._controlFaction != -1)
                     {
                         if (_viewMode != "alliances")
@@ -219,7 +225,7 @@ public class GalaxyMap : MonoBehaviour
             }
 
             // Modify Name
-            _hexClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _sector._name;
+            _hexClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _sector.GetName(true);
 
 
 
@@ -320,7 +326,66 @@ public class GalaxyMap : MonoBehaviour
 
     }
 
-    
+    public void RegenBackgroundTiles()
+    {
+        // Check Tile amount
+
+        int _deltaBoundsX = (int)MapManager.Instance._map.xBoundaryMax - (int)MapManager.Instance._map.xBoundaryMin;
+        int _deltaBoundsY = (int)MapManager.Instance._map.yBoundaryMax - (int)MapManager.Instance._map.yBoundaryMin;
+
+        int _xMin = (int)MapManager.Instance._map.xBoundaryMin;
+        int _yMin = (int)MapManager.Instance._map.yBoundaryMin;
+
+        int _totalAmount = _deltaBoundsX * _deltaBoundsY;
+
+
+        // Add more if too little
+        if (_backgroundTiles.Count < _totalAmount)
+        {
+            int _a = _backgroundTiles.Count;
+            for (int i = 0; i < (_totalAmount - _a); i++)
+            {
+                GameObject _obj = Instantiate(_originBackgroundTile, UIc.transform);
+
+                _obj.SetActive(true);
+
+                _backgroundTiles.Add(_obj);
+            }
+        }
+        else if (_backgroundTiles.Count > _totalAmount) // Remove if too many
+        {
+            int _a = _backgroundTiles.Count;
+            for (int i = 0; i < (_a - _totalAmount); i++)
+            {
+                GameObject _obj = _backgroundTiles[_backgroundTiles.Count - 1];
+                Destroy(_obj);
+                _backgroundTiles.Remove(_backgroundTiles[_backgroundTiles.Count - 1]);
+            }
+        }
+
+        // Initialise Position
+        for (int i = 0; i < _deltaBoundsX; i++)
+        {
+            for (int j = 0; j < _deltaBoundsY; j++)
+            {
+                // Set Position on screen
+                if ((_xMin + i) % 2 == 0)
+                {
+                    _backgroundTiles[(i * _deltaBoundsY) + j].transform.position = new Vector3(.75f * (i + _xMin), .9f * (j + _yMin), 0);
+                }
+                else
+                {
+                    _backgroundTiles[(i * _deltaBoundsY) + j].transform.position = new Vector3(.75f * (i + _xMin), (.9f * (j + _yMin)) + .45f, 0);
+                }
+            }
+        }
+    }
+
+
+    public void BackgroundTilesTurnOn()
+    {
+        _backgroundTilesVis = !_backgroundTilesVis;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -328,7 +393,7 @@ public class GalaxyMap : MonoBehaviour
         
     }
 
-    void DetermineRelationsColor(float _repVal, string _specCon, out Color32 _repCol, out string _repName)
+    public void DetermineRelationsColor(float _repVal, string _specCon, out Color32 _repCol, out string _repName)
     {
         _repCol = new Color32(0, 0, 0, 255);
         _repName = "";
@@ -421,15 +486,38 @@ public class GalaxyMap : MonoBehaviour
         }
     }
 
+    public void SwitchM()
+    {
+        if (_viewMode == "relations")
+        {
+            SwitchRelationsFaction();
+        }
+        else if (_viewMode == "regions")
+        {
+            SwitchRegionCategory();
+        }
+    }
+
 
 
     // Update is called once per frame
     void Update()
     {
+        if (!MapManager.Instance._galaxy)
+        {
+            return;
+        }
+
         if (_regen)
         {
             _regen = false;
             RegenMap();
+        }
+
+        if (_regen2)
+        {
+            _regen2 = false;
+            RegenBackgroundTiles();
         }
 
         if (_enable)
@@ -443,13 +531,24 @@ public class GalaxyMap : MonoBehaviour
         }
 
 
+        if (_backgroundTilesVis && !UIc.activeSelf)
+        {
+            UIc.SetActive(true);
+        }
+
+        if (!_backgroundTilesVis && UIc.activeSelf)
+        {
+            UIc.SetActive(false);
+        }
+
+
         // Clamp PlayerFaction value to amount of _playerFactions
         MapManager.Instance._map._playerFactionId = Mathf.Clamp(MapManager.Instance._map._playerFactionId, -1, MapManager.Instance._map._playerFactions.Count - 1);
 
         // Update Hexagons
         for (int i = 0; i < _hexagons.Count; i++)
         {
-            _hexagons[i].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._sectors[i]._name;
+            _hexagons[i].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._sectors[i].GetName(true);
             if (_viewMode == "relations")
             {
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
@@ -465,23 +564,8 @@ public class GalaxyMap : MonoBehaviour
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(false);
                 
             }
-            bool _discoveredSector = true;
-            if (MapManager.Instance._map._playerFactionId >= 0)
-            {
-                _discoveredSector = false;
-                for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._discoveredSectors.Count; j++)
-                {
-                    if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._discoveredSectors[j] == i)
-                    {
-                        _discoveredSector = true;
-                    }
-                }
-
-                if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                {
-                    _discoveredSector = true;
-                }
-            }
+            bool _discoveredSector = MapManager.Instance.IsInDiscoveredList(i, false);
+            
 
             if (_discoveredSector)
             {
@@ -555,7 +639,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
 
                         if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
@@ -587,7 +671,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
 
                         _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Unknown";
@@ -652,7 +736,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
 
                         if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
@@ -699,7 +783,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
 
                         _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Unknown";
@@ -782,7 +866,7 @@ public class GalaxyMap : MonoBehaviour
                         RaycastHit hit;
 
                         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                        if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                         {
 
                             if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
@@ -858,7 +942,7 @@ public class GalaxyMap : MonoBehaviour
                         RaycastHit hit;
 
                         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                        if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                         {
 
                             if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
@@ -892,7 +976,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
 
                         _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Unknown";
@@ -1031,7 +1115,7 @@ public class GalaxyMap : MonoBehaviour
                     RaycastHit hit;
 
                     ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out hit) && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
+                    if (Physics.Raycast(ray, out hit) && hit.transform != null && hit.transform.gameObject == _hexagons[i].GetComponent<IndexScript>()._obj3)
                     {
                         bool _kso = true;
                         if (MapManager.Instance._map._playerFactionId >= 0)
@@ -1112,7 +1196,7 @@ public class GalaxyMap : MonoBehaviour
             RaycastHit hitC;
 
             rayC = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(rayC, out hitC) && hitC.transform.gameObject == _hexagons[i] && Input.GetMouseButtonDown(0))
+            if (Physics.Raycast(rayC, out hitC) && hitC.transform != null && hitC.transform.gameObject == _hexagons[i] && Input.GetMouseButtonDown(0) && MapManager.Instance.InfoMenuGCheck)
             {
                 _selectedInt = i;
                 _selectedType = "sector";
@@ -1198,26 +1282,8 @@ public class GalaxyMap : MonoBehaviour
 
         }
 
-        // Check if pressed on ViewMode Button
-        Ray rayB;
-        RaycastHit hitB;
 
-        rayB = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(rayB, out hitB) && hitB.transform.gameObject == _viewModeButton && Input.GetMouseButtonDown(0))
-        {
-            SwitchViewMode();
-        }
-        else if (Physics.Raycast(rayB, out hitB) && hitB.transform.gameObject == _viewMode2Button && Input.GetMouseButtonDown(0))
-        {
-            if (_viewMode == "relations")
-            {
-                SwitchRelationsFaction();
-            }
-            else if (_viewMode == "regions")
-            {
-                SwitchRegionCategory();
-            }
-        }
+
 
         if (Input.GetKeyDown(KeyCode.Escape) && _selectedInt >= 0)
         {

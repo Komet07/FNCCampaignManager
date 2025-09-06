@@ -20,6 +20,7 @@ public class XMLWriter : MonoBehaviour
     public bool _save = false;
     public bool _load = false;
     public bool _export = false;
+    public bool _bulk = false;
     public string _saveFileName = "save1";
     public string _exportFileName = "";
     public bool _exportLock = false;
@@ -69,13 +70,93 @@ public class XMLWriter : MonoBehaviour
 
         _mapCopy._lockSelection = _lock;
         _mapCopy._playerFactionId = _player;
+        
         Debug.Log(_player);
+
         if (_player >= 0 && _lock)
         {
             _mapCopy._debug = false;
+
+            // Fleets
+            for (int i = 0; i < _mapCopy._fleets.Count; i++)
+            {
+                int _playerF = _mapCopy._playerFactions[_player]._regFactionID;
+                
+
+                if (!MapManager.Instance.Fleet_IsVisible(i, _playerF))
+                {
+                    _mapCopy._fleets.Remove(_mapCopy._fleets[i]);
+
+                    
+                    // REMOVE FLEETS FROM LISTS
+                    for (int j = 0; j < _mapCopy._factions.Count; j++)
+                    {
+                        Debug.Log("A" + Random.Range(0, 10000));
+                        for (int k = 0; k < _mapCopy._factions[j]._knownFleets.Count; k++)
+                        {
+                            if (_mapCopy._factions[j]._knownFleets[k] == i)
+                            {
+                                _mapCopy._factions[j]._knownFleets.Remove(_mapCopy._factions[j]._knownFleets[k]);
+                                k--;
+                                continue;
+                            }
+                            else if (_mapCopy._factions[j]._knownFleets[k] > i)
+                            {
+                                _mapCopy._factions[j]._knownFleets[k]--;
+                            }
+                        }
+                        Debug.Log("B" + Random.Range(0, 10000));
+                        for (int k = 0; k < _mapCopy._factions[j]._knownFleetContents.Count; k++)
+                        {
+                            if (_mapCopy._factions[j]._knownFleetContents[k] == i)
+                            {
+                                _mapCopy._factions[j]._knownFleetContents.Remove(_mapCopy._factions[j]._knownFleetContents[k]);
+                                k--;
+                                continue;
+                            }
+                            else if (_mapCopy._factions[j]._knownFleetContents[k] > i)
+                            {
+                                _mapCopy._factions[j]._knownFleetContents[k]--;
+                            }
+                        }
+                        Debug.Log("C" + Random.Range(0, 10000));
+                        for (int k = 0; k < _mapCopy._factions[j]._knownFleetOwners.Count; k++)
+                        {
+                            if (_mapCopy._factions[j]._knownFleetOwners[k] == i)
+                            {
+                                _mapCopy._factions[j]._knownFleetOwners.Remove(_mapCopy._factions[j]._knownFleetOwners[k]);
+                                k--;
+                                continue;
+                            }
+                            else if (_mapCopy._factions[j]._knownFleetOwners[k] > i)
+                            {
+                                _mapCopy._factions[j]._knownFleetOwners[k]--;
+                            }
+                        }
+                    }
+
+                    i--;
+                    continue;
+                }
+                else if (!MapManager.Instance.Fleet_IsOwnerKnown(i, _playerF))
+                {
+                    _mapCopy._fleets[i]._name = "";
+                    _mapCopy._fleets[i]._faction = -1;
+                }
+
+                if (!MapManager.Instance.IsFaction(_mapCopy._fleets[i]._faction))
+                {
+                    _mapCopy._fleets[i]._maxFuel = 0;
+                    _mapCopy._fleets[i]._status = "";
+                    _mapCopy._fleets[i]._currentFuel = 0;
+                }
+            }
+            
             // Remove all unknown Sectors
             for (int i = 0; i < _mapCopy._sectors.Count; i++)
             {
+                int _playerF = _mapCopy._playerFactions[_player]._regFactionID;
+
                 bool _disco = false;
                 bool _kSO = false;
                 bool _explored = false;
@@ -87,13 +168,21 @@ public class XMLWriter : MonoBehaviour
                     }
 
                 }
+                for (int j = 0; j < _mapCopy._fleets.Count; j++)
+                {
+                    if (_mapCopy._fleets[j]._faction == _playerF && _mapCopy._fleets[j]._currentSector == i && _mapCopy._fleetRevealSectors)
+                    {
+                        _disco = true;
+                        _explored = true;
+                    }
+                }
                 if (_mapCopy._sectors[i]._controlFaction == _mapCopy._playerFactions[_player]._regFactionID)
                 {
                     _disco = true;
                     _kSO = true;
                     _explored = true;
                 }
-
+                
                 for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership.Count; j++)
                 {
                     if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership[j] == i)
@@ -102,7 +191,7 @@ public class XMLWriter : MonoBehaviour
                     }
 
                 }
-
+                
                 for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors.Count; j++)
                 {
                     if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors[j] == i)
@@ -111,7 +200,7 @@ public class XMLWriter : MonoBehaviour
                     }
 
                 }
-
+                
                 if (!_disco)
                 {
                     
@@ -210,12 +299,32 @@ public class XMLWriter : MonoBehaviour
                             }
                         }
                     }
+
+                    // UPDATE PLAYER FACTIONS
+
+                    // UPDATE FLEETS
+                    for (int j = 0; j < _mapCopy._fleets.Count; j++)
+                    {
+                        if (_mapCopy._fleets[j]._currentSector == i)
+                        {
+                            _mapCopy._fleets[j]._currentSector = -1;
+                        }
+                        else if (_mapCopy._fleets[j]._currentSector > i)
+                        {
+                            _mapCopy._fleets[j]._currentSector--;
+                        }
+                    }
+
+                    // LOWER I BY 1
                     i--;
+                    continue;
                 }
                 else if (!_kSO)
                 {
                     _mapCopy._sectors[i]._controlFaction = -1;
+                    _mapCopy._sectors[i]._hiddenName = "";
                 }
+                
                 if (!_explored)
                 {
                     for (int j = 0; j < _mapCopy._jumpGates.Count; j++)
@@ -234,7 +343,9 @@ public class XMLWriter : MonoBehaviour
                         }
                     }
                 }
+                
             }
+            
             // Remove all totally invisible jump gate links
             for (int i = 0; i < _mapCopy._jumpGates.Count; i++)
             {
@@ -295,6 +406,19 @@ public class XMLWriter : MonoBehaviour
                         else if (_mapCopy._sectors[j]._controlFaction > i)
                         {
                             _mapCopy._sectors[j]._controlFaction--;
+                        }
+                    }
+
+                    // UPDATE FLEETS
+                    for (int j = 0; j < _mapCopy._fleets.Count; j++)
+                    {
+                        if (_mapCopy._fleets[j]._faction == i)
+                        {
+                            _mapCopy._fleets[j]._faction = -1;
+                        }
+                        else if (_mapCopy._fleets[j]._faction > i)
+                        {
+                            _mapCopy._fleets[j]._faction--;
                         }
                     }
                     
@@ -376,17 +500,42 @@ public class XMLWriter : MonoBehaviour
                     i--;
                 }
             }
-
+            
             // Remove Alliances with 0 members
             for (int i = 0; i < _mapCopy._alliances.Count; i++)
             {
-                if (_mapCopy._alliances[i]._memberStates.Count == 0)
+                bool _known = false;
+
+                for (int j = 0; j < _mapCopy._factions.Count; j++)
+                {
+                    if (_mapCopy._factions[j]._allianceId == i)
+                    {
+                        _known = true;
+                    }
+                }
+
+                if (!_known)
                 {
                     _mapCopy._alliances.Remove(_mapCopy._alliances[i]);
+
+                    for (int j = 0; j < _mapCopy._factions.Count; j++)
+                    {
+                        if (_mapCopy._factions[j]._allianceId == i)
+                        {
+                            _mapCopy._factions[j]._allianceId = -1;
+                        }
+                        else if (_mapCopy._factions[j]._allianceId > i)
+                        {
+                            _mapCopy._factions[j]._allianceId--;
+                        }
+                    }
+
                     i--;
                 }
-            }
 
+                
+            }
+            
             // Remove all reps between non-player factions
             for (int i = 0; i < _mapCopy._reps.Count; i++)
             {
@@ -412,7 +561,7 @@ public class XMLWriter : MonoBehaviour
                     }
                 }
             }
-
+            
             // Remove all Region Categories that aren't known at all *or* Regions that aren't visible anyways
             for (int i = 0; i < _mapCopy._regCats.Count; i++)
             {
@@ -587,6 +736,17 @@ public class XMLWriter : MonoBehaviour
                 }
                 
             }
+            
+            // Remove all Player faction stuff 
+            for (int i = 0; i < _mapCopy._playerFactions.Count; i++)
+            {
+                // Remove Anchor positions from non-viewpoint player factions
+                if (i != _player)
+                {
+                    _mapCopy._playerFactions[i]._spawnPosition = new Vector2(0, 0);
+                }
+            }
+            
         }
 
         if (!Directory.Exists(Path.Combine(Application.persistentDataPath, "exports")))
@@ -600,7 +760,11 @@ public class XMLWriter : MonoBehaviour
             serializer.Serialize(stream, _mapCopy);
             Debug.Log(Path.Combine(Application.persistentDataPath, "exports", _name + ".xml"));
             _waitTime = 0;
-            StartCoroutine(DisplayPath(Path.Combine(Application.persistentDataPath, "exports", _name + ".xml")));
+            if (!_bulk)
+            {
+                StartCoroutine(DisplayPath(Path.Combine(Application.persistentDataPath, "exports", _name + ".xml")));
+            }
+                
 
         }
     }
@@ -609,7 +773,11 @@ public class XMLWriter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (SceneSwitch.Instance != null && SceneSwitch.Instance._load)
+        {
+            _load = true;
+            _saveFileName = SceneSwitch.Instance._saveName;
+        }
     }
 
     // Update is called once per frame
@@ -627,18 +795,39 @@ public class XMLWriter : MonoBehaviour
             var _map = Map.Load(Path.Combine(Application.persistentDataPath, "saves", _saveFileName+".xml"));
             MapManager.Instance._map = _map;
 
+            
+
             GalaxyMap.Instance._regen = true;
+            GalaxyMap.Instance._regen2 = true;
+            CamMovement.Instance._reset = true;
         }
 
         if (_export)
         {
             _export = false;
             Save("buffer");
-            Export(_exportLock, _playerFaction, _exportFileName);
+
+            if (_bulk)
+            {
+                for (int i = 0; i < MapManager.Instance._map._playerFactions.Count; i++)
+                {
+                    Export(true, i, _exportFileName+"_"+MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[i]._regFactionID]._shorthand);
+                    var _map2 = Map.Load(Path.Combine(Application.persistentDataPath, "saves", "buffer.xml"));
+                    MapManager.Instance._map = _map2;
+                }
+
+                StartCoroutine(DisplayPath(Path.Combine(Application.persistentDataPath, "exports", _exportFileName + "_*" + ".xml")));
+            }
+            else
+            {
+                Export(_exportLock, _playerFaction, _exportFileName);
+            }
+            
             var _map = Map.Load(Path.Combine(Application.persistentDataPath, "saves", "buffer.xml"));
             MapManager.Instance._map = _map;
 
             GalaxyMap.Instance._regen = true;
+            GalaxyMap.Instance._regen2 = true;
         }
     }
 }
