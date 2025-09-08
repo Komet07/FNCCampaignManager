@@ -277,7 +277,37 @@ public class GalaxyMap : MonoBehaviour
                 _s2Y = MapManager.Instance._map._jumpGates[i]._s2p.y;
             }
 
-            
+
+            // Type-specific visual adjustments
+            int _tID = MapManager.Instance._map._jumpGates[i]._typeId;
+            if (_tID != -1 && _tID < MapManager.Instance._map._connType.Count)
+            {
+                Debug.Log("Connection - Type ID:" + _tID);
+                ConnectionType _ct = MapManager.Instance._map._connType[_tID];
+
+                // SET LINE COLOR
+                Gradient _lColor = new Gradient();
+                GradientColorKey[] _cKey = new GradientColorKey[2];
+                _cKey[0] = new GradientColorKey(_ct._lineColor,0);
+                _cKey[1] = new GradientColorKey(_ct._lineColor,1);
+
+                GradientAlphaKey[] _aKey = new GradientAlphaKey[2];
+                _aKey[0] = new GradientAlphaKey(_ct._lineColor.a,0);
+                _aKey[1] = new GradientAlphaKey(_ct._lineColor.a,1);
+
+                _lColor.colorKeys = _cKey;
+                _lColor.alphaKeys = _aKey;
+
+                _jgClone.GetComponent<LineRenderer>().colorGradient = _lColor; 
+
+                // SET LINE WIDTH
+                float _w = 0.01f * _ct._lineWidth;
+                _jgClone.GetComponent<LineRenderer>().startWidth = _w;
+                _jgClone.GetComponent<LineRenderer>().endWidth = _w;
+
+                Debug.Log("Connection - Line Width:" + _ct._lineWidth);
+
+            }
             
 
             // Calculate deltaX, deltaY and theta (using tan-1) for Sector 1 and 2
@@ -288,7 +318,7 @@ public class GalaxyMap : MonoBehaviour
             float _sector1YPos = 0;
             float _sector2YPos = 0;
 
-            if ((_s1X * _s1X)%2 == 1)
+            if ((_s1X * _s1X) % 2 == 1)
             {
                 _sector1YPos = .9f * _s1Y + .45f;
             }

@@ -355,11 +355,39 @@ public class XMLWriter : MonoBehaviour
                     i--;
                 }
             }
+
+            // Remove all unknown connection types (JGs)
+            for (int i = 0; i < _mapCopy._connType.Count; i++)
+            {
+                bool _known = false;
+                for (int j = 0; j < _mapCopy._jumpGates.Count; j++)
+                {
+                    if (_mapCopy._jumpGates[j]._typeId == i)
+                    {
+                        _known = true;
+                    }
+                }
+
+                if (!_known)
+                {
+                    _mapCopy._connType.Remove(_mapCopy._connType[i]);
+
+                    for (int j = 0; j < _mapCopy._jumpGates.Count; j++)
+                    {
+                        if (_mapCopy._jumpGates[j]._typeId > i)
+                        {
+                            _mapCopy._jumpGates[j]._typeId--;
+                        }
+                    }
+
+                    i--;
+                }
+            }
             
             // Remove all unknown factions
             for (int i = 0; i < _mapCopy._factions.Count; i++)
             {
-                
+
                 bool _known = false;
                 for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownFactions.Count; j++)
                 {
@@ -368,12 +396,12 @@ public class XMLWriter : MonoBehaviour
                         _known = true;
                     }
                 }
-                
+
                 if (_mapCopy._playerFactions[_player]._regFactionID == i)
                 {
                     _known = true;
                 }
-                
+
                 if (!_known)
                 {
                     // Remove faction
@@ -395,7 +423,7 @@ public class XMLWriter : MonoBehaviour
                             _mapCopy._playerFactions[j]._regFactionID--;
                         }
                     }
-                    
+
                     // Set all sectors referencing the faction to -1 and update Ids of other factions
                     for (int j = 0; j < _mapCopy._sectors.Count; j++)
                     {
@@ -421,7 +449,7 @@ public class XMLWriter : MonoBehaviour
                             _mapCopy._fleets[j]._faction--;
                         }
                     }
-                    
+
                     // Update membership IDs in alliances
                     for (int j = 0; j < _mapCopy._alliances.Count; j++)
                     {
@@ -439,7 +467,7 @@ public class XMLWriter : MonoBehaviour
                         }
 
                     }
-                    
+
                     // Remove faction from _knownFaction lists
                     for (int j = 0; j < _mapCopy._factions.Count; j++)
                     {
@@ -463,7 +491,7 @@ public class XMLWriter : MonoBehaviour
                         if (_mapCopy._reps[j]._faction1 == i || _mapCopy._reps[j]._faction2 == i)
                         {
                             _mapCopy._reps.Remove(_mapCopy._reps[j]);
-                            
+
 
                             for (int k = 0; k < _mapCopy._factions.Count; k++)
                             {

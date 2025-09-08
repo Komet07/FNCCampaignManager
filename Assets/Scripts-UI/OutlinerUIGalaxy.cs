@@ -392,7 +392,7 @@ namespace UI
             }
             else if (_a == 2) // CENTER SECTOR IN VIEWPORT
             {
-
+                
             }
         }
 
@@ -441,9 +441,13 @@ namespace UI
 
         public void INDIV_FLEET_FUNCTIONS(int _a)
         {
+            
             if (_a == 0) // DISPLAY ELEMENTS
             {
-                if (_currentFleetID < 0 || _currentFleetID >= MapManager.Instance._map._fleets.Count) 
+                /* 
+                GOAL : Structure Fleet Outliner modularly and reposition / adjust UI elements based on which sections are shown / not shown
+                */
+                if (_currentFleetID < 0 || _currentFleetID >= MapManager.Instance._map._fleets.Count)
                 {
                     _currentFleetID = -1;
                     _indivFleetIsOn = false;
@@ -548,7 +552,7 @@ namespace UI
                         {
                             _iFMTravelText.GetComponent<Text>().text = "Currently travelling";
                         }
-                            
+
                     }
                     else
                     {
@@ -587,23 +591,23 @@ namespace UI
                     {
                         _gmObjs_IndivFM[2].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Select";
                     }
-                        
+
                     _gmObjs_IndivFM[3].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = F._status;
                     _gmObjs_IndivFM[23].GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = (F._transponder) ? "On" : "Off";
 
                     _iFMFuelHeader.SetActive(true);
                     _vHeight += 70;
                     _iFMFuelHeader.GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 60, -5);
-                    
+
                     // FUEL SECTION
                     if (F._maxFuel > 0)
                     {
                         _iFMFuelbarM.SetActive(true);
-                        
+
 
                         _vHeight += 100;
 
-                        
+
                         _iFMFuelbarM.GetComponent<RectTransform>().localPosition = new Vector3(50, (_vHeight * -1) + 95, -5);
                         _iFMFuelbarT.GetComponent<Text>().text = F._currentFuel + " / " + F._maxFuel;
                         _iFMFuelbarA.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (F._currentFuel / F._maxFuel), 0, 900));
@@ -684,32 +688,31 @@ namespace UI
                     // -- TRAVEL EDIT SECTION --
                     if (F._status == "Travelling" && _iFMTravelEdit)
                     {
-                        _gmObjs_IndivFM[9].SetActive(false);
-                        _gmObjs_IndivFM[10].SetActive(false);
-                        _gmObjs_IndivFM[11].SetActive(false);
 
-                        _gmObjs_IndivFM[12].SetActive(true);
-                        _gmObjs_IndivFM[13].SetActive(true);
-                        _gmObjs_IndivFM[14].SetActive(true);
-                        _gmObjs_IndivFM[15].SetActive(true);
-                        _gmObjs_IndivFM[16].SetActive(true);
-                        _gmObjs_IndivFM[17].SetActive(true);
-                        _gmObjs_IndivFM[18].SetActive(true);
-                        _gmObjs_IndivFM[19].SetActive(true);
-                        _gmObjs_IndivFM[20].SetActive(true);
+                        // Deactivate the following Objects (9 - 11)
+                        for (int i = 9; i <= 11; i++)
+                        {
+                            _gmObjs_IndivFM[i].SetActive(false);
+                        }
 
+                        // Activate the following Objects (12 - 20)
+                        for (int i = 12; i <= 20; i++)
+                        {
+                            _gmObjs_IndivFM[i].SetActive(true);
+                        }
 
+                        // Adjust vHeight by 135
                         _vHeight += 135;
 
-                        _gmObjs_IndivFM[12].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 180, -5);
-                        _gmObjs_IndivFM[13].GetComponent<RectTransform>().localPosition = new Vector3(200, (_vHeight * -1) + 175, -5);
-                        _gmObjs_IndivFM[14].GetComponent<RectTransform>().localPosition = new Vector3(285, (_vHeight * -1) + 175, -5);
-                        _gmObjs_IndivFM[15].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 130, -5);
-                        _gmObjs_IndivFM[16].GetComponent<RectTransform>().localPosition = new Vector3(250, (_vHeight * -1) + 130, -5);
-                        _gmObjs_IndivFM[17].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 85, -5);
-                        _gmObjs_IndivFM[18].GetComponent<RectTransform>().localPosition = new Vector3(230, (_vHeight * -1) + 82.5f, -5);
-                        _gmObjs_IndivFM[19].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 40, -5);
-                        _gmObjs_IndivFM[20].GetComponent<RectTransform>().localPosition = new Vector3(230, (_vHeight * -1) + 37.5f, -5);
+                        // 
+                        float[] _pX = new float[] { 10, 200, 285, 10, 250, 10, 230, 10, 230 };
+                        float[] _pY = new float[] { 180, 175, 175, 130, 130, 85, 82.5f, 40, 37.5f };
+
+                        // Set Positions of UI elements relative to needed height
+                        for (int i = 0; i <= 8; i++)
+                        {
+                            _gmObjs_IndivFM[i + 12].GetComponent<RectTransform>().localPosition = new Vector3(_pX[i], (_vHeight * -1) + _pY[i], -5);
+                        }
 
                         if (_iFMTravelEditS)
                         {
@@ -750,7 +753,7 @@ namespace UI
                             _gmObjs_IndivFM[16].GetComponent<InputField>().text = (_iFMProgress * MapManager.Instance.SectorDistance(_iFMStartLoc, _iFMEndLoc)).ToString();
                         }
 
-                        
+
                     }
                     else
                     {
@@ -793,7 +796,7 @@ namespace UI
                 {
                     _iFMLocationSelect = true;
                 }
-                    
+
             }
             else if (_a == 4)
             {
@@ -901,7 +904,7 @@ namespace UI
                 {
                     _iFMProgress = 0;
                 }
-                    
+
             }
             else if (_a == 19) // SWITCH TRANSPONDER
             {

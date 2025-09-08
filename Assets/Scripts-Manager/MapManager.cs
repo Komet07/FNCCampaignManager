@@ -172,6 +172,9 @@ public class Map
     [XmlArray("Connections"), XmlArrayItem("Connection")]
     public List<JumpGateConnection> _jumpGates = new List<JumpGateConnection>() { };
 
+    [XmlArray("ConnectionTypes"), XmlArrayItem("ConnectionType")]
+    public List<ConnectionType> _connType = new List<ConnectionType>() { };
+
     [XmlArray("PlayerFactions"), XmlArrayItem("PlayerFaction")]
     public List<PlayerFaction> _playerFactions = new List<PlayerFaction>() { };
 
@@ -295,6 +298,9 @@ public class JumpGateConnection
     [XmlAttribute("name2")]
     public string _name2 = ""; // [System Name] Jumpgate
 
+    [XmlAttribute("typeId")]
+    public int _typeId = -1; // Points to connection type - -1 = generic connection
+
     public int _sector1Id = -1; // Id of sector 1
     public int _sector2Id = -1; // Id of sector 2
 
@@ -307,6 +313,26 @@ public class JumpGateConnection
 
     [XmlAttribute("discoverable_2")]
     public bool _discoverable2 = true; // Will only be shown once 'true' and system contents known -> JG 2
+}
+
+
+[System.Serializable]
+public class ConnectionType
+{
+    /*
+    CONNECTION TYPE : Type 'overhead' that allows for differentiation between different types of connections on the map and further customization
+    Attributes:
+    - Name : Name of the connection type
+    - Line Color : Color of the connection on the map
+    - Line Width : Width of the connection line on the map -> allows for differentiation between major and minor connections
+    - Line Type : Should display different line types for further customization)
+    */
+    public string _name = ""; // i.e. Jumpgate, lane, pirate connection, etc.
+    public Color32 _lineColor = new Color32(255, 255, 255, 200);
+    public float _lineWidth = 1f; // Multiples of 'regular' line width
+    public int _lineType = 0; // 0 = Regular, 1 = Dashed, 2 = Dotted, 3 = None (Only Points)
+
+    public int _pointType = 0; // 0 = Circle, 1 = Square, 2 = Diamond, 3 = Cross
 }
 
 [System.Serializable]
@@ -465,7 +491,7 @@ public class Ship
         _currentTankerFuel = Mathf.Clamp(_currentTankerFuel, 0, _maxTankerFuel);
         _currentTankerFuel += (_leftoverFuel > 0) ? Mathf.Clamp(_leftoverFuel, 0, _maxTankerFuel - _currentTankerFuel) : 0; // ADD LEFTOVER FUEL FROM OLD DESIGN TO TANKER FUEL IF THAT HAPPENS
 
-        _currentFuel += (_leftoverFuelB > 0) ? Mathf.Clamp(_leftoverFuelB, 0, _maxFuel - _currentFuel) : 0f; // REINTEGRATE TANKER FUEL INTO REGULAR FUEL IF OVERFLOW IS PRESENT
+        _currentFuel += (_leftoverFuelB > 0) ? Mathf.Clamp(_leftoverFuelB, 0, _maxFuel - _currentFuel) : 0f; // TRY TO REINTEGRATE TANKER FUEL INTO REGULAR FUEL IF OVERFLOW IS PRESENT
 
         // MODULES - First update / add any missing mount categories, then remove any that aren't on the new design
 
@@ -1054,8 +1080,6 @@ public class ModuleList
     public string _sizeKey = "";
     public int _amount = 0;
 
-    
-
     public void SetAmount(int _value, out List<int> removeModules, out int addModules)
     {
         int _oldAmount = _amount;
@@ -1333,7 +1357,7 @@ public class MapManager : MonoBehaviour
     [Header("UI Menu Incompatabilities")]
     public List<GameObject> _contextMenuGIncompat = new List<GameObject>() { };
     public List<GameObject> _infoMenuGIncompat = new List<GameObject>() { };
-    public List<GameObject> _cameraResetIncompat = new List<GameObject>() { };
+    public List<GameObject> _cameraResetIncompat = new List<GameObject>() { }; // When should Camera position Reset ("R") not be triggered
 
 
     // TESTING
@@ -1416,7 +1440,7 @@ public class MapManager : MonoBehaviour
             Alliance _alliance = new Alliance();
             _alliance._name = "Alliance";
             _alliance._shorthand = "EXA";
-            
+
 
             _map._alliances.Add(_alliance);
         }
@@ -1439,6 +1463,17 @@ public class MapManager : MonoBehaviour
             _rg._regions.Add(_r1);
 
             _map._regCats.Add(_rg);
+        }
+        else if (a == 6) // Connection Type 
+        {
+            ConnectionType _ct = new ConnectionType();
+            _ct._name = "Connection";
+            _ct._lineColor = new Color32(255, 255, 255, 200);
+            _ct._lineWidth = 1;
+            _ct._lineType = 0;
+            _ct._pointType = 0;
+
+            _map._connType.Add(_ct);
         }
     }
 
@@ -1550,7 +1585,7 @@ public class MapManager : MonoBehaviour
                     i--;
                 }
             }
-            
+
 
             GalaxyMap.Instance._regen = true;
         }
@@ -1563,7 +1598,7 @@ public class MapManager : MonoBehaviour
             // Remove faction
             _map._factions.Remove(_map._factions[b]);
 
-            
+
 
             // Set all sectors referencing the faction to -1 and update Ids of other factions
             for (int j = 0; j < _map._sectors.Count; j++)
@@ -1616,7 +1651,7 @@ public class MapManager : MonoBehaviour
             // Remove reps referencing that faction
             for (int j = 0; j < _map._reps.Count; j++)
             {
-                
+
                 if (_map._reps[j]._faction1 == b)
                 {
                     int _fac = _map._reps[j]._faction2;
@@ -1629,13 +1664,13 @@ public class MapManager : MonoBehaviour
 
                         if (_map._factions[_fac]._repIds[i] == j)
                         {
-                            
+
                             _map._factions[_fac]._repIds.Remove(_map._factions[_fac]._repIds[i]);
                             i--;
                         }
-                        
+
                     }
-                        
+
                     for (int i = 0; i < _map._factions.Count; i++)
                     {
                         for (int k = 0; k < _map._factions[i]._repIds.Count; k++)
@@ -1667,7 +1702,7 @@ public class MapManager : MonoBehaviour
                             _map._factions[_fac]._repIds.Remove(_map._factions[_fac]._repIds[i]);
                             i--;
                         }
-                        
+
                     }
                     for (int i = 0; i < _map._factions.Count; i++)
                     {
@@ -1682,7 +1717,7 @@ public class MapManager : MonoBehaviour
                     _map._reps.Remove(_map._reps[j]);
                     j--;
                 }
-                else 
+                else
                 {
                     if (_map._reps[j]._faction1 > b)
                     {
@@ -1742,7 +1777,7 @@ public class MapManager : MonoBehaviour
             // Remove all regCat references
             for (int j = 0; j < _map._sectors.Count; j++)
             {
-                for(int k = 0; k < _map._sectors[j]._regionCats.Count; k++)
+                for (int k = 0; k < _map._sectors[j]._regionCats.Count; k++)
                 {
                     if (_map._sectors[j]._regionCats[k] == b)
                     {
@@ -1757,6 +1792,27 @@ public class MapManager : MonoBehaviour
                 }
             }
 
+        }
+        else if (a == 6) // Connection Types
+        {
+            // Remove Connection Type
+            _map._connType.Remove(_map._connType[b]);
+
+            // Remove all connType references from jumpgates
+            for (int j = 0; j < _map._jumpGates.Count; j++)
+            {
+                if (_map._jumpGates[j]._typeId == b)
+                {
+                    _map._jumpGates[j]._typeId = -1;
+                }
+                else if (_map._jumpGates[j]._typeId > b)
+                {
+                    _map._jumpGates[j]._typeId--;
+                }
+            }
+
+            // Regen map to update line styles
+            GalaxyMap.Instance._regen = true;
         }
     }
 
