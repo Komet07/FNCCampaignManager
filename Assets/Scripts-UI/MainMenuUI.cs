@@ -26,10 +26,10 @@ namespace MainMenu
         public GameObject _save3Obj;
         public GameObject _save4Obj;
 
-        public TMP_Text _save1Text;
-        public TMP_Text _save2Text;
-        public TMP_Text _save3Text;
-        public TMP_Text _save4Text;
+        public Text _save1Text;
+        public Text _save2Text;
+        public Text _save3Text;
+        public Text _save4Text;
 
         // Delete Saves
         [Header("Save Deletion")]

@@ -200,8 +200,22 @@ public class EscapeMenuUI : MonoBehaviour
             _sCMenu.SetActive(false);
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape) && !GMMenu.Instance._menuObjectsL2.activeSelf && !_dontLoad)
+        if (Input.GetKeyDown(KeyCode.Escape) && !_dontLoad)
         {
+            // CHECK IF INCOMPATABILITIES
+            if (MapManager.Instance._escapeMenuIncompatTriggered)
+            {
+                return;
+            }
+
+            for (int i = 0; i < MapManager.Instance._escapeMenuIncompat.Count; i++)
+            {
+                if (MapManager.Instance._escapeMenuIncompat[i].activeInHierarchy)
+                {
+                    return;
+                }
+            }
+
             if (_saveCanvas.activeSelf || _loadCanvas.activeSelf || _settingsMenu.activeSelf)
             {
                 _loadCanvas.SetActive(false);

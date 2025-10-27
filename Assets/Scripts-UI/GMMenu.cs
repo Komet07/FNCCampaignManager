@@ -47,6 +47,7 @@ public class GMMenu : MonoBehaviour
 
     public Scrollbar _scrollbarObj2;
     public Scrollbar _scrollbarObjContext;
+    public Scrollbar _scrollbarObjConnContext;
 
     // Object Menu S3 Sector
     public GameObject _menuObjectsL3Sector;
@@ -65,21 +66,38 @@ public class GMMenu : MonoBehaviour
     public GameObject _menuObjectsL3Alliance;
 
     // Object Menu S3 Jumpgates
+    [Header("Object Menu - Connections")]
     public GameObject _menuObjectsL3Jumpgate;
 
     public bool _mOL3JumpGatesS1PlacementActive = false;
     public bool _mOL3JumpGatesS2PlacementActive = false;
 
+    // Connection type configuration menu
+    [Header("Object Menu - Connection Type Config")]
+    public GameObject _mConnType;
+    public GameObject _mConnType_Context;
+    public GameObject _mConnType_ContextButton; // Original Context Menu Button
+    int _cType = -1;
+    List<GameObject> _mConnTypeContextObjs = new List<GameObject>() { }; // LIST used to store context menu buttons -> INDEX - 1 = Connection Type ID (Because regular also has to be included)
+    public int[] _mConnTypeContextOffset = { 0, 0 };
+    public float _mConnTypeContextOffsetVal = 0;
+
+    // Connection type color menu
+    public GameObject _mConnColor;
+
     // Object Menu S3 Player Factions
+    [Header("Object Menu - Player Factions")]
     public GameObject _menuObjectsL3PlayerFaction;
     public bool _mOL3PlayerFactionAnchorPlacementActive = false;
 
     // Object Menu S3 Region
+    [Header("Object Menu - Regions")]
     public GameObject _menuObjectsL3Region;
 
     int _subRegionInt = 0;
 
     // Object Menu Context menu
+    [Header("Object Menu - Context")]
     public GameObject _contextMenu;
     public GameObject _menuObjectContextButton; // Original Context Menu Button
 
@@ -100,9 +118,11 @@ public class GMMenu : MonoBehaviour
     public List<string> _menuObject1Themes = new List<string>() { };
 
     // Map Settings
+    [Header("Map Settings")]
     public GameObject _settingsMenu;
 
     // Export variables
+    [Header("Export Settings")]
     bool _lockSel = false;
     int _playerFaction = -1;
 
@@ -122,7 +142,8 @@ public class GMMenu : MonoBehaviour
     public bool _addConnectionMActive = false;
     public int _s1Int = -1;
     public int _s2Int = -2;
-    public int _aCMMode = 0; // 0 - Add, 1 - Remove
+    public int _aCMMode = 0; // 0 - Add, 1 - Remove, 2 - Edit
+    int _aCMInt1 = -1;
 
     // Delete Confirmation Menu
     [Header("Delete Confirmation Menu")]
@@ -164,6 +185,18 @@ public class GMMenu : MonoBehaviour
     public List<GameObject> _changeOwnerMenu_objs = new List<GameObject>() { };
     public GameObject _changeOwnerMenu_ButtonTemplate;
 
+    [Header("Paint Tool")]
+    public GameObject _paintToolMenu;
+    public bool _paintToolActive = false;
+
+    int _paintToolModes = 2;
+
+    int _paintToolMode = 0; // 0 - Connection Type, 1 - Regions
+    int _paintToolType = 0; // Connection Type - Irrelevant (By default 0) | Regions - Region Category ID
+    int _paintToolSubType = -1; // Connection Type | Regions -Region Category Subtype
+
+    int _paintToolS1 = -1; // Sector 1
+    int _paintToolS2 = -1; // Sector 2
 
     public void SelectAll()
     {
@@ -486,254 +519,6 @@ public class GMMenu : MonoBehaviour
 
     }
 
-
-    void RebuildObjectMenuL2(int a)
-    {
-        _menuObjectsL2.SetActive(true);
-        _currentL2Int = a;
-
-        // Destroy old buttons
-        List<GameObject> _buttons = _menuObject2Objects;
-        _menuObject2Objects = new List<GameObject>();
-        for (int i = 0; i < _buttons.Count; i++)
-        {
-            Destroy(_buttons[i]);
-        }
-        // -- Instantiate new Buttons --
-        if (a == 0) // Sectors
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._sectors.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._sectors.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-                    
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._sectors[i].GetName(false);
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 1) // Jumpgate Connections
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._jumpGates.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._jumpGates.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._jumpGates[i]._name;
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 2) // Factions
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._factions.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._factions.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._factions[i]._name;
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 3) // alliances
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._factions.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._alliances.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._alliances[i]._name;
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 4) // Player Factions
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._playerFactions.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._playerFactions.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-                if (MapManager.Instance._map._playerFactions[i]._regFactionID != -1)
-                {
-                    _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[i]._regFactionID]._name;
-                }
-                else
-                {
-                    _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Unassigned";
-                }
-                    
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 5) // Regions
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._regCats.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._regCats.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._regCats[i]._name;
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-        else if (a == 6) // Players
-        {
-            // Offset stuff
-            _mObjectsm2Offset = 0;
-            _mObjectsm2OffsetVal = 0;
-            _mObjectsm2PrevOffset = 0;
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, MapManager.Instance._map._players.Count);
-            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
-
-            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
-
-            for (int i = 0; i < MapManager.Instance._map._players.Count; i++)
-            {
-                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
-                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
-                {
-                    _buttonClone.SetActive(true);
-                }
-                else
-                {
-                    _buttonClone.SetActive(false);
-                }
-
-
-                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._players[i]._name;
-                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
-
-                _menuObject2Objects.Add(_buttonClone);
-            }
-        }
-
-        // Resize menu
-        if (_menuObject2Objects.Count <= 13)
-        {
-            _menuObjectsL2.GetComponent<RectTransform>().sizeDelta = new Vector2(90f, 15 + 20 * _menuObject2Objects.Count);
-            _menuObjectsL2.GetComponent<BoxCollider>().size = new Vector3(90, 15 + 20 * _menuObject2Objects.Count, 1);
-            _menuObjectsL2.GetComponent<BoxCollider>().center = new Vector3(0, (15 + 20 * _menuObject2Objects.Count) / 2 * -1, 0);
-        }
-        else
-        {
-            _menuObjectsL2.GetComponent<RectTransform>().sizeDelta = new Vector2(90, 275);
-            _menuObjectsL2.GetComponent<BoxCollider>().size = new Vector3(90, 275, 1);
-            _menuObjectsL2.GetComponent<BoxCollider>().center = new Vector3(0, -137.5f, 0);
-        }
-           
-    }
-
     void RepositionObjectsL2()
     {
         _mObjectsm2Min = _mObjectsm2Offset;
@@ -750,7 +535,7 @@ public class GMMenu : MonoBehaviour
                 _menuObject2Objects[i].SetActive(false);
             }
 
-            _menuObject2Objects[i].GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20 * (i - _mObjectsm2Offset));
+            _menuObject2Objects[i].GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -17 * (i - _mObjectsm2Offset));
             
         }
             
@@ -771,6 +556,26 @@ public class GMMenu : MonoBehaviour
             }
 
             _contextMenuObjects[i].GetComponent<RectTransform>().localPosition = new Vector2(30f, -14f + -20 * (i - _mObjectsContextOffset));
+
+        }
+
+    }
+
+    void RepositionObjectsConnContext()
+    {
+       
+        for (int i = 0; i < _mConnTypeContextObjs.Count; i++)
+        {
+            if (i >= _mConnTypeContextOffset[0] && i < _mConnTypeContextOffset[0] + 13)
+            {
+                _mConnTypeContextObjs[i].SetActive(true);
+            }
+            else
+            {
+                _mConnTypeContextObjs[i].SetActive(false);
+            }
+
+            _mConnTypeContextObjs[i].GetComponent<RectTransform>().localPosition = new Vector2(32.5f, -15f + -15f * (i - _mConnTypeContextOffset[0]));
 
         }
 
@@ -1323,7 +1128,7 @@ public class GMMenu : MonoBehaviour
         {
             if (_obj == _menuObject1Objects[i])
             {
-                RebuildObjectMenuL2(i);
+                OBJ2_FUNCTIONS(0, i);
                 _menuObjectsL3Sector.SetActive(false);
                 _menuObjectsL3Faction.SetActive(false);
                 _menuObjectsL3Alliance.SetActive(false);
@@ -1422,6 +1227,121 @@ public class GMMenu : MonoBehaviour
         MapManager.Instance.AddObject(_currentL2Int);
     }
 
+    public void OBJ2_FUNCTIONS(int _index, int a)
+    {
+        if (_index == 0) // BUILD UI ELEMENTS
+        {
+            /*
+            PURPOSE : Rebuild the L2 Object Menu based on the selected object
+            INPUTS : a = index of the selected object type in L1 menu
+
+                - (a):
+                0 = Sectors
+                1 = Jumpgate Connections
+                2 = Factions
+                3 = Alliances
+                4 = Player Factions
+                5 = Regions
+                6 = Players
+
+            METHOD : 
+                (1) Activate L2 Menu
+                (2) Set current L2 index
+                (3) Destroy old buttons
+                (4) Instantiate new buttons based on selected object type
+                    - Set button text to object name
+                    - Position buttons in menu
+                    - Add buttons to list for future reference
+                (5) Adjust offset and visibility of buttons based on total number of objects
+                (6) Resize menu to fit buttons
+            */
+
+            _menuObjectsL2.SetActive(true);
+            _currentL2Int = a;
+
+            // Destroy old buttons
+            List<GameObject> _buttons = _menuObject2Objects;
+            _menuObject2Objects = new List<GameObject>();
+            for (int i = 0; i < _buttons.Count; i++)
+            {
+                Destroy(_buttons[i]);
+            }
+            // -- Instantiate new Buttons --
+
+            // - Get count of objects based on type for later reference -
+            int[] _count = { MapManager.Instance._map._sectors.Count,
+                             MapManager.Instance._map._jumpGates.Count,
+                             MapManager.Instance._map._factions.Count,
+                             MapManager.Instance._map._alliances.Count,
+                             MapManager.Instance._map._playerFactions.Count,
+                             MapManager.Instance._map._regCats.Count,
+                             MapManager.Instance._map._players.Count
+            };
+
+            
+            // Offset stuff for Button
+            _mObjectsm2Offset = 0;
+            _mObjectsm2OffsetVal = 0;
+            _mObjectsm2PrevOffset = 0;
+            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, 0, _count[a]);
+            _mObjectsm2Min = Mathf.Clamp(_mObjectsm2Min, 0, _mObjectsm2Max);
+
+            _mObjectsm2Max = Mathf.Clamp(_mObjectsm2Max, _mObjectsm2Min, _mObjectsm2Min + 13);
+
+            for (int i = 0; i < _count[a]; i++)
+            {
+                GameObject _buttonClone = Instantiate(_menuObjectL2Button, _menuObjectsL2.transform);
+                if (i >= _mObjectsm2Offset && i < _mObjectsm2Offset + 13)
+                {
+                    _buttonClone.SetActive(true);
+                }
+                else
+                {
+                    _buttonClone.SetActive(false);
+                }
+
+                // Alternating button colors
+                if ((i - _mObjectsm2Offset) % 2 == 0)
+                {
+                    _buttonClone.GetComponent<Image>().color = MapManager.Instance._uiButtonColors[0]; // LIGHT
+                }
+                else
+                {
+                    _buttonClone.GetComponent<Image>().color = MapManager.Instance._uiButtonColors[1]; // DARK
+                }
+
+                // GET NAME OF OBJECT BASED ON TYPE
+                string[] _t = {(i < _count[0]) ? MapManager.Instance._map._sectors[i].GetName(false) : "",
+                               (i < _count[1]) ? MapManager.Instance._map._jumpGates[i]._name : "",
+                               (i < _count[2]) ? MapManager.Instance._map._factions[i]._name : "",
+                               (i < _count[3]) ? MapManager.Instance._map._alliances[i]._name : "",
+                               (i < _count[4]) ? ((MapManager.Instance._map._playerFactions[i]._regFactionID != -1) ? MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[i]._regFactionID]._name : "Unassigned") : "",
+                               (i < _count[5]) ? MapManager.Instance._map._regCats[i]._name : "",
+                               (i < _count[6]) ? MapManager.Instance._map._players[i]._name : ""
+                };
+
+                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _t[a]; // Get displayed text on button
+                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -17 * (i - _mObjectsm2Offset)); // Set position of button
+
+                _menuObject2Objects.Add(_buttonClone);
+            }
+
+            // Resize menu
+            if (_menuObject2Objects.Count <= 13)
+            {
+                _menuObjectsL2.GetComponent<RectTransform>().sizeDelta = new Vector2(90f, 15 + 17 * _menuObject2Objects.Count);
+                _menuObjectsL2.GetComponent<BoxCollider>().size = new Vector3(90, 15 + 17 * _menuObject2Objects.Count, 1);
+                _menuObjectsL2.GetComponent<BoxCollider>().center = new Vector3(0, (15 + 17 * _menuObject2Objects.Count) / 2 * -1, 0);
+            }
+            else
+            {
+                _menuObjectsL2.GetComponent<RectTransform>().sizeDelta = new Vector2(90, 236);
+                _menuObjectsL2.GetComponent<BoxCollider>().size = new Vector3(90, 236, 1);
+                _menuObjectsL2.GetComponent<BoxCollider>().center = new Vector3(0, -118f, 0);
+            }
+        }
+    }
+
     public void OBJ3_SECTOR_FUNCTIONS(int _a)
     {
         if (_a == 0)
@@ -1443,7 +1363,7 @@ public class GMMenu : MonoBehaviour
             }
 
             GalaxyMap.Instance._regen = true;
-                
+
         }
         else if (_a == 2) // POS Y INT
         {
@@ -1913,6 +1833,327 @@ public class GMMenu : MonoBehaviour
         {
             _mOL3JumpGatesS2PlacementActive = true;
         }
+        // ---- CONNECTION TYPE MENU FUNCTIONS ----
+        else if (_a == 7)
+        {
+            /* OPEN MENU
+            PURPOSE : Open menu for selected connection type
+            INPUTS : _cType = Index of selected connection type
+            METHOD :
+                (1) Set Connection Type Menu to active
+                (2) Initialize menu fields based on conn. type data (Name, width, color)
+            */
+
+            if (_cType <= -1 || _cType >= MapManager.Instance._map._connType.Count)
+            {
+                return;
+            }
+
+            GameObject _menu = _mConnType;
+            _menu.SetActive(true); // ACTIVATE
+
+            // Set fields
+            if (!_menu.GetComponent<IndexScript>()._obj1.GetComponent<InputField>().isFocused)
+            {
+                _menu.GetComponent<IndexScript>()._obj1.GetComponent<InputField>().text = MapManager.Instance._map._connType[_cType]._name; // SET NAME IF NOT FOCUSED
+            }
+            Text _tLW = _menu.GetComponent<IndexScript>()._obj2.GetComponent<Text>(); // LINE WIDTH TEXT
+            _tLW.text = "LINE WIDTH: " + MapManager.Instance._map._connType[_cType]._lineWidth.ToString("0.00") + "x";
+
+            Slider _s1 = _menu.GetComponent<IndexScript>()._obj3.GetComponent<Slider>(); // LINE WIDTH SLIDER
+            _s1.enabled = false;
+            _s1.value = MapManager.Instance._map._connType[_cType]._lineWidth;
+            _s1.enabled = true;
+
+            Text _tLT = _menu.GetComponent<IndexScript>()._obj6.GetComponent<Text>(); // LINE TYPE TEXT;
+            string[] _tT = { "REGULAR", "DASHED", "DOTTED", "SLANTED" };
+            _tLT.text = "LINE TYPE: " + _tT[MapManager.Instance._map._connType[_cType]._lineType];
+
+            Slider _s2 = _menu.GetComponent<IndexScript>()._obj7.GetComponent<Slider>(); // LINE TYPE SLIDER
+            _s2.enabled = false;
+            _s2.value = MapManager.Instance._map._connType[_cType]._lineType;
+            _s2.enabled = true;
+
+            Image _colImg = _menu.GetComponent<IndexScript>()._obj8.GetComponent<Image>();
+            _colImg.color = MapManager.Instance._map._connType[_cType]._lineColor; // COLOR
+
+            return;
+        }
+        else if (_a == 8)
+        {
+            /* CONN TYPE VARIABLE CHANGED
+            PURPOSE : Refresh variables in connection type menu
+            INPUTS : None (button interaction)
+            METHOD :
+                (1) Get input field values
+                (2) Validate values
+                (3) Set values to relevant connection type variables
+            */
+
+            if (_cType <= -1 || _cType >= MapManager.Instance._map._connType.Count)
+            {
+                return;
+            }
+
+            GameObject _menu = _mConnType;
+
+            MapManager.Instance._map._connType[_cType]._name = _menu.GetComponent<IndexScript>()._obj1.GetComponent<InputField>().text; // NAME
+            MapManager.Instance._map._connType[_cType]._lineWidth = Mathf.Round(_menu.GetComponent<IndexScript>()._obj3.GetComponent<Slider>().value * 100) / 100; // LINE WIDTH
+            MapManager.Instance._map._connType[_cType]._lineType = Mathf.RoundToInt(_menu.GetComponent<IndexScript>()._obj7.GetComponent<Slider>().value);
+
+            Text _tLW = _menu.GetComponent<IndexScript>()._obj2.GetComponent<Text>(); // LINE WIDTH TEXT
+            _tLW.text = "LINE WIDTH: " + MapManager.Instance._map._connType[_cType]._lineWidth.ToString("0.00") + "x";
+
+            Text _tLT = _menu.GetComponent<IndexScript>()._obj6.GetComponent<Text>(); // LINE TYPE TEXT;
+            string[] _tT = { "REGULAR", "DASHED", "DOTTED", "SLANTED" };
+            _tLT.text = "LINE TYPE: " + _tT[MapManager.Instance._map._connType[_cType]._lineType];
+
+            Image _colImg = _menu.GetComponent<IndexScript>()._obj8.GetComponent<Image>();
+            _colImg.color = MapManager.Instance._map._connType[_cType]._lineColor; // COLOR
+
+            return;
+        }
+        else if (_a == 9) // Close Conn Type Menu
+        {
+            _mConnType.SetActive(false);
+            GalaxyMap.Instance._regen = true;
+            return;
+        }
+        else if (_a == 10) // Delete Conn Type
+        {
+            if (_cType < 0 || _cType >= MapManager.Instance._map._connType.Count)
+            {
+                _mConnType.SetActive(false);
+                return;
+            }
+
+            _delIntA = 6;
+            _delIntB = _cType;
+            _delMenuActive = true;
+
+            _mConnType.SetActive(false);
+            return;
+        }
+        else if (_a == 11)
+        {
+            /* REBUILD CONNECTION TYPE CONTEXT MENU
+            PURPOSE : Rebuild context menu for connection type selection
+            INPUTS : None (button interaction)
+            METHOD :
+                (1) Set context menu to active
+                (2) Destroy old buttons
+                (3) Instantiate new buttons based on connection types (+ Regular & Add options)
+                (4) Resize menu based on number of buttons
+            */
+            _mConnType_Context.SetActive(true);
+            GameObject _m = _mConnType_Context;
+
+            // Destroy old buttons
+            List<GameObject> _buttons = _mConnTypeContextObjs;
+            _mConnTypeContextObjs = new List<GameObject>();
+            for (int i = 0; i < _buttons.Count; i++)
+            {
+                Destroy(_buttons[i]);
+            }
+
+            // -- Instantiate new Buttons --
+
+            // Offset stuff
+            _mConnTypeContextOffset = new int[] { 0, 0 };
+            _mConnTypeContextOffsetVal = 0;
+
+            // 'Regular' option (-1)
+            GameObject _buttonCloneB = Instantiate(_mConnType_ContextButton, _m.transform);
+
+            if (0 >= _mConnTypeContextOffset[0] && 0 < _mConnTypeContextOffset[0] + 13)
+            {
+                _buttonCloneB.SetActive(true);
+            }
+            else
+            {
+                _buttonCloneB.SetActive(false);
+            }
+
+            float _offset = 1;
+
+            _buttonCloneB.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "REGULAR";
+            _buttonCloneB.GetComponent<RectTransform>().localPosition = new Vector2(32.5f, -15f + -15 * (0 - _mConnTypeContextOffset[0]));
+
+            _buttonCloneB.GetComponent<IndexScript>()._obj2.SetActive(false);
+
+            _mConnTypeContextObjs.Add(_buttonCloneB);
+
+            // TYPE SELECTIONS
+            for (int i = 0; i < MapManager.Instance._map._connType.Count; i++)
+            {
+                GameObject _buttonClone = Instantiate(_mConnType_ContextButton, _m.transform);
+                if (i + _offset >= _mConnTypeContextOffset[0] && i + _offset < _mConnTypeContextOffset[0] + 13)
+                {
+                    _buttonClone.SetActive(true);
+                }
+                else
+                {
+                    _buttonClone.SetActive(false);
+                }
+
+
+                _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = MapManager.Instance._map._connType[i]._name.ToUpper();
+                _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(32.5f, -15f + -15f * (i + _offset - _mConnTypeContextOffset[0]));
+
+                _mConnTypeContextObjs.Add(_buttonClone);
+            }
+
+            // 'Add' Button (Count) -> Add new Type
+            GameObject _buttonCloneC = Instantiate(_mConnType_ContextButton, _m.transform);
+
+            if (MapManager.Instance._map._connType.Count + _offset >= _mConnTypeContextOffset[0] && MapManager.Instance._map._connType.Count + _offset < _mConnTypeContextOffset[0] + 13)
+            {
+                _buttonCloneC.SetActive(true);
+            }
+            else
+            {
+                _buttonCloneC.SetActive(false);
+            }
+
+            _buttonCloneC.GetComponent<IndexScript>()._obj2.SetActive(false);
+
+            _buttonCloneC.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "ADD (+)";
+            _buttonCloneC.GetComponent<RectTransform>().localPosition = new Vector2(32.5f, -15f + -15f * (MapManager.Instance._map._connType.Count + _offset - _mConnTypeContextOffset[0]));
+
+            _mConnTypeContextObjs.Add(_buttonCloneC);
+
+            // Resize menu
+            if (_mConnTypeContextObjs.Count <= 13)
+            {
+                _m.GetComponent<RectTransform>().sizeDelta = new Vector2(70f, 15 + 15f * _mConnTypeContextObjs.Count);
+                _m.GetComponent<BoxCollider>().size = new Vector3(70, 15 + 15f * _mConnTypeContextObjs.Count, 1);
+                _m.GetComponent<BoxCollider>().center = new Vector3(0, (15 + 15f * _mConnTypeContextObjs.Count) / 2 * -1, 0);
+            }
+            else
+            {
+                _m.GetComponent<RectTransform>().sizeDelta = new Vector2(70, 210f);
+                _m.GetComponent<BoxCollider>().size = new Vector3(70, 210f, 1);
+                _m.GetComponent<BoxCollider>().center = new Vector3(0, -105f, 0);
+            }
+
+            return;
+        }
+        else if (_a == 12) // Close Conn Type Context Menu
+        {
+            _mConnType_Context.SetActive(false);
+            return;
+        }
+        else if (_a == 13) // Add Conn Type
+        {
+            /* ADD NEW CONNECTION TYPE
+            PURPOSE : Add new connection type to map after "Add" button pressed in context menu
+            INPUTS : None (button interaction)
+            METHOD :
+                (1) Add new connection type to map with default values
+                (2) Set GalaxyMap to reset
+            */
+            MapManager.Instance.AddObject(6); // Add new connection type
+            GalaxyMap.Instance._regen = true;
+
+            return;
+        }
+        else if (_a == 14) // OPEN / CLOSE CONN TYPE COLOR CONFIG
+        {
+            
+
+            Slider _sR = _mConnColor.GetComponent<IndexScript>()._obj1.GetComponent<Slider>(); // RED SLIDER
+            Slider _sG = _mConnColor.GetComponent<IndexScript>()._obj2.GetComponent<Slider>(); // GREEN SLIDER
+            Slider _sB = _mConnColor.GetComponent<IndexScript>()._obj3.GetComponent<Slider>(); // BLUE SLIDER
+
+            _sG.SetValueWithoutNotify(Mathf.RoundToInt(MapManager.Instance._map._connType[_cType]._lineColor.g * 255));
+            _sR.SetValueWithoutNotify(Mathf.RoundToInt(MapManager.Instance._map._connType[_cType]._lineColor.r * 255));
+            _sB.SetValueWithoutNotify(Mathf.RoundToInt(MapManager.Instance._map._connType[_cType]._lineColor.b * 255));
+
+            // Text
+            _mConnColor.GetComponent<IndexScript>()._obj4.GetComponent<Text>().text = "RED: " + Mathf.RoundToInt(_sR.value);
+            _mConnColor.GetComponent<IndexScript>()._obj5.GetComponent<Text>().text = "GREEN: " + Mathf.RoundToInt(_sG.value);
+            _mConnColor.GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "BLUE: " + Mathf.RoundToInt(_sB.value);
+
+            _mConnColor.SetActive(!_mConnColor.activeSelf);
+
+            return;
+        }
+        else if (_a == 15) // CONN TYPE COLOR CHANGED
+        {
+            if (_cType <= -1 || _cType >= MapManager.Instance._map._connType.Count)
+            {
+                return;
+            }
+
+            GameObject _menu = _mConnType;
+
+            // -- Get Sliders & Update Color value --
+            Slider _sR = _mConnColor.GetComponent<IndexScript>()._obj1.GetComponent<Slider>(); // RED SLIDER
+            Slider _sG = _mConnColor.GetComponent<IndexScript>()._obj2.GetComponent<Slider>(); // GREEN SLIDER
+            Slider _sB = _mConnColor.GetComponent<IndexScript>()._obj3.GetComponent<Slider>(); // BLUE SLIDER
+
+            MapManager.Instance._map._connType[_cType]._lineColor = new Color32((byte)Mathf.RoundToInt(_sR.value), (byte)Mathf.RoundToInt(_sG.value), (byte)Mathf.RoundToInt(_sB.value), 255);
+
+            // -- Update Color displays --
+            // Color Square
+            Image _colImg = _menu.GetComponent<IndexScript>()._obj8.GetComponent<Image>();
+            _colImg.color = MapManager.Instance._map._connType[_cType]._lineColor; // COLOR UPDATE
+
+            // Text
+            _mConnColor.GetComponent<IndexScript>()._obj4.GetComponent<Text>().text = "RED: " + Mathf.RoundToInt(_sR.value);
+            _mConnColor.GetComponent<IndexScript>()._obj5.GetComponent<Text>().text = "GREEN: " + Mathf.RoundToInt(_sG.value);
+            _mConnColor.GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "BLUE: " + Mathf.RoundToInt(_sB.value);
+
+            return;
+        }
+
+    }
+
+    public void OBJ3_CONNTYPE_CONTEXT_HANDLER(GameObject _obj)
+    {
+        /* HANDLER FOR CONNECTION TYPE CONTEXT MENU SELECTIONS -> CONNECT TO OBJ3_CONNECTION_FUNCTIONS
+        PURPOSE : Handle context menu selections for connection types -> redirect button interactions to relevant functions & figure out necessary variables
+        INPUTS : _obj = Button obj
+        METHOD :
+            (1) Get index of selected connection type by comparing button object to list of buttons & list offset (in case of 'overflow')
+            (2) Set _cType to selected index
+            (3) Redirect to important function
+            (4) Close context menu
+        */
+
+        // - Select Connection Type -
+        for (int i = 0; i < _mConnTypeContextObjs.Count; i++)
+        {
+            if (_obj == _mConnTypeContextObjs[i] && i <= MapManager.Instance._map._connType.Count)
+            {
+                MapManager.Instance._map._jumpGates[_currentL3Int]._typeId = i - 1; // -1 = Regular
+                GalaxyMap.Instance._regen = true;
+
+                OBJ3_CONNECTION_FUNCTIONS(9); // Close Menu
+                OBJ3_CONNECTION_FUNCTIONS(12); // Close Context Menu
+
+                return;
+            }
+            else if (_obj == _mConnTypeContextObjs[i] && i == MapManager.Instance._map._connType.Count + 1)
+            {
+                OBJ3_CONNECTION_FUNCTIONS(13); // Add Conn Type
+                OBJ3_CONNECTION_FUNCTIONS(11); // Rebuild Context Menu
+
+                return;
+            }
+        }
+
+        // - Open Menu -
+        for (int i = 1; i < _mConnTypeContextObjs.Count; i++)
+        {
+            if (_obj == _mConnTypeContextObjs[i].GetComponent<IndexScript>()._obj2 && i <= MapManager.Instance._map._connType.Count)
+            {
+                _cType = i - 1; // -1 = Regular - shouldn't open
+                OBJ3_CONNECTION_FUNCTIONS(7); // Open Conn Type Menu
+
+                return;
+            }
+        }
     }
 
     public void OBJ3_PLAYERFACTION_FUNCTIONS(int _a)
@@ -2361,7 +2602,7 @@ public class GMMenu : MonoBehaviour
             _contextMenuG.SetActive(true);
 
             // - Place Context Menu -
-            _contextMenuG.transform.localPosition = new Vector3((Input.mousePosition.x - Screen.width/2), (Input.mousePosition.y - Screen.height/2), 0);
+            _contextMenuG.transform.localPosition = new Vector3((Input.mousePosition.x - Screen.width / 2), (Input.mousePosition.y - Screen.height / 2), 0);
 
 
             // - GET SECTOR POSITION -
@@ -2484,6 +2725,22 @@ public class GMMenu : MonoBehaviour
 
                     if (MapManager.Instance.HasConnections(_contextMenuGSector))
                     {
+                        // - EDIT CONNECTION -
+                        /*
+                        PURPOSE : Add button that serves as link to Connection object menu (similar to 'Edit sector')
+                        FUNCTION: Builds button, links to function that'll serve for selecting connection & opening menu
+                        */
+                        GameObject _coECObj = Instantiate(_contextMenuG_ButtonTemplate, _contextMenuG.transform);
+                        _coECObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                        _verticalHeight += 6;
+
+                        Text _tEC = _coECObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                        _tEC.text = "Edit Connection";
+
+                        _coECObj.SetActive(true);
+                        _contextMenuG_objs.Add(_coECObj);
+                        _coECObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_G_FUNCTIONS(16));
+
                         // - REMOVE CONNECTION -
                         GameObject _coRSObj = Instantiate(_contextMenuG_ButtonTemplate, _contextMenuG.transform);
                         _coRSObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
@@ -2548,6 +2805,22 @@ public class GMMenu : MonoBehaviour
                 _DTObj.SetActive(true);
                 _contextMenuG_objs.Add(_DTObj);
                 _DTObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_G_FUNCTIONS(11));
+
+                if (!MapManager.Instance._map._lockSelection)
+                {
+                    // - PAINT -
+                    // - DISTANCE TO SECTOR -
+                    GameObject _PObj = Instantiate(_contextMenuG_ButtonTemplate, _contextMenuG.transform);
+                    _PObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                    _verticalHeight += 6;
+
+                    Text _tPaint = _PObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                    _tPaint.text = "Paint";
+
+                    _PObj.SetActive(true);
+                    _contextMenuG_objs.Add(_PObj);
+                    _PObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_G_FUNCTIONS(17));
+                }
             }
 
             // - CLOSE -
@@ -2588,7 +2861,7 @@ public class GMMenu : MonoBehaviour
         {
             _menuObjects.SetActive(true);
             RebuildObjectMenuL1();
-            RebuildObjectMenuL2(0); // SECTOR
+            OBJ2_FUNCTIONS(0, 0); // SECTOR
             _menuObjectsL3Sector.SetActive(true);
             _currentL3Int = _contextMenuGSector;
 
@@ -2612,7 +2885,7 @@ public class GMMenu : MonoBehaviour
 
             _addConnectionMActive = false;
 
-            MapManager.Instance.AddConnection(_s1Int, _s2Int);
+            MapManager.Instance.AddConnection(_s1Int, _s2Int, new object[] { _aCMInt1 });
         }
         else if (_a == 6) // REMOVE CONNECTION EXEC
         {
@@ -2627,10 +2900,32 @@ public class GMMenu : MonoBehaviour
         }
         else if (_a == 7) // REMOVE CONNECTION
         {
-            _addConnectionMActive = true;
-            _aCMMode = 1;
-            _s1Int = _contextMenuGSector;
-            _s2Int = -1;
+            if (MapManager.Instance.ConnectionCount(_contextMenuGSector) == 1)
+            {
+                _s1Int = _contextMenuGSector;
+                int _s1I = MapManager.Instance._map._jumpGates[MapManager.Instance.GetConnectionID(_s1Int, -1)]._sector1Id;
+                int _s2I = MapManager.Instance._map._jumpGates[MapManager.Instance.GetConnectionID(_s1Int, -1)]._sector2Id;
+
+                int _sI = (_s1I == _s1Int) ? _s2I : _s1I;
+
+                if (_sI >= 0 && _sI < MapManager.Instance._map._sectors.Count)
+                {
+                    _s2Int = _sI;
+                }
+                else
+                {
+                    return;
+                }
+
+                CONTEXT_MENU_G_FUNCTIONS(6);
+            }
+            else
+            {
+                _addConnectionMActive = true;
+                _aCMMode = 1;
+                _s1Int = _contextMenuGSector;
+                _s2Int = -1;
+            }
 
             CONTEXT_MENU_G_FUNCTIONS(2);
         }
@@ -2697,7 +2992,284 @@ public class GMMenu : MonoBehaviour
 
             CONTEXT_MENU_G_FUNCTIONS(2);
         }
+        else if (_a == 15) // EDIT CONNECTION EXEC
+        {
+            if (_s2Int == -1)
+            {
+                return;
+            }
 
+            _addConnectionMActive = false;
+
+            _menuObjects.SetActive(true);
+            RebuildObjectMenuL1();
+            OBJ2_FUNCTIONS(0, 1); // CONNECTIONS
+            _menuObjectsL3Jumpgate.SetActive(true);
+            _currentL3Int = MapManager.Instance.GetConnectionID(_s1Int, _s2Int);
+
+        }
+        else if (_a == 16) // EDIT CONNECTION
+        {
+
+            if (MapManager.Instance.ConnectionCount(_contextMenuGSector) == 1)
+            {
+                _s1Int = _contextMenuGSector;
+                int _s1I = MapManager.Instance._map._jumpGates[MapManager.Instance.GetConnectionID(_s1Int, -1)]._sector1Id;
+                int _s2I = MapManager.Instance._map._jumpGates[MapManager.Instance.GetConnectionID(_s1Int, -1)]._sector2Id;
+
+                int _sI = (_s1I == _s1Int) ? _s2I : _s1I;
+
+                if (_sI >= 0 && _sI < MapManager.Instance._map._sectors.Count)
+                {
+                    _s2Int = _sI;
+                }
+                else
+                {
+                    return;
+                }
+
+                CONTEXT_MENU_G_FUNCTIONS(15);
+            }
+            else
+            {
+                _addConnectionMActive = true;
+                _aCMMode = 2;
+                _s1Int = _contextMenuGSector;
+                _s2Int = -1;
+            }
+
+            CONTEXT_MENU_G_FUNCTIONS(2);
+        }
+        else if (_a == 17) // PAINT TOOL INIT
+        {
+            PAINT_TOOL_G_FUNCTIONS(0);
+
+            CONTEXT_MENU_G_FUNCTIONS(2);
+        }
+    }
+
+    public void PAINT_TOOL_G_FUNCTIONS(int _a)
+    {
+        if (_a == 0) // TOGGLE
+        {
+            _paintToolActive = !_paintToolActive;
+            if (_paintToolActive)
+            {
+                PAINT_TOOL_G_FUNCTIONS(1);
+            }
+            else
+            {
+                PAINT_TOOL_G_FUNCTIONS(6);
+            }
+        }
+        else if (_a == 1) // INITIALIZE
+        {
+            _paintToolMenu.SetActive(true);
+
+            _paintToolMode = 0; // DEFAULT TO CONNECTION TYPE TOOL WHEN INITIALIZING
+            _paintToolType = 0;
+            _paintToolSubType = -1;
+        }
+        else if (_a == 2) // CYCLE MODE
+        {
+            if (_paintToolMode != 1 || _paintToolType >= MapManager.Instance._map._regCats.Count - 1)
+            {
+                _paintToolMode++;
+                if (MapManager.Instance._map._regCats.Count == 0)
+                {
+                    _paintToolMode++;
+                }
+
+                if (_paintToolMode >= _paintToolModes)
+                {
+                    _paintToolMode = 0;
+                }
+
+                _paintToolType = 0;
+                _paintToolSubType = -1;
+            }
+            else
+            {
+                _paintToolType++;
+
+                _paintToolSubType = -1;
+            }
+
+        }
+        else if (_a == 3) // CYCLE TYPE UP
+        {
+            if (_paintToolMode == 0) // CONNECTION TYPE
+            {
+                _paintToolSubType++;
+                if (_paintToolSubType >= MapManager.Instance._map._connType.Count)
+                {
+                    _paintToolSubType = -1;
+                }
+            }
+            else if (_paintToolMode == 1) // REGION
+            {
+                _paintToolSubType++;
+                if (_paintToolSubType >= MapManager.Instance._map._regCats[_paintToolType]._regions.Count)
+                {
+                    _paintToolSubType = -1;
+                }
+            }
+        }
+        else if (_a == 4) // PAINT
+        {
+            if (_paintToolS1 == -1) // CANNOT DO ANYTHING WITHOUT SECTOR 1
+            {
+                return;
+            }
+
+            if (_paintToolMode == 0 && (_paintToolS2 != -1 || MapManager.Instance.ConnectionCount(_paintToolS1) <= 1)) // CONNECTION TYPE
+            {
+                int _id = MapManager.Instance.GetConnectionID(_paintToolS1, _paintToolS2);
+
+                if (_id > -1 && _id < MapManager.Instance._map._jumpGates.Count)
+                {
+                    MapManager.Instance._map._jumpGates[_id]._typeId = _paintToolSubType;
+                    GalaxyMap.Instance._regen = true;
+                }
+
+                _paintToolS1 = -1;
+                _paintToolS2 = -1;
+
+                return;
+            }
+            else if (_paintToolMode == 1)
+            {
+                
+                if (_paintToolS1 == -1 || _paintToolS1 >= MapManager.Instance._map._sectors.Count || _paintToolType == -1 || _paintToolType >= MapManager.Instance._map._regCats.Count)
+                {
+                    _paintToolS1 = -1;
+                    return; // CONDITIONAL CASES TO QUIT
+                }
+
+                int val = (_paintToolSubType < MapManager.Instance._map._regCats[_paintToolType]._regions.Count) ? _paintToolSubType : -1;
+
+                // CHECK IF REGION CAT EXISTS IN SECTOR; CHANGE VALUE
+                bool _flag1 = false;
+
+                for (int i = 0; i < MapManager.Instance._map._sectors[_paintToolS1]._regionCats.Count; i++)
+                {
+                    if (MapManager.Instance._map._sectors[_paintToolS1]._regionCats[i] == _paintToolType)
+                    {
+                        _flag1 = true;
+                        MapManager.Instance._map._sectors[_paintToolS1]._regionCatsRegionIds[i] = val;
+                        _paintToolS1 = -1;
+                        _paintToolS2 = -1;
+                        return;
+                    }
+                }
+                if (!_flag1) // ADD REGION CATEGORY
+                {
+                    MapManager.Instance._map._sectors[_paintToolS1]._regionCats.Add(_paintToolType);
+                    MapManager.Instance._map._sectors[_paintToolS1]._regionCatsRegionIds.Add(val);
+
+                    _paintToolS1 = -1;
+                    _paintToolS2 = -1;
+                }
+
+                return;
+            }
+
+            return;
+        }
+        else if (_a == 5) // CLICK HANDLER
+        {
+            if (_paintToolS1 == -1) // SET SECTOR 1
+            {
+                _paintToolS1 = MapManager.Instance.ReturnSector(MapManager.Instance.GetMouseSectorPos);
+
+                if (_paintToolMode == 0 && MapManager.Instance.ConnectionCount(_paintToolS1) <= 1)
+                {
+                    PAINT_TOOL_G_FUNCTIONS(4);
+                }
+                else if (_paintToolMode == 1)
+                {
+                    PAINT_TOOL_G_FUNCTIONS(4);
+                }
+            }
+            else if (_paintToolS2 == -1) // SET SECTOR 2
+            {
+                _paintToolS2 = MapManager.Instance.ReturnSector(MapManager.Instance.GetMouseSectorPos);
+
+                PAINT_TOOL_G_FUNCTIONS(4);
+            }
+        }
+        else if (_a == 6) // EXIT
+        {
+            _paintToolMenu.SetActive(false);
+        }
+        else if (_a == 7) // GENERAL UI MANAGEMENT
+        {
+            if (_paintToolMode == 0) // CONNECTION TYPE
+            {
+                if (_paintToolSubType >= MapManager.Instance._map._connType.Count)
+                {
+                    _paintToolSubType = -1;
+                }
+
+                Text[] _tObj = { _paintToolMenu.GetComponent<IndexScript>()._obj3.GetComponent<Text>(), _paintToolMenu.GetComponent<IndexScript>()._obj5.GetComponent<Text>(), _paintToolMenu.GetComponent<IndexScript>()._obj8.GetComponent<Text>() };
+
+                _paintToolMenu.GetComponent<IndexScript>()._obj6.SetActive(true);
+                _paintToolMenu.GetComponent<IndexScript>()._obj7.SetActive(true);
+
+                _tObj[0].text = "(TAB) MODE: CONNECTION TYPE";
+                _tObj[1].text = "(< / >) TYPE: " + ((_paintToolSubType > -1) ? MapManager.Instance._map._connType[_paintToolSubType]._name.ToUpper() : "REGULAR");
+
+                _paintToolS1 = Mathf.Clamp(_paintToolS1, -1, MapManager.Instance._map._sectors.Count - 1);
+                _paintToolS2 = Mathf.Clamp(_paintToolS2, -1, MapManager.Instance._map._sectors.Count - 1);
+
+                _tObj[2].text = "S1: " + ((_paintToolS1 > -1) ? MapManager.Instance._map._sectors[_paintToolS1].GetName(true) : "-");
+            }
+            else if (_paintToolMode == 1) // REGION
+            {
+                if (_paintToolType >= MapManager.Instance._map._regCats.Count)
+                {
+                    PAINT_TOOL_G_FUNCTIONS(0);
+                    return;
+                }
+
+                if (_paintToolSubType >= MapManager.Instance._map._regCats[_paintToolType]._regions.Count)
+                {
+                    _paintToolSubType = -1;
+                }
+
+                GalaxyMap.Instance._viewMode = "regions";
+                GalaxyMap.Instance._selFacInt = _paintToolType;
+
+                Text[] _tObj = { _paintToolMenu.GetComponent<IndexScript>()._obj3.GetComponent<Text>(), _paintToolMenu.GetComponent<IndexScript>()._obj5.GetComponent<Text>() };
+
+                _paintToolMenu.GetComponent<IndexScript>()._obj6.SetActive(false);
+                _paintToolMenu.GetComponent<IndexScript>()._obj7.SetActive(false);
+
+                _tObj[0].text = "(TAB) MODE: REGION (" + MapManager.Instance._map._regCats[_paintToolType]._name.ToUpper() + ")";
+                _tObj[1].text = "(< / >) TYPE: " + ((_paintToolSubType > -1) ? MapManager.Instance._map._regCats[_paintToolType]._regions[_paintToolSubType]._name : "No Data");
+
+                _paintToolS1 = Mathf.Clamp(_paintToolS1, -1, MapManager.Instance._map._sectors.Count - 1);
+            }
+        }
+        else if (_a == 8) // CYCLE TYPE DOWN
+        {
+            if (_paintToolMode == 0) // CONNECTION TYPE
+            {
+                _paintToolSubType--;
+                if (_paintToolSubType < -1)
+                {
+                    _paintToolSubType = MapManager.Instance._map._connType.Count - 1;
+                }
+            }
+            else if (_paintToolMode == 1) // REGION
+            {
+                _paintToolSubType--;
+                if (_paintToolSubType < -1)
+                {
+                    _paintToolSubType = MapManager.Instance._map._regCats[_paintToolType]._regions.Count - 1;
+                }
+            }
+        }
     }
 
     public void DELETE_CONF_MENU_FUNCTIONS(int _a)
@@ -2718,6 +3290,8 @@ public class GMMenu : MonoBehaviour
 
             _delIntA = -1;
             _delIntB = -1;
+
+            return;
         }
         else if (_a == 1) // EXIT
         {
@@ -3203,6 +3777,20 @@ public class GMMenu : MonoBehaviour
         if (_contextMenu.activeSelf && Input.GetKeyDown(KeyCode.Escape))
         {
             _contextMenu.SetActive(false);
+            MapManager.Instance._escapeMenuIncompatTriggered = true;
+        }
+        else if (_mConnType.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            _mConnType.SetActive(false);
+            OBJ3_CONNECTION_FUNCTIONS(9);
+
+            MapManager.Instance._escapeMenuIncompatTriggered = true;
+        }
+        else if (_mConnType_Context.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            _mConnType_Context.SetActive(false);
+
+            MapManager.Instance._escapeMenuIncompatTriggered = true;
         }
         else if (_menuObjectsL2.activeSelf && _currentL3Int >= 0 && Input.GetKeyDown(KeyCode.Escape))
         {
@@ -3214,11 +3802,15 @@ public class GMMenu : MonoBehaviour
             _menuObjectsL3Jumpgate.SetActive(false);
             _menuObjectsL3Region.SetActive(false);
             _contextMenu.SetActive(false);
+
+            MapManager.Instance._escapeMenuIncompatTriggered = true;
         }
         else if (_menuObjectsL2.activeSelf && Input.GetKeyDown(KeyCode.Escape))
         {
             _currentL2Int = -1;
             _menuObjectsL2.SetActive(false);
+
+            MapManager.Instance._escapeMenuIncompatTriggered = true;
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -3244,7 +3836,36 @@ public class GMMenu : MonoBehaviour
         {
             _mSMenu.SetActive(false);
         }
-        
+
+        if (_paintToolActive)
+        {
+            PAINT_TOOL_G_FUNCTIONS(7);
+
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace))
+            {
+                PAINT_TOOL_G_FUNCTIONS(0);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                PAINT_TOOL_G_FUNCTIONS(5);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                PAINT_TOOL_G_FUNCTIONS(2);
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                PAINT_TOOL_G_FUNCTIONS(3);
+            }
+            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                PAINT_TOOL_G_FUNCTIONS(8);
+            }
+        }
 
         if (_contextMenu.activeSelf)
         {
@@ -3264,7 +3885,53 @@ public class GMMenu : MonoBehaviour
             _mObjectsContextOffset = Mathf.Clamp(_mObjectsContextOffset, 0, 10000);
         }
 
+        if (_mConnType_Context.activeSelf)
+        {
+            if (_mConnTypeContextObjs.Count < 13)
+            {
+                _scrollbarObjConnContext.gameObject.SetActive(false);
+            }
+            else
+            {
+                _scrollbarObjConnContext.gameObject.SetActive(true);
+            }
 
+
+            _mConnTypeContextOffsetVal = _scrollbarObjConnContext.value;
+
+            _mConnTypeContextOffset[0] = Mathf.RoundToInt(_mConnTypeContextOffsetVal * (_mConnTypeContextObjs.Count - 13));
+            _mConnTypeContextOffset[0] = Mathf.Clamp(_mConnTypeContextOffset[0], 0, 10000);
+
+            if ((Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace) || !_menuObjectsL3Jumpgate.activeSelf) && !_mConnType.activeSelf)
+            {
+                _mConnType_Context.SetActive(false);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
+            }
+        }
+
+        if (_mConnColor.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) || !_menuObjectsL3Jumpgate.activeInHierarchy)
+            {
+                OBJ3_CONNECTION_FUNCTIONS(14);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
+            }
+        }
+
+        if (_mConnType.activeSelf)
+        {
+
+            if ((Input.GetKeyDown(KeyCode.Escape) || !_menuObjectsL3Jumpgate.activeInHierarchy) && !_mConnColor.activeSelf)
+            {
+                _mConnType.SetActive(false);
+                OBJ3_CONNECTION_FUNCTIONS(9);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
+            }
+        }
+        
         if (Input.GetMouseButtonDown(1) && MapManager.Instance.ContextMenuGCheck)
         {
             CONTEXT_MENU_G_FUNCTIONS(2);
@@ -3273,7 +3940,7 @@ public class GMMenu : MonoBehaviour
         }
         else if ((Input.GetMouseButtonDown(1) && ((!MapManager.Instance.ContextMenuGCheck && _contextMenuG.activeInHierarchy) || _contextMenuG.activeInHierarchy)) || (Input.GetMouseButtonDown(0) && !MapManager.Instance.ContextMenuGCheck && _contextMenuG.activeInHierarchy) || (!MapManager.Instance.ContextMenuGCheck && _contextMenuG.activeInHierarchy))
         {
-            
+
 
             CONTEXT_MENU_G_FUNCTIONS(2);
         }
@@ -3285,23 +3952,52 @@ public class GMMenu : MonoBehaviour
 
         if (_addConnectionMActive)
         {
+            /* 
+            PURPOSE : ALLOW ADDING, EDITING & REMOVING CONNECTIONS VIA CONTEXT MENU
+            INPUTS : 
+            -   Type (0 = Add, 1 = Remove, 2 = Edit)
+            -   Sector 1 (Selected Sector)
+            -   Sector 2 (Selected Sector if removing/editing, else -1)
+            -   Connection Type (If adding, else irrelevant)
+
+            METHOD :
+                (1) Check if ESCAPE pressed (-> exit)
+                (2) Display Menu & text based on "type"
+                (3) Check if Left clicked (if yes, get mouse sector position & trigger function)
+                (4) If adding, check if TAB pressed (if yes, cycle through connection types)
+                (5) Modify Connection Type display based on selected Connection
+            */
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 _addConnectionMActive = false;
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
             }
             _acmMenu.SetActive(true);
 
-            string[] t0 = {"Left Click to add new Connection", "Left Click to remove existing Connection"};
+            string[] t0 = { "Left Click to add new Connection", "Left Click to remove existing Connection", "Left Click to edit Connection to Sector" };
             _acmMenu.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = t0[_aCMMode];
 
             if (Input.GetMouseButtonDown(0))
             {
                 _s2Int = MapManager.Instance.ReturnSector(MapManager.Instance.GetMouseSectorPos);
+                int[] i1 = { 5, 6, 15 };
+                CONTEXT_MENU_G_FUNCTIONS(i1[_aCMMode]);
+            }
+            
+            _aCMInt1 = Mathf.Clamp(_aCMInt1, -1, MapManager.Instance._map._connType.Count - 1);
 
-                CONTEXT_MENU_G_FUNCTIONS(5 + _aCMMode);
+            if (_aCMMode == 0 && Input.GetKeyDown(KeyCode.Tab))
+            {
+                _aCMInt1++;
+                if (_aCMInt1 >= MapManager.Instance._map._connType.Count)
+                {
+                    _aCMInt1 = -1;
+                }
             }
 
-            
+            _acmMenu.GetComponent<IndexScript>()._obj2.SetActive((_aCMMode == 0) ? true : false);
+            _acmMenu.GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = (_aCMMode == 0) ? ((_aCMInt1 != -1 ) ? "(TAB) TYPE: " + MapManager.Instance._map._connType[_aCMInt1]._name.ToUpper() : "(TAB) TYPE: REGULAR") : "";
         }
         else
         {
@@ -3315,6 +4011,8 @@ public class GMMenu : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 DELETE_CONF_MENU_FUNCTIONS(1);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
             }
         }
         else
@@ -3348,6 +4046,8 @@ public class GMMenu : MonoBehaviour
                 {
                     _dMeasurementActive = false;
                     _dActive = false;
+
+                    MapManager.Instance._escapeMenuIncompatTriggered = true;
                 }
             }
             else
@@ -3359,6 +4059,8 @@ public class GMMenu : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
                     _dActive = false;
+
+                    MapManager.Instance._escapeMenuIncompatTriggered = true;
                 }
                 if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(0))
                 {
@@ -3380,6 +4082,8 @@ public class GMMenu : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Escape) || _contextMenuG.activeInHierarchy)
             {
                 REVEAL_TO_MENU_FUNCTIONS(0);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
             }
 
             if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.DownArrow))
@@ -3404,6 +4108,8 @@ public class GMMenu : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Escape) || _contextMenuG.activeInHierarchy)
             {
                 CHANGE_OWNER_MENU_FUNCTIONS(0);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
             }
         }
         else
@@ -3497,42 +4203,42 @@ public class GMMenu : MonoBehaviour
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._sectors.Count)
                 {
-                    RebuildObjectMenuL2(0);
+                    OBJ2_FUNCTIONS(0, 0);
                 }
             }
             else if (_currentL2Int == 1)
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._jumpGates.Count)
                 {
-                    RebuildObjectMenuL2(1);
+                    OBJ2_FUNCTIONS(0, 1);
                 }
             }
             else if (_currentL2Int == 2)
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._factions.Count)
                 {
-                    RebuildObjectMenuL2(2);
+                    OBJ2_FUNCTIONS(0, 2);
                 }
             }
             else if (_currentL2Int == 3)
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._alliances.Count)
                 {
-                    RebuildObjectMenuL2(3);
+                    OBJ2_FUNCTIONS(0, 3);
                 }
             }
             else if (_currentL2Int == 4)
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._playerFactions.Count)
                 {
-                    RebuildObjectMenuL2(4);
+                    OBJ2_FUNCTIONS(0, 4);
                 }
             }
             else if (_currentL2Int == 5)
             {
                 if (_menuObject2Objects.Count != MapManager.Instance._map._regCats.Count)
                 {
-                    RebuildObjectMenuL2(5);
+                    OBJ2_FUNCTIONS(0, 5);
                 }
             }
             for (int i = 0; i < _menuObject2Objects.Count; i++)
@@ -3672,6 +4378,8 @@ public class GMMenu : MonoBehaviour
                 if (_menuObjectsL3SectorPlacementActive && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)))
                 {
                     _menuObjectsL3SectorPlacementActive = false;
+
+                    MapManager.Instance._escapeMenuIncompatTriggered = true;
                 }
                 else if (_menuObjectsL3SectorPlacementActive && Input.GetMouseButtonDown(0))
                 {
@@ -3992,11 +4700,18 @@ public class GMMenu : MonoBehaviour
                 {
                     _menuObjectsL3Jumpgate.GetComponent<IndexScript>()._obj1.GetComponent<InputField>().text = MapManager.Instance._map._jumpGates[_currentL3Int]._name;
                 }
+                
+                // Display connection type
+                int _tID = MapManager.Instance._map._jumpGates[_currentL3Int]._typeId;
+                int _tCount = MapManager.Instance._map._connType.Count;
+                _menuObjectsL3Jumpgate.GetComponent<IndexScript>()._obj8.GetComponent<Text>().text = "----------------------\nCONNECTION TYPE: " + ((_tID >= 0 && _tID < _tCount) ? MapManager.Instance._map._connType[_tID]._name : "Regular");
 
 
                 if (_mOL3JumpGatesS1PlacementActive && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)))
                 {
                     _mOL3JumpGatesS1PlacementActive = false;
+
+                    MapManager.Instance._escapeMenuIncompatTriggered = true;
                 }
                 else if (_mOL3JumpGatesS1PlacementActive && Input.GetMouseButtonDown(0))
                 {
@@ -4065,6 +4780,8 @@ public class GMMenu : MonoBehaviour
                 if (_mOL3JumpGatesS2PlacementActive && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)))
                 {
                     _mOL3JumpGatesS2PlacementActive = false;
+
+                    MapManager.Instance._escapeMenuIncompatTriggered = true;
                 }
                 else if (_mOL3JumpGatesS2PlacementActive && Input.GetMouseButtonDown(0))
                 {
@@ -4161,6 +4878,8 @@ public class GMMenu : MonoBehaviour
                     else if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
                     {
                         OBJ3_PLAYERFACTION_FUNCTIONS(4);
+
+                        MapManager.Instance._escapeMenuIncompatTriggered = true;
                     }
 
                     _menuObjectsL3PlayerFaction.GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "Anchor Location: Select";
@@ -4375,6 +5094,8 @@ public class GMMenu : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape))
             {
                 _contextMenu.SetActive(false);
+
+                MapManager.Instance._escapeMenuIncompatTriggered = true;
             }
         }
         
@@ -4398,6 +5119,28 @@ public class GMMenu : MonoBehaviour
                 RepositionObjectsContext();
             }
             _mObjectsContextPrevOffset = 0;
+        }
+
+        if (_mConnTypeContextObjs.Count > 13)
+        {
+
+            _mConnTypeContextOffset[0] = Mathf.Clamp(_mConnTypeContextOffset[0], 0, _mConnTypeContextObjs.Count - 13);
+            if (_mConnTypeContextOffset[0] != _mConnTypeContextOffset[1])
+            {
+                RepositionObjectsConnContext();
+                _mConnTypeContextOffset[1] = _mConnTypeContextOffset[0];
+            }
+        }
+        else
+        {
+
+            _mConnTypeContextOffset[0] = 0;
+            _mConnTypeContextOffsetVal = 0;
+            if (_mConnTypeContextOffset[0] != _mConnTypeContextOffset[1])
+            {
+                RepositionObjectsConnContext();
+            }
+            _mConnTypeContextOffset[1] = 0;
         }
 
         if (_settingsMenu.activeSelf)

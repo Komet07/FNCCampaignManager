@@ -328,9 +328,9 @@ public class ConnectionType
     - Line Type : Should display different line types for further customization)
     */
     public string _name = ""; // i.e. Jumpgate, lane, pirate connection, etc.
-    public Color32 _lineColor = new Color32(255, 255, 255, 200);
+    public Color _lineColor = new Color(1, 1, 1, .8f);
     public float _lineWidth = 1f; // Multiples of 'regular' line width
-    public int _lineType = 0; // 0 = Regular, 1 = Dashed, 2 = Dotted, 3 = None (Only Points)
+    public int _lineType = 0; // 0 = Regular, 1 = Dashed, 2 = Dotted, 3 = Slanted, 4 = None (Only Points)
 
     public int _pointType = 0; // 0 = Circle, 1 = Square, 2 = Diamond, 3 = Cross
 }
@@ -1353,12 +1353,18 @@ public class MapManager : MonoBehaviour
 
     public int _selectedStarSystem = -1;
 
+    // GLOBAL UI STUFF
+    [Header("UI Settings")]
+    public Color32[] _uiButtonColors = { new Color32(60, 60, 60, 255), new Color32(55, 55, 55, 255) };
+
     // CONTEXT MENU INCOMPATABILITIES
     [Header("UI Menu Incompatabilities")]
     public List<GameObject> _contextMenuGIncompat = new List<GameObject>() { };
     public List<GameObject> _infoMenuGIncompat = new List<GameObject>() { };
     public List<GameObject> _cameraResetIncompat = new List<GameObject>() { }; // When should Camera position Reset ("R") not be triggered
 
+    public List<GameObject> _escapeMenuIncompat = new List<GameObject>() { }; // DON'T OPEN ESCAPE MENU UNTIL THESE ARE ALL CLOSED
+    public bool _escapeMenuIncompatTriggered = false;
 
     // TESTING
     [Header("Testing")]
@@ -1468,7 +1474,7 @@ public class MapManager : MonoBehaviour
         {
             ConnectionType _ct = new ConnectionType();
             _ct._name = "Connection";
-            _ct._lineColor = new Color32(255, 255, 255, 200);
+            _ct._lineColor = new Color(1, 1, 1, 1f);
             _ct._lineWidth = 1;
             _ct._lineType = 0;
             _ct._pointType = 0;
@@ -2125,7 +2131,7 @@ public class MapManager : MonoBehaviour
         GalaxyMap.Instance._regen = true;
     }
 
-    public void AddConnection(int s1, int s2)
+    public void AddConnection(int s1, int s2, object[] additionalData = null)
     {
         JumpGateConnection _jg = new JumpGateConnection();
         _jg._name = "Connection";
@@ -2133,6 +2139,14 @@ public class MapManager : MonoBehaviour
         _jg._sector2Id = s2;
         _jg._name1 = "Gate: " + _map._sectors[s1]._name;
         _jg._name2 = "Gate: " + _map._sectors[s2]._name;
+
+        if (additionalData.Length >= 1)
+        {
+            if (additionalData[0] != null)
+            {
+                _jg._typeId = (int)additionalData[0]; // GET DATA FOR JUMPGATE TYPE IF AVAILABLE
+            }
+        }
 
         _map._jumpGates.Add(_jg);
         GalaxyMap.Instance._regen = true;
@@ -2151,11 +2165,49 @@ public class MapManager : MonoBehaviour
         GalaxyMap.Instance._regen = true;
     }
 
+    public int GetConnectionID(int s1, int s2)
+    {
+        if (s2 == -1)
+        {
+            for (int i = 0; i < _map._jumpGates.Count; i++)
+            {
+                if (_map._jumpGates[i]._sector1Id == s1 || _map._jumpGates[i]._sector2Id == s1)
+                {
+                    return i;
+                }
+            }
+        }
+
+        for (int i = 0; i < _map._jumpGates.Count; i++)
+        {
+            if ((_map._jumpGates[i]._sector1Id == s1 || _map._jumpGates[i]._sector1Id == s2) && (_map._jumpGates[i]._sector2Id == s1 || _map._jumpGates[i]._sector2Id == s2))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public int ConnectionCount(int s)
+    {
+        int count = 0;
+        for (int i = 0; i < _map._jumpGates.Count; i++)
+        {
+            if (_map._jumpGates[i]._sector1Id == s || _map._jumpGates[i]._sector2Id == s)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     public Vector2 GetMouseSectorPos
     {
         get
         {
-            Vector2 _a = new Vector2(0,0);
+            Vector2 _a = new Vector2(0, 0);
 
             Vector3 _pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -3163,7 +3215,10 @@ public class MapManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (_escapeMenuIncompatTriggered)
+        {
+            _escapeMenuIncompatTriggered = false;
+        }
         
 
         if (!_savesDirCreated)

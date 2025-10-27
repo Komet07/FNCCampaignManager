@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class GalaxyMap : MonoBehaviour
 {
@@ -52,9 +53,15 @@ public class GalaxyMap : MonoBehaviour
 
     public string _viewMode = "factions";
 
+    // SPRITE COMPENDIUM
+    [Header("Textures")]
+    public Texture _spriteLineDash;
+    public Texture _spriteLineDotted;
+    public Texture _spriteLineSlanted;
+
     public void GalaxyMapInfoDisplay()
     {
-        
+
         if (_selectedInt >= 0)
         {
             _InfoDisplay.SetActive(true);
@@ -99,7 +106,7 @@ public class GalaxyMap : MonoBehaviour
 
                 if (_knowsOwner)
                 {
-                    
+
                     if (MapManager.Instance._map._sectors[_selectedInt]._controlFaction != -1)
                     {
                         if (_viewMode != "alliances")
@@ -129,14 +136,21 @@ public class GalaxyMap : MonoBehaviour
                 {
                     _InfoDisplayControl.text = "Unknown";
                 }
-                
-                    
+
+
             }
         }
         else
         {
             _InfoDisplay.SetActive(false);
-        }  
+        }
+    }
+
+    public void GalaxyMapLegend()
+    {
+        /*
+        DESCRIPTION : UI ELEMENT ON MAIN SCREEN THAT DISPLAYS INFORMATION ON CONNECTION TYPES, AIDING VISUAL IDENTIFICATION
+        */
     }
 
     public void SwitchViewMode()
@@ -239,7 +253,7 @@ public class GalaxyMap : MonoBehaviour
         {
             // Instantiate
             GameObject _jgClone = Instantiate(_originJGC, UIb.transform);
-            _jgClone.SetActive(true);
+            
 
             // Set sector 1 & 2 positions
 
@@ -278,36 +292,7 @@ public class GalaxyMap : MonoBehaviour
             }
 
 
-            // Type-specific visual adjustments
-            int _tID = MapManager.Instance._map._jumpGates[i]._typeId;
-            if (_tID != -1 && _tID < MapManager.Instance._map._connType.Count)
-            {
-                Debug.Log("Connection - Type ID:" + _tID);
-                ConnectionType _ct = MapManager.Instance._map._connType[_tID];
-
-                // SET LINE COLOR
-                Gradient _lColor = new Gradient();
-                GradientColorKey[] _cKey = new GradientColorKey[2];
-                _cKey[0] = new GradientColorKey(_ct._lineColor,0);
-                _cKey[1] = new GradientColorKey(_ct._lineColor,1);
-
-                GradientAlphaKey[] _aKey = new GradientAlphaKey[2];
-                _aKey[0] = new GradientAlphaKey(_ct._lineColor.a,0);
-                _aKey[1] = new GradientAlphaKey(_ct._lineColor.a,1);
-
-                _lColor.colorKeys = _cKey;
-                _lColor.alphaKeys = _aKey;
-
-                _jgClone.GetComponent<LineRenderer>().colorGradient = _lColor; 
-
-                // SET LINE WIDTH
-                float _w = 0.01f * _ct._lineWidth;
-                _jgClone.GetComponent<LineRenderer>().startWidth = _w;
-                _jgClone.GetComponent<LineRenderer>().endWidth = _w;
-
-                Debug.Log("Connection - Line Width:" + _ct._lineWidth);
-
-            }
+            
             
 
             // Calculate deltaX, deltaY and theta (using tan-1) for Sector 1 and 2
@@ -349,6 +334,67 @@ public class GalaxyMap : MonoBehaviour
             _jgClone.GetComponent<LineRenderer>().SetPosition(1, _p2);
             _jgClone.GetComponent<IndexScript>()._obj1.transform.position = _p1;
             _jgClone.GetComponent<IndexScript>()._obj2.transform.position = _p2;
+
+            // Type-specific visual adjustments
+            int _tID = MapManager.Instance._map._jumpGates[i]._typeId;
+            if (_tID != -1 && _tID < MapManager.Instance._map._connType.Count)
+            {
+                Debug.Log("Connection - Type ID:" + _tID);
+                ConnectionType _ct = MapManager.Instance._map._connType[_tID];
+
+                LineRenderer _lr = _jgClone.GetComponent<LineRenderer>();
+
+                // SET LINE COLOR
+                _lr.startColor = _ct._lineColor;
+                _lr.endColor = _ct._lineColor;
+
+                // SET COLOR OF DOTS
+                _jgClone.GetComponent<IndexScript>()._obj1.GetComponent<Image>().color = _ct._lineColor;
+                _jgClone.GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = _ct._lineColor;
+
+                // LINE MATERIAL
+                Material _m = _lr.material;
+
+                if (_ct._lineType == 0) // REGULAR
+                {
+                    _lr.textureScale = new Vector2(1, 1);
+                    _m.SetTexture("_MainTex", null);
+                }
+                else if (_ct._lineType == 1) // DASHED
+                {
+                    // Use distance for offset
+                    _m.SetTexture("_MainTex", _spriteLineDash);
+                    _lr.textureScale = new Vector2((10f / _ct._lineWidth), 1);
+                    Debug.Log(_lr.textureScale);
+                }
+                else if (_ct._lineType == 2) // DOTTED
+                {
+                    _m.SetTexture("_MainTex", _spriteLineDotted);
+                    _lr.textureScale = new Vector2((25f / _ct._lineWidth), 1);
+                }
+                else if (_ct._lineType == 3) // SLANTED
+                {
+                    _m.SetTexture("_MainTex", _spriteLineSlanted);
+                    _lr.textureScale = new Vector2((15f / _ct._lineWidth), 1);
+                }
+                else if (_ct._lineType == 4) // NONE (JUST POINTS)
+                {
+                    _lr.textureScale = new Vector2(1, 1);
+                    _m.SetTexture("_MainTex", null);
+
+                }
+
+
+                // SET LINE WIDTH
+                float _w = 0.02f * _ct._lineWidth;
+                _lr.startWidth = _w;
+                _lr.endWidth = _w;
+
+                Debug.Log("Connection - Line Width:" + _ct._lineWidth);
+
+            }
+            // Activate object
+            _jgClone.SetActive(true);
 
             _jgConnections.Add(_jgClone);
         }
@@ -1291,23 +1337,27 @@ public class GalaxyMap : MonoBehaviour
             if (_visConn1)
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj1.SetActive(true);
-                _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(255, 255, 255, 200);
+                Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().startColor;
+                _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(_col.r, _col.g, _col.b, 200);
             }
             else
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj1.SetActive(false);
-                _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(255, 255, 255, 0);
+                Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().startColor;
+                _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(_col.r, _col.g, _col.b, 0);
             }
 
             if (_visConn2)
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj2.SetActive(true);
-                _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(255, 255, 255, 200);
+                Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().endColor;
+                _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(_col.r, _col.g, _col.b, 200);
             }
             else
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj2.SetActive(false);
-                _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(255, 255, 255, 0);
+                Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().endColor;
+                _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(_col.r, _col.g, _col.b, 0);
             }
 
         }
