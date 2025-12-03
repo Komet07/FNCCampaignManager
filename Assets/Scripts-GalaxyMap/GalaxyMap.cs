@@ -159,7 +159,7 @@ public class GalaxyMap : MonoBehaviour
         string[] _specialViewModes = {"special_SectorVisibility"};
 
         string[] _viewModesText = {"Mode: Factions", "Mode: Alliances", "Mode: Relations", "Mode: Regions"};
-        string[] _specialViewModesText = {"Mode: (GM) Sector Vis."};
+        string[] _specialViewModesText = {"Mode: Sector Vis."};
 
         // Find current 'viewmode'
         int viewmode = -1;
@@ -1313,28 +1313,31 @@ public class GalaxyMap : MonoBehaviour
                     return;
                 }
                 _selFacInt = Mathf.Clamp(_selFacInt, 0, MapManager.Instance._map._factions.Count - 1);
-                _viewModeText.text = "Mode: (GM) Sector Vis. (" + MapManager.Instance._map._factions[_selFacInt]._shorthand + ")";
+                _viewModeText.text = "Mode: Sector Vis. (" + MapManager.Instance._map._factions[_selFacInt]._shorthand + ")";
 
                 _viewMode2Button.SetActive(true);
                 _viewMode2Button.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Switch Factions";
 
                 // HEXAGON COLORS - BASED ON DISCOVERED Y/N, EXPLORED Y/N, KNOWN SECTOR OWNER Y/N
-                byte[] colorCase = {75, 175};
+                byte[] colorCase = {75, 175, 230};
                 string[] textCase1 = {"N", "Y"};
 
-                byte rCol = MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? colorCase[1] : colorCase[0];
-                byte gCol = MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? colorCase[1] : colorCase[0];
-                byte bCol = MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? colorCase[1] : colorCase[0];
+                int _cFac = MapManager.Instance._map._sectors[i]._controlFaction;
+                bool _flag1 = _cFac == _selFacInt;
 
-                string rT = MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? textCase1[1] : textCase1[0];
-                string gT = MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? textCase1[1] : textCase1[0];
-                string bT = MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? textCase1[1] : textCase1[0];
+                byte rCol = !_flag1 ? (MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? colorCase[1] : colorCase[0]) : colorCase[2];
+                byte gCol = !_flag1 ? (MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? colorCase[1] : colorCase[0]) : colorCase[2];
+                byte bCol = !_flag1 ? (MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? colorCase[1] : colorCase[0]) : colorCase[2];
+
+                string dT = MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? textCase1[1] : textCase1[0];
+                string eT = MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? textCase1[1] : textCase1[0];
+                string kT = MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? textCase1[1] : textCase1[0];
 
                 _hexagons[i].GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = new Color32(rCol, gCol, bCol, 255); 
-                _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "D: " + rT + " / E: " + gT + " / O: " + bT;
+                _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "D: " + dT + " / E: " + eT + " / O: " + kT;
                 if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
                 {
-                    _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._shorthand;
+                    _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._shorthand + (_flag1 ? " (Own)" : "");
                 }
                 else
                 {

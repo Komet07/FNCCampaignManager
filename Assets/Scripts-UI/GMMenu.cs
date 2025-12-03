@@ -3391,6 +3391,53 @@ public class GMMenu : MonoBehaviour
                 }
             }
         }
+        else if (_a == 9) // CYCLE MODE DOWN
+        {
+            if ((_paintToolMode != 1 && _paintToolMode != 2) || (_paintToolMode == 1 && _paintToolType == 0) || (_paintToolMode == 2 && _paintToolType == 0))
+            {
+                _paintToolMode--;
+
+                
+
+                
+
+                if (_paintToolMode == 2 && (MapManager.Instance._map._factions.Count == 0 || MapManager.Instance._map._playerFactionId != -1))
+                {
+                    _paintToolMode--;
+                }
+
+                if (_paintToolMode == 1 && MapManager.Instance._map._regCats.Count == 0)
+                {
+                    _paintToolMode--;
+                }
+
+                if (_paintToolMode < 0)
+                {
+                    _paintToolMode = _paintToolModes - 1;
+                }
+
+                if (_paintToolMode == 1) // set _paintToolType to Max Region Count
+                {
+                    _paintToolType = MapManager.Instance._map._regCats.Count - 1;
+                }
+                else if (_paintToolMode == 2) // Set _paintToolType to Last Faction
+                {
+                    _paintToolType = MapManager.Instance._map._factions.Count - 1;
+                }
+                else
+                {
+                    _paintToolType = 0;
+                }
+                
+                _paintToolSubType = -1;
+            }
+            else
+            {
+                _paintToolType--;
+
+                _paintToolSubType = -1;
+            }
+        }
     }
 
     public void DELETE_CONF_MENU_FUNCTIONS(int _a)
@@ -3970,7 +4017,14 @@ public class GMMenu : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                PAINT_TOOL_G_FUNCTIONS(2);
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    PAINT_TOOL_G_FUNCTIONS(9);
+                }
+                else
+                {
+                    PAINT_TOOL_G_FUNCTIONS(2);
+                }
             }
             else if (Input.GetKeyDown(KeyCode.RightArrow))
             {

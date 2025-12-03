@@ -823,7 +823,7 @@ public class XMLWriter : MonoBehaviour
             var _map = Map.Load(Path.Combine(Application.persistentDataPath, "saves", _saveFileName+".xml"));
             MapManager.Instance._map = _map;
 
-            
+            MapManager.Instance.ResetRefIDs();
 
             GalaxyMap.Instance._regen = true;
             GalaxyMap.Instance._regen2 = true;

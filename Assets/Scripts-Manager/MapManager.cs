@@ -3525,10 +3525,36 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    // MAP VALIDATION //
+    public void ResetRefIDs()
+    {
+        // Sectors
+        for (int i = 0; i < _map._sectors.Count; i++)
+        {
+            _map._sectors[i]._refID = i;
+        }
+
+        // Factions
+        for (int i = 0; i < _map._factions.Count; i++)
+        {
+            _map._factions[i]._refId = i;
+        }
+
+        // Alliances
+        for (int i = 0; i < _map._alliances.Count; i++)
+        {
+            _map._alliances[i]._refId = i;
+        }
+        
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
         Debug.Log(Random.Range(0, 100000000).ToString("X"));
+
+        ResetRefIDs();
     }
 
     // Update is called once per frame
