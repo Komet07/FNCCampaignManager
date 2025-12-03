@@ -155,33 +155,70 @@ public class GalaxyMap : MonoBehaviour
 
     public void SwitchViewMode()
     {
-        if (_viewMode == "factions")
-        {
-            _viewMode = "alliances";
-            _viewModeText.text = "Mode: Alliances";
+        string[] _viewModes = {"factions", "alliances", "relations", "regions"}; // IN ORDER!
+        string[] _specialViewModes = {"special_SectorVisibility"};
 
+        string[] _viewModesText = {"Mode: Factions", "Mode: Alliances", "Mode: Relations", "Mode: Regions"};
+        string[] _specialViewModesText = {"Mode: (GM) Sector Vis."};
+
+        // Find current 'viewmode'
+        int viewmode = -1;
+
+        for (int i = 0; i < _viewModes.Length; i++)
+        {
+            if (_viewModes[i] == _viewMode)
+            {
+                viewmode = i;
+            }
         }
-        else if (_viewMode == "alliances")
+
+        if (viewmode == -1)
         {
-            _viewMode = "relations";
-            _viewModeText.text = "Mode: Relations";
-
-
+            for (int i = 0; i < _specialViewModes.Length; i++)
+            {
+                if (_specialViewModes[i] == _viewMode)
+                {
+                    viewmode = i + _viewModes.Length;
+                }
+            }
         }
-        else if (_viewMode == "relations")
+
+        if (viewmode == -1)
         {
-            _viewMode = "regions";
-            _viewModeText.text = "Mode: Regions";
+            viewmode = 0;
+        }
 
-
+        // Handle switch in GM & non-GM mode
+        if (MapManager.Instance._map._playerFactionId == -1) // GM CASE
+        {
+            viewmode++;
+            if (viewmode >= _viewModes.Length + _specialViewModes.Length)
+            {
+                viewmode = 0;
+            }
         }
         else
         {
-            _viewMode = "factions";
-            _viewModeText.text = "Mode: Factions";
-
-            _viewMode2Button.SetActive(false);
+            viewmode++;
+            if (viewmode >= _viewModes.Length)
+            {
+                viewmode = 0;
+            }
         }
+
+        if (viewmode < _viewModes.Length)
+        {
+            _viewMode = _viewModes[viewmode];
+            _viewModeText.text = _viewModesText[viewmode];
+        }
+        else
+        {
+            viewmode -= _viewModes.Length;
+            _viewMode = _specialViewModes[viewmode];
+            _viewModeText.text = _specialViewModesText[viewmode];
+        }
+
+        _viewMode2Button.SetActive(false);
     }
 
     public void RegenMap()
@@ -564,7 +601,7 @@ public class GalaxyMap : MonoBehaviour
 
     public void SwitchM()
     {
-        if (_viewMode == "relations")
+        if (_viewMode == "relations" || _viewMode == "special_SectorVisibility")
         {
             SwitchRelationsFaction();
         }
@@ -630,7 +667,7 @@ public class GalaxyMap : MonoBehaviour
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
                 // _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
             }
-            else if (_viewMode == "regions")
+            else if (_viewMode == "regions" || _viewMode == "special_SectorVisibility")
             {
                 _hexagons[i].GetComponent<IndexScript>()._obj6.SetActive(true);
                 // _hexagons[i].GetComponent<IndexScript>()._obj7.SetActive(false);
@@ -687,14 +724,7 @@ public class GalaxyMap : MonoBehaviour
                 bool _knowsSectorOwner = true;
                 if (MapManager.Instance._map._playerFactionId >= 0 && MapManager.Instance._map._sectors[i]._controlFaction != MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
                 {
-                    _knowsSectorOwner = false;
-                    for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
-                    {
-                        if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
-                        {
-                            _knowsSectorOwner = true;
-                        }
-                    }
+                    _knowsSectorOwner = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID].SectorKnownOwner(i);
 
                     if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
                     {
@@ -1267,6 +1297,52 @@ public class GalaxyMap : MonoBehaviour
                     
                 }
             }
+            else if (_viewMode == "special_SectorVisibility")
+            {
+                if (MapManager.Instance._map._playerFactionId != -1)
+                {
+                    SwitchViewMode(); // CHANGE OUT IF VIEW MODE IS GM-ONLY & NOT GM
+                    return;
+                }
+                
+                _viewModeText.text = "Mode: (GM) Sector Vis. (" + MapManager.Instance._map._factions[_selFacInt]._shorthand + ")";
+
+                if (MapManager.Instance._map._factions.Count == 0)
+                {
+                    SwitchViewMode();
+                    return;
+                }
+                _selFacInt = Mathf.Clamp(_selFacInt, 0, MapManager.Instance._map._factions.Count - 1);
+                _viewModeText.text = "Mode: (GM) Sector Vis. (" + MapManager.Instance._map._factions[_selFacInt]._shorthand + ")";
+
+                _viewMode2Button.SetActive(true);
+                _viewMode2Button.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "Switch Factions";
+
+                // HEXAGON COLORS - BASED ON DISCOVERED Y/N, EXPLORED Y/N, KNOWN SECTOR OWNER Y/N
+                byte[] colorCase = {75, 175};
+                string[] textCase1 = {"N", "Y"};
+
+                byte rCol = MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? colorCase[1] : colorCase[0];
+                byte gCol = MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? colorCase[1] : colorCase[0];
+                byte bCol = MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? colorCase[1] : colorCase[0];
+
+                string rT = MapManager.Instance._map._factions[_selFacInt].SectorDiscovered(i) ? textCase1[1] : textCase1[0];
+                string gT = MapManager.Instance._map._factions[_selFacInt].SectorExplored(i) ? textCase1[1] : textCase1[0];
+                string bT = MapManager.Instance._map._factions[_selFacInt].SectorKnownOwner(i) ? textCase1[1] : textCase1[0];
+
+                _hexagons[i].GetComponent<IndexScript>()._obj2.GetComponent<Image>().color = new Color32(rCol, gCol, bCol, 255); 
+                _hexagons[i].GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = "D: " + rT + " / E: " + gT + " / O: " + bT;
+                if (MapManager.Instance._map._sectors[i]._controlFaction != -1)
+                {
+                    _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = MapManager.Instance._map._factions[MapManager.Instance._map._sectors[i]._controlFaction]._shorthand;
+                }
+                else
+                {
+                    _hexagons[i].GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "NEU";
+                }
+
+            }
+            
             //Check if selecting a sector hexagon
             Ray rayC;
             RaycastHit hitC;

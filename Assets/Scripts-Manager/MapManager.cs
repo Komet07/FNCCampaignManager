@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
@@ -9,6 +8,7 @@ using UnityEngine.UI;
 using UI;
 
 using SystemMap;
+using System.Linq;
 
 [System.Serializable]
 public class Sector
@@ -262,6 +262,63 @@ public class Faction
     // Known Fleet Owners
     [XmlArray("KnownFleetOwners"), XmlArrayItem("KnownFleetOwner")]
     public List<int> _knownFleetOwners = new List<int>() { };
+
+    public bool SectorDiscovered(int _s)
+    {
+
+        for (int i = 0; i < _discoveredSectors.Count; i++)
+        {
+            if (_discoveredSectors[i] == _s)
+            {
+                return true;
+            }
+        }
+
+        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool SectorExplored(int _s)
+    {
+
+        for (int i = 0; i < _exploredSectors.Count; i++)
+        {
+            if (_exploredSectors[i] == _s)
+            {
+                return true;
+            }
+        }
+
+        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool SectorKnownOwner(int _s)
+    {
+
+        for (int i = 0; i < _knownSectorOwnership.Count; i++)
+        {
+            if (_knownSectorOwnership[i] == _s)
+            {
+                return true;
+            }
+        }
+
+        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 [System.Serializable]
@@ -431,6 +488,259 @@ public class Fleet
     [Header("Ships")]
     [XmlArray("Ships"), XmlArrayItem("Ship")]
     public List<Ship> _ships = new List<Ship>();
+
+
+    // <-- FUEL FUNCTIONS -->
+    public float getMaxFuel // GET MAX REG FUEL
+    {
+        get
+        {
+            float f = 0;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                Ship _s = _ships[i];
+
+                f += _s._maxFuel;
+            }
+
+            return f;
+        }
+    }
+
+    public float getMaxTFuel // GET ONLY MAX TANKER FUEL
+    {
+        get
+        {
+            float f = 0;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                Ship _s = _ships[i];
+
+                f += _s._maxTankerFuel;
+            }
+
+            return f;
+        }
+    }
+
+    public float getCurrentFuel // GET CURRENT FUEL IN FLEET
+    {
+        get
+        {
+            float f = 0;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                Ship _s = _ships[i];
+
+                f += _s._currentFuel;
+            }
+
+            return f;
+        }
+    }
+
+    public float getCurrentTFuel // GET ONLY CURRENT TANKER FUEL
+    {
+        get
+        {
+            float f = 0;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                Ship _s = _ships[i];
+
+                f += _s._currentTankerFuel;
+            }
+
+            return f;
+        }
+    }
+
+    public void RefillFuel(float _amount, out float _fLeft)
+    {
+        _fLeft = _amount;
+
+        // HOW MUCH FUEL IS MISSING IN FLEET
+        float _tFuelDiff = getMaxTFuel - getCurrentTFuel;
+        float _fuelDiff = getMaxFuel - getCurrentFuel;
+
+        // BEST CASE SCENARIO: REFILL TO MAX
+        if (_amount > (_fuelDiff + _tFuelDiff))
+        {
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                _ships[i].RefuelToMax();
+            }
+
+            _fLeft = _amount - (_fuelDiff + _tFuelDiff);
+        }
+
+        // WORK THROUGH FUEL DIFF FIRST, THEN FILL T FUEL
+        // v - REGULAR FUEL - v
+        int lowestShipID = -1;
+
+        // BASICS : RECURSIVELY GO THROUGH SHIPS, PICK SHIP WITH LOWEST RANGE AND ADD A FUEL UNIT UNTIL NO FUEL OR SPACE LEFT
+        while (_fLeft > 0)
+        {
+            float lowestRange = 10000000f;
+            lowestShipID = -1;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                if (_ships[i].FuelRange < lowestRange && _ships[i].FuelFraction < 1f && _ships[i]._maxFuel > 0)
+                {
+                    lowestRange = _ships[i].FuelRange;
+                    lowestShipID = i;
+                }
+            }
+
+            if (lowestShipID == -1)
+            {
+                break; // BREAK IF NO SHIP IS MISSING FUEL
+            }
+
+            _ships[lowestShipID]._currentFuel += (_ships[lowestShipID]._maxFuel - _ships[lowestShipID]._currentFuel > 1f) ? 1f : (_ships[lowestShipID]._maxFuel - _ships[lowestShipID]._currentFuel);
+            _fLeft -= (_ships[lowestShipID]._maxFuel - _ships[lowestShipID]._currentFuel > 1f) ? 1f : (_ships[lowestShipID]._maxFuel - _ships[lowestShipID]._currentFuel);
+
+            _ships[lowestShipID]._currentFuel = Mathf.Clamp(_ships[lowestShipID]._currentFuel, 0, _ships[lowestShipID]._maxFuel);
+        }
+
+        // v - TANKER FUEL - v
+        lowestShipID = -1;
+
+        // BASICS: GO THROUGH ALL TANKERS, PICK TANKER WITH LOWEST CURRENT FRACTION AND ADD A FUEL UNIT UNTIL NO FUEL OR SPACE LEFT
+        while (_fLeft > 0)
+        {
+            float lowestFraction = 1f;
+            lowestShipID = -1;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                if (_ships[i].TankerFuelFraction < lowestFraction && _ships[i]._maxTankerFuel > 0)
+                {
+                    lowestFraction = _ships[i].TankerFuelFraction;
+                    lowestShipID = i;
+                }
+            }
+
+            if (lowestShipID == -1)
+            {
+                break; // BREAK IF NO SHIP IS MISSING TANKER FUEL
+            }
+
+            _ships[lowestShipID]._currentTankerFuel += (_ships[lowestShipID]._maxTankerFuel - _ships[lowestShipID]._currentTankerFuel > 1f) ? 1f : (_ships[lowestShipID]._maxTankerFuel - _ships[lowestShipID]._currentTankerFuel);
+            _fLeft -= (_ships[lowestShipID]._maxTankerFuel - _ships[lowestShipID]._currentTankerFuel > 1f) ? 1f : (_ships[lowestShipID]._maxFuel - _ships[lowestShipID]._currentTankerFuel);
+
+            _ships[lowestShipID]._currentTankerFuel = Mathf.Clamp(_ships[lowestShipID]._currentTankerFuel, 0, _ships[lowestShipID]._maxTankerFuel);
+        }
+    }
+
+    public float FuelConsumption
+    {
+        get
+        {
+            float f = 0;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                f += _ships[i]._fuelConsumption;
+            }
+
+            return f;
+        }
+    }
+
+    public float fleetLowestRange
+    {
+        get
+        {
+            float r = Mathf.Infinity;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                if (_ships[i].FuelRange < r)
+                {
+                    r = _ships[i].FuelRange;
+                }
+            }
+
+            r += Mathf.Floor(getCurrentTFuel / FuelConsumption);
+
+            return r;
+        }
+    }
+
+    public void ConsumeFuel(int distance)
+    {
+        float _fuelSpent = distance * FuelConsumption;
+
+        List<float> _hexLeftShip = new List<float>() {};
+
+        // FUEL USAGE INIT ROUND
+        for (int i = 0; i < _ships.Count; i++)
+        {
+            _hexLeftShip.Add(distance);
+        }
+
+        // v - USE FUEL - v
+        int usedShipID = -1;
+        float lowestRangeLeft = Mathf.Infinity;
+
+        while (_fuelSpent > 0)
+        {
+            // SEARCH FOR SHIP WITH LOWEST RANGE LEFT
+            usedShipID = -1;
+            lowestRangeLeft = Mathf.Infinity;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                if (_ships[i].FuelRange - _hexLeftShip[usedShipID] < lowestRangeLeft && _ships[i]._currentFuel > 0 && _hexLeftShip[usedShipID] > 0)
+                {
+                    usedShipID = i;
+                    lowestRangeLeft = _ships[i].FuelRange;
+                }
+            }
+
+            if (usedShipID == -1)
+            {
+                _fuelSpent = 0;
+                break;
+            }
+
+            // USE TANKER FUEL FIRST IF PRESENT
+            if (getCurrentTFuel > 0)
+            {
+                int tankerID = -1;
+                float highestTankerFuel = 0;
+
+                for (int i = 0; i < _ships.Count; i++)
+                {
+                    if (_ships[i]._currentTankerFuel > highestTankerFuel)
+                    {
+                        tankerID = i;
+                        highestTankerFuel = _ships[i]._currentTankerFuel;
+                    }
+                }
+
+                _fuelSpent -= (_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel;
+                _hexLeftShip[usedShipID] -= ((_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel) / _ships[usedShipID]._fuelConsumption;
+                _ships[tankerID]._currentTankerFuel -= (_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel;
+                _ships[tankerID]._currentTankerFuel = Mathf.Clamp(_ships[tankerID]._currentTankerFuel, 0, _ships[tankerID]._maxTankerFuel);
+
+            }
+            else
+            {
+                _fuelSpent -= (_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel;
+                _hexLeftShip[usedShipID] -= ((_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel) / _ships[usedShipID]._fuelConsumption;
+                _ships[usedShipID]._currentFuel -= (_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel;
+                _ships[usedShipID]._currentFuel = Mathf.Clamp(_ships[usedShipID]._currentFuel, 0, _ships[usedShipID]._maxFuel);
+            }
+
+        }
+    }
 }
 
 [System.Serializable]
@@ -606,11 +916,19 @@ public class Ship
         }
     }
 
+    public float FuelRange
+    {
+        get
+        {
+            return (_maxFuel > 0 && _fuelConsumption > 0) ? (_currentFuel / _fuelConsumption) : Mathf.Infinity;
+        }
+    }
+
     public float TankerFuelFraction
     {
         get
         {
-            return (_maxTankerFuel > 0) ? (_currentTankerFuel / _maxTankerFuel) : 0;
+            return (_maxTankerFuel > 0) ? (_currentTankerFuel / _maxTankerFuel) : 1f;
         }
         set
         {
