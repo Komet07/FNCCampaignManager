@@ -274,7 +274,7 @@ public class Faction
             }
         }
 
-        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        if (MapManager.Instance._map._sectors[_s]._controlFaction == _refId)
         {
             return true;
         }
@@ -293,7 +293,7 @@ public class Faction
             }
         }
 
-        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        if (MapManager.Instance._map._sectors[_s]._controlFaction == _refId)
         {
             return true;
         }
@@ -312,7 +312,7 @@ public class Faction
             }
         }
 
-        if (MapManager.Instance._map._sectors[_s]._controlFaction > -1 && MapManager.Instance._map._sectors[_s]._controlFaction < MapManager.Instance._map._factions.Count && MapManager.Instance._map._factions[MapManager.Instance._map._sectors[_s]._controlFaction] == this)
+        if (MapManager.Instance._map._sectors[_s]._controlFaction == _refId)
         {
             return true;
         }
@@ -1756,6 +1756,7 @@ public class MapManager : MonoBehaviour
             _faction._knownFactions = new List<int>();
             _faction._defaultRep = 0;
             _faction._allianceId = -1;
+            _faction._refId = _map._factions.Count;
 
             _map._factions.Add(_faction);
         }
