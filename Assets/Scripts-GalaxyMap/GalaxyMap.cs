@@ -940,14 +940,9 @@ public class GalaxyMap : MonoBehaviour
                         {
                             float _val = 0;
                             string _specCon = "";
-                            for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._repIds.Count; j++)
-                            {
-                                if (MapManager.Instance._map._reps[MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._repIds[j]]._faction1 == MapManager.Instance._map._sectors[i]._controlFaction || MapManager.Instance._map._reps[MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._repIds[j]]._faction2 == MapManager.Instance._map._sectors[i]._controlFaction)
-                                {
-                                    _val = MapManager.Instance._map._reps[MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._repIds[j]]._repVal;
-                                    _specCon = MapManager.Instance._map._reps[MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._repIds[j]]._specialVal;
-                                }
-                            }
+
+                            MapManager.Instance.GetRepState(MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID, MapManager.Instance._map._sectors[i]._controlFaction, out _val, out _specCon);
+
                             Color32 _col = new Color32(0, 0, 0, 255);
                             string _repName = "";
                             DetermineRelationsColor(_val, _specCon, out _col, out _repName);
@@ -1016,14 +1011,9 @@ public class GalaxyMap : MonoBehaviour
                         {
                             float _val = 0;
                             string _specCon = "";
-                            for (int j = 0; j < MapManager.Instance._map._factions[_selFacInt]._repIds.Count; j++)
-                            {
-                                if (MapManager.Instance._map._reps[MapManager.Instance._map._factions[_selFacInt]._repIds[j]]._faction1 == MapManager.Instance._map._sectors[i]._controlFaction || MapManager.Instance._map._reps[MapManager.Instance._map._factions[_selFacInt]._repIds[j]]._faction2 == MapManager.Instance._map._sectors[i]._controlFaction)
-                                {
-                                    _val = MapManager.Instance._map._reps[MapManager.Instance._map._factions[_selFacInt]._repIds[j]]._repVal;
-                                    _specCon = MapManager.Instance._map._reps[MapManager.Instance._map._factions[_selFacInt]._repIds[j]]._specialVal;
-                                }
-                            }
+
+                            MapManager.Instance.GetRepState(_selFacInt, MapManager.Instance._map._sectors[i]._controlFaction, out _val, out _specCon);
+
                             Color32 _col;
                             string _repName;
                             DetermineRelationsColor(_val, _specCon, out _col, out _repName);

@@ -330,7 +330,6 @@ namespace UI
                 if (GalaxyMap.Instance._viewMode == "special_SectorVisibility")
                 {
                     _token.GetComponent<Image>().color = new Color32(150, 150, 150, 255);
-                        
                 }
                 else if (!MapManager.Instance.Fleet_IsOwnerKnown(_fID))
                 {

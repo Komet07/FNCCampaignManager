@@ -1682,6 +1682,8 @@ public class MapManager : MonoBehaviour
     public List<GameObject> _cameraResetIncompat = new List<GameObject>() { }; // When should Camera position Reset ("R") not be triggered
 
     public List<GameObject> _escapeMenuIncompat = new List<GameObject>() { }; // DON'T OPEN ESCAPE MENU UNTIL THESE ARE ALL CLOSED
+
+    public List<GameObject> _tooltipGIncompat = new List<GameObject>() {}; // Tooltip will not trigger if these menus are open.
     public bool _escapeMenuIncompatTriggered = false;
 
     // TESTING
@@ -2416,6 +2418,46 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    public bool TooltipGIncompatCheck
+    {
+        get
+        {
+            bool flag = true;
+
+            for (int i = 0; i < _tooltipGIncompat.Count; i++)
+            {
+                if (_tooltipGIncompat[i].activeInHierarchy)
+                {
+                    flag = false;
+                }
+            }
+
+            return flag;
+        }
+    }
+
+    public void GetRepState(int _f1, int _f2, out float _v, out string _s)
+    {
+        _v = 0f;
+        _s = "";
+
+        if (_f1 < 0 || _f1 > _map._factions.Count)
+        {
+            return;
+        }
+
+        for (int j = 0; j < _map._factions[_f1]._repIds.Count; j++)
+        {
+            if (_map._reps[_map._factions[_f1]._repIds[j]]._faction1 == _f2 || _map._reps[_map._factions[_f1]._repIds[j]]._faction2 == _f2)
+            {
+                _v = _map._reps[_map._factions[_f1]._repIds[j]]._repVal;
+                _s = _map._reps[_map._factions[_f1]._repIds[j]]._specialVal;
+            }
+        }
+
+        return;
+    }
+
     public int ReturnSector(Vector2 _pos)
     {
         for (int i = 0; i < _map._sectors.Count; i++)
@@ -2557,6 +2599,41 @@ public class MapManager : MonoBehaviour
 
             return _a;
         }
+    }
+
+    public Vector2 GetScreenSectorPos(Vector3 _b)
+    {
+        Vector2 _a = new Vector2(0, 0);
+
+        Vector3 _pos = Camera.main.ScreenToWorldPoint(_b);
+
+        float xPos = _pos.x / .75f;
+
+        int xPosI = Mathf.RoundToInt(xPos);
+
+        float yPos = 0;
+        if (Mathf.Pow(xPosI, 2) % 2 == 0)
+        {
+            if (xPosI <= 0)
+            {
+                yPos = _pos.y / .9f;
+            }
+            else
+            {
+                yPos = _pos.y / .9f;
+            }
+        }
+        else
+        {
+            yPos = (_pos.y - .45f) / .9f;
+        }
+
+        int yPosI = Mathf.RoundToInt(yPos);
+
+        _a = new Vector2(xPosI, yPosI);
+
+        return _a;
+        
     }
 
     public bool IsInDiscoveredList(int _sec, bool flag)
