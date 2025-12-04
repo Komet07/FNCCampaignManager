@@ -76,9 +76,75 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                         return true;
                     }
                 }
-
-                return false;
             }
+
+            return false;
+        }
+        else if (_a == 3) // Connections
+        {
+            // GEOMETRIC APPROACH : Compare mouse world angle & distance (2d) to base point of connection with 2nd point. Steps: Get distance of mouse to point (Radius), get closest position on connection line to point (if radius < connection length) and compare to some margin. If within margin, trigger. -> Works from both points.
+
+            for (int i = 0; i < MapManager.Instance._map._jumpGates.Count; i++)
+            {
+                // Get Connection World position
+                Vector2[] _cWorldPos;
+
+                MapManager.Instance.JumpgatePointPos(i, out _cWorldPos);
+
+                // Visibility Verification
+                JumpGateConnection _c = MapManager.Instance._map._jumpGates[i];
+
+                bool flag_gm = MapManager.Instance._map._playerFactionId == -1;
+                int _pFac = !flag_gm ? MapManager.Instance._map._playerFactionId : -1;
+
+                bool flag_1 = _c._sector1Id > -1 && _c._sector1Id < MapManager.Instance._map._sectors.Count; // Sector 1 Exists
+                bool flag_2 = _c._sector2Id > -1 && _c._sector2Id < MapManager.Instance._map._sectors.Count; // Sector 2 Exists
+
+                bool flag_3 = flag_gm ? true : flag_1 ? MapManager.Instance._map._factions[_pFac].SectorExplored(_c._sector1Id) : false; // Is 1st Sector Explored
+                bool flag_4 = flag_gm ? true : flag_2 ? MapManager.Instance._map._factions[_pFac].SectorExplored(_c._sector2Id) : false; // Is 2nd Sector Explored
+
+                if (!flag_3 && !flag_4)
+                {
+                    continue; // This Jumpgate Entry is entirely invisible.
+                }
+
+                int _order = flag_3 ? 0 : 1; // Pick visible point as base point. 
+
+                bool _detectionLimit = !(flag_3 && flag_4); // Impose tooltip trigger limit.
+
+                float _margin = 0.05f;
+                
+                // Position Stuff
+                Vector2 _pPoint = _cWorldPos[_order]; // Position of Base Point
+                Vector2 _pPoint2 = _cWorldPos[1 - _order]; // Position of Second Point
+                Vector2 _pDelta = _pPoint2 - _pPoint;
+
+                float _maxR = (_pPoint2 - _pPoint).magnitude; // Maximum radius of mouse
+
+                Vector3 _camPos = Camera.main.ScreenToWorldPoint(_startMPos);
+                Vector2 _cPos = new Vector2(_camPos.x, _camPos.y);
+
+                Vector2 _diffPos = _cPos - _pPoint;
+
+                float _r = _diffPos.magnitude;
+
+                if (_r <= _maxR)
+                {
+                    Vector2 _compPoint = _pPoint + _pDelta * (_r / _maxR);
+
+                    if ((_compPoint - _cPos).magnitude < _margin)
+                    {
+                        _secondaryVar = i;
+                        return true;
+                    }
+                }
+
+                
+                
+            }
+
+
+            return false;
         }
 
 
@@ -87,7 +153,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
     void DetermineHoverObjectMaster() // Determine what the mouse is hovering over - Priority List
     {
-        int[] _priorityList = {2, 1, 0};
+        int[] _priorityList = {3, 2, 1, 0};
 
         for (int i = 0; i < _priorityList.Length; i++)
         {
@@ -171,7 +237,6 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
     void MenuConfig() // Configure stats for menu
     {
-        
 
         string[] _text = new string[15]; // Text strings
         int[] _tColor = new int[15]; // Color Codes for text lines
@@ -489,6 +554,67 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
                 _lineCount++;
             }
+        }
+        else if (currentHoverType == 3) // Connection
+        {
+            int i = _secondaryVar;
+
+            _tooltipType = _shift ? 1 : 0;
+            _lineCount = _shift ? 2 : 4;
+
+
+            JumpGateConnection _c = MapManager.Instance._map._jumpGates[i];
+
+            bool flag_1 = _c._typeId > -1 && _c._typeId < MapManager.Instance._map._connType.Count;
+            int _cTId = _c._typeId;
+            int _s1 = _c._sector1Id;
+            int _s2 = _c._sector2Id;
+
+            
+            
+
+            bool flag_2 = _s1 > -1 && _s1 < MapManager.Instance._map._sectors.Count; // Does Sector 1 exist?
+            bool flag_3 = _s2 > -1 && _s1 < MapManager.Instance._map._sectors.Count; // Does Sector 2 exist?
+
+            bool flag_gm = MapManager.Instance._map._playerFactionId == -1; // IS GM?
+
+            int _pFac = !flag_gm ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID : -1;
+
+            bool flag_4 = flag_2 ? (flag_gm ? true : (MapManager.Instance._map._factions[_pFac].SectorExplored(_s1) && _c._discoverable1)) : false; // Connection 1 Known?
+            bool flag_5 = flag_3 ? (flag_gm ? true : (MapManager.Instance._map._factions[_pFac].SectorExplored(_s2) && _c._discoverable2)) : false; // Connection 2 Known?
+
+            // Line 1 - Connection Type
+            _text[0] = flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Jumpgate Lane";
+            _tColor[0] = 0;
+            _tType[0] = FontStyle.Bold;
+
+            // Sectors
+            if (_shift)
+            {
+                string[] _t = {flag_4 ? MapManager.Instance._map._sectors[_s1].GetName(true) : "Unknown", flag_5 ? MapManager.Instance._map._sectors[_s2].GetName(true) : "Unknown"};
+
+                _text[1] = $"{_t[0]} - {_t[1]}";
+                _tColor[1] = 1;
+                _tType[1] = FontStyle.Bold;
+            }
+            else
+            {
+                string[] _t = {flag_4 ? MapManager.Instance._map._sectors[_s1].GetName(true) : "Unknown", flag_5 ? MapManager.Instance._map._sectors[_s2].GetName(true) : "Unknown"};
+
+                _text[1] = $"{_t[0]}";
+                _tColor[1] = 1;
+                _tType[1] = FontStyle.Bold;
+
+                _text[2] = "-";
+                _tColor[2] = 1;
+                _tType[2] = FontStyle.Bold;
+
+                _text[3] = $"{_t[1]}";
+                _tColor[3] = 1;
+                _tType[3] = FontStyle.Bold;
+            }
+
+
         }
 
         MenuConstructor(_tooltipType, _lineCount, _text, _tColor, _tType);

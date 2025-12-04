@@ -291,81 +291,12 @@ public class GalaxyMap : MonoBehaviour
             // Instantiate
             GameObject _jgClone = Instantiate(_originJGC, UIb.transform);
             
+            Vector2[] _pos;
 
-            // Set sector 1 & 2 positions
+            MapManager.Instance.JumpgatePointPos(i, out _pos);
 
-            float _s1X = 0;
-            float _s1Y = 0;
-
-            float _s2X = 0;
-            float _s2Y = 0;
-
-            if (MapManager.Instance._map._jumpGates[i]._sector1Id != -1)
-            {
-                Sector _sector1 = MapManager.Instance._map._sectors[MapManager.Instance._map._jumpGates[i]._sector1Id];
-                _s1X = _sector1._posXInt;
-                _s1Y = _sector1._posYInt;
-
-                MapManager.Instance._map._jumpGates[i]._s1p = new Vector2(_sector1._posXInt, _sector1._posYInt);
-            }
-            else
-            {
-                _s1X = MapManager.Instance._map._jumpGates[i]._s1p.x;
-                _s1Y = MapManager.Instance._map._jumpGates[i]._s1p.y;
-            }
-
-            if (MapManager.Instance._map._jumpGates[i]._sector2Id != -1)
-            {
-                Sector _sector2 = MapManager.Instance._map._sectors[MapManager.Instance._map._jumpGates[i]._sector2Id];
-                _s2X = _sector2._posXInt;
-                _s2Y = _sector2._posYInt;
-
-                MapManager.Instance._map._jumpGates[i]._s2p = new Vector2(_sector2._posXInt, _sector2._posYInt);
-            }
-            else
-            {
-                _s2X = MapManager.Instance._map._jumpGates[i]._s2p.x;
-                _s2Y = MapManager.Instance._map._jumpGates[i]._s2p.y;
-            }
-
-
-            
-            
-
-            // Calculate deltaX, deltaY and theta (using tan-1) for Sector 1 and 2
-
-            float _deltaXs1 = (.75f * _s2X) - (.75f * _s1X);
-            float _deltaXs2 = (.75f * _s1X) - (.75f * _s2X);
-
-            float _sector1YPos = 0;
-            float _sector2YPos = 0;
-
-            if ((_s1X * _s1X) % 2 == 1)
-            {
-                _sector1YPos = .9f * _s1Y + .45f;
-            }
-            else
-            {
-                _sector1YPos = .9f * _s1Y;
-            }
-
-            if ((_s2X*_s2X) % 2 == 1)
-            {
-                _sector2YPos = .9f * _s2Y + .45f;
-            }
-            else
-            {
-                _sector2YPos = .9f * _s2Y;
-            }
-
-            float _deltaYs1 = _sector2YPos - _sector1YPos;
-            float _deltaYs2 = _sector1YPos - _sector2YPos;
-
-            float theta1 = Mathf.Atan2(_deltaYs1, _deltaXs1);
-            float theta2 = Mathf.Atan2(_deltaYs2, _deltaXs2);
-
-            Vector3 _p1 = new Vector3(_s1X*.75f + Mathf.Cos(theta1) * .3f, _sector1YPos + Mathf.Sin(theta1) * .3f, -5);
-            Vector3 _p2 = new Vector3(_s2X*.75f + Mathf.Cos(theta2) * .3f, _sector2YPos + Mathf.Sin(theta2) * .3f, -5);
+            Vector3 _p1 = new Vector3(_pos[0].x, _pos[0].y, -5);
+            Vector3 _p2 = new Vector3(_pos[1].x, _pos[1].y, -5);
 
             _jgClone.GetComponent<LineRenderer>().SetPosition(0, _p1);
             _jgClone.GetComponent<LineRenderer>().SetPosition(1, _p2);
