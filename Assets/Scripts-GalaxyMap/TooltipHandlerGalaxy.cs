@@ -168,11 +168,12 @@ public class TooltipHandlerGalaxy : MonoBehaviour
     {
         
 
-        string[] _text = new string[5]; // Text strings
-        int[] _tColor = new int[5]; // Color Codes for text lines
-        FontStyle[] _tType = new FontStyle[5]; // Text types (regular, bold, italic, italic & Bold)
+        string[] _text = new string[15]; // Text strings
+        int[] _tColor = new int[15]; // Color Codes for text lines
+        FontStyle[] _tType = new FontStyle[15]; // Text types (regular, bold, italic, italic & Bold)
         int _tooltipType = 0; // 0: Regular
         int _lineCount = 1; // Amount of lines
+        int _downShift = 0; // Variable that allows for middle insertions.
 
         string vM = GalaxyMap.Instance._viewMode;
 
@@ -220,7 +221,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
             int _cAll = flag_1 ? MapManager.Instance._map._factions[_cFac]._allianceId : -1;
             bool flag_2 = _cAll > -1 && _cAll < MapManager.Instance._map._alliances.Count; // is faction (if it exists) in alliance.
-            bool flag_3 = MapManager.Instance.IsInKnownOwnerList(i, false) ? true : false; // Is this Owner known?
+            bool flag_3 = MapManager.Instance.IsInKnownOwnerList(i, false); // Is this Owner known?
             
 
             // Line 1 - Sector Name
@@ -231,7 +232,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             // Line 2 - Faction (Default)
             if (vM == "alliances") // Display Alliance affiliation
             {
-                _text[1] = flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name : "Unaligned") : "Unknown";
+                _text[1] = flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name + (_shift ? "(" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")" : "") : "Unaligned") : "Unknown"; // Show Alliance name, + shorthand IF Shift
                 _tColor[1] = 1;
                 _tType[1] = FontStyle.Bold;
             }
@@ -256,7 +257,123 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                 _tColor[1] = _repName == "Owned" ? 4 : (_specCon == "War" ? 2 : (_specCon == "Allied" ? 3 : 1));
                 _tType[1] = FontStyle.Bold;
             }
-            else // "Faction" && default
+            else if (vM == "regions") // Encode Region information (No Shift: Only the information for this region, Shift: All Regions)
+            {
+                if (!_shift)
+                {
+                    // Only display info on currently displayed region category
+                    int _rInt = Mathf.Clamp(GalaxyMap.Instance._selFacInt, 0, MapManager.Instance._map._regCats.Count);
+
+                    RegionCategory _r = MapManager.Instance._map._regCats[_rInt];
+
+                    string[] _tR = {"region", "assigned value"};
+
+                    // Flags assess whether known
+                    int _rType = _r._knowledgeType;
+
+                    bool flag_E = (_pFac != -1) ? MapManager.Instance._map._factions[_pFac].SectorExplored(i) : true; // Is this Sector explored?
+                    bool flag_S = false; // Does this sector have a special value for the region category?
+                    int _sVal = -1;
+                    for (int k = 0; k < _s._regionCats.Count; k++)
+                    {
+                        if (_s._regionCats[k] == _rInt && _s._regionCatsRegionIds[k] != -1)
+                        {
+                            flag_S = true;
+                            _sVal = _s._regionCatsRegionIds[k];
+                            break;
+                        }
+                    }
+
+                    bool flag_MeetsCriteria = (!flag_gm) ? (_rType == 0 ? flag_E : flag_3) : true;
+
+                    _tR[0] = _r._name; // Assign Name
+                    _tR[1] = flag_S ? (flag_MeetsCriteria ? _r._regions[_sVal]._name : "Unknown") : "No Data";
+
+                    _text[1] = $"{_tR[0]}: {_tR[1]}";
+                    _tColor[1] = 1;
+                    _tType[1] = FontStyle.Bold;
+
+                }
+                else if (vM == "regions")
+                {
+                    for (int j = 0; j < MapManager.Instance._map._regCats.Count; j++)
+                    {
+                        RegionCategory _r = MapManager.Instance._map._regCats[j];
+
+                        string[] _tR = {"region", "assigned value"};
+
+                        // Flags
+                        int _rType = _r._knowledgeType;
+
+                        bool flag_E = (_pFac != -1) ? MapManager.Instance._map._factions[_pFac].SectorExplored(i) : true; // Is this Sector explored?
+                        bool flag_S = false; // Does this sector have a special value for the region category?
+                        int _sVal = -1;
+                        for (int k = 0; k < _s._regionCats.Count; k++)
+                        {
+                            if (_s._regionCats[k] == j && _s._regionCatsRegionIds[k] != -1)
+                            {
+                                flag_S = true;
+                                _sVal = _s._regionCatsRegionIds[k];
+                                break;
+                            }
+                        }
+
+                        bool flag_MeetsCriteria = (!flag_gm) ? (_rType == 0 ? flag_E : flag_3) : true;
+
+                        _tR[0] = _r._name; // Assign Name
+                        _tR[1] = (flag_S && _sVal != -1) ? (flag_MeetsCriteria ? _r._regions[_sVal]._name : "Unknown") : "No Data";
+
+                        _text[1 + j] = $"{_tR[0]}: {_tR[1]}";
+                        _tColor[1 + j] = 1;
+                        _tType[1 + j] = FontStyle.Bold;
+                    }
+
+                    _lineCount += MapManager.Instance._map._regCats.Count - 1;
+                    _downShift += MapManager.Instance._map._regCats.Count - 1;
+                }
+            }
+            else if (vM == "special_SectorVisibility") // Sector visibility - provide 
+            {
+                string[] _opt = {"Yes", "No"};
+                string[] _opt2 = {"Y", "N"};
+
+                int _fInt = GalaxyMap.Instance._selFacInt;
+
+                // Flags
+                bool flag_D = MapManager.Instance._map._factions[_fInt].SectorDiscovered(i);
+                bool flag_E = MapManager.Instance._map._factions[_fInt].SectorExplored(i);
+                bool flag_K = MapManager.Instance._map._factions[_fInt].SectorKnownOwner(i);
+
+                // Determine Y / N
+                int _dOpt = flag_D ? 0 : 1;
+                int _eOpt = flag_E ? 0 : 1;
+                int _kOpt = flag_K ? 0 : 1;
+
+                if (!_shift)
+                {
+                    _text[1] = $"D: {_opt2[_dOpt]} / E: {_opt2[_eOpt]} / K: {_opt2[_kOpt]}";
+                    _tType[1] = FontStyle.Bold;
+                    _tColor[1] = 1;
+                }
+                else
+                {
+                    _text[1] = $"Discovered: {_opt[_dOpt]}";
+                    _tType[1] = FontStyle.Bold;
+                    _tColor[1] = _dOpt == 0 ? 4 : 2;
+
+                    _text[2] = $"Explored: {_opt[_eOpt]}";
+                    _tType[2] = FontStyle.Bold;
+                    _tColor[2] = _eOpt == 0 ? 4 : 2;
+
+                    _text[3] = $"Knows Sector Owner: {_opt[_kOpt]}";
+                    _tType[3] = FontStyle.Bold;
+                    _tColor[3] = _kOpt == 0 ? 4 : 2;
+
+                    _lineCount += 2;
+                    _downShift += 2;
+                }
+            }
+            else // "Faction" && default if no other case provided
             {
                 _text[1] = flag_3 ? (flag_1 ?  MapManager.Instance._map._factions[_cFac]._name : "Neutral") : "Unknown";
                 _tColor[1] = 1;
@@ -269,9 +386,9 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             }
 
             // Line 3 : Sector Description (If Shift is pressed)
-            _text[2] = _s._description;
-            _tType[2] = FontStyle.BoldAndItalic;
-            _tColor[2] = 1;
+            _text[2 + _downShift] = _s._description != "" ? _s._description : "This sector appears to have no description...";
+            _tType[2 + _downShift] = FontStyle.BoldAndItalic;
+            _tColor[2 + _downShift] = 1;
 
             // OPTIONAL : If Special Condition to Player Faction, display additional line
             float _val2 = 0;
