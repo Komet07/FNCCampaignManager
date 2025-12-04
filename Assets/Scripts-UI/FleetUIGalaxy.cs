@@ -131,6 +131,13 @@ namespace UI
             {
                 int _fID = _fleets[i]._fleetID;
                 GameObject _token = _fleets[i]._obj;
+                
+                if (_fID < 0 || _fID >= MapManager.Instance._map._fleets.Count)
+                {   
+                    
+                    RemoveFleet(_fID); // REMOVE FLEET IF IT ISN'T THERE
+                    return;
+                }
 
                 Fleet F = MapManager.Instance._map._fleets[_fID];
 
@@ -227,7 +234,7 @@ namespace UI
                             new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1f, 1.0f) }
                         );
                         LR.colorGradient = gradient;
-                        
+
                         LR.GetComponent<IndexScript>()._obj2.SetActive(true);
                     }
                 }
