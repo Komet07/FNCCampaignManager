@@ -144,6 +144,11 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
             int _linesN = Mathf.CeilToInt(_a / _maxWidths[_type]); // Amount of lines needed for text.
 
+            if (_a / _maxWidths[_type] > 0.92f)
+            {
+                _linesN++;
+            }
+
             _cHeight += _linesN * (og.GetComponent<RectTransform>().rect.height * 0.225f);
 
             _pWidth = (_pWidth < _b) ? _b : _pWidth;
@@ -294,7 +299,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                     _tType[1] = FontStyle.Bold;
 
                 }
-                else if (vM == "regions")
+                else
                 {
                     for (int j = 0; j < MapManager.Instance._map._regCats.Count; j++)
                     {
@@ -354,6 +359,16 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                     _text[1] = $"D: {_opt2[_dOpt]} / E: {_opt2[_eOpt]} / K: {_opt2[_kOpt]}";
                     _tType[1] = FontStyle.Bold;
                     _tColor[1] = 1;
+
+                    if (_cFac == _fInt)
+                    {
+                        _text[2] = $"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'";
+                        _tType[2] = FontStyle.BoldAndItalic;
+                        _tColor[2] = 1;
+
+                        _downShift += 1;
+                        _lineCount += 1;
+                    }
                 }
                 else
                 {
@@ -368,6 +383,16 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                     _text[3] = $"Knows Sector Owner: {_opt[_kOpt]}";
                     _tType[3] = FontStyle.Bold;
                     _tColor[3] = _kOpt == 0 ? 4 : 2;
+
+                    if (_cFac == _fInt)
+                    {
+                        _text[4] = $"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'";
+                        _tType[4] = FontStyle.BoldAndItalic;
+                        _tColor[4] = 1;
+
+                        _downShift += 1;
+                        _lineCount += 1;
+                    }
 
                     _lineCount += 2;
                     _downShift += 2;
