@@ -203,6 +203,33 @@ namespace UI
                     LR.GetComponent<IndexScript>()._obj1.transform.position += new Vector3(0, 0, -4);
                     LR.GetComponent<IndexScript>()._obj2.transform.position = _p1 + _p2;
                     LR.GetComponent<IndexScript>()._obj2.transform.position += new Vector3(0, 0, -4);
+
+                    // Obfuscation purposes
+                    if (MapManager.Instance._map._playerFactionId > -1 && (MapManager.Instance._map._playerFactionId < MapManager.Instance._map._playerFactions.Count ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID != F._faction : true))
+                    {
+                        Gradient gradient = new Gradient();
+                        gradient.SetKeys(
+                            new GradientColorKey[] { new GradientColorKey(LR.startColor, 0.0f), new GradientColorKey(LR.startColor, 1.0f) },
+                            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0f, 0.5f), new GradientAlphaKey(0f, 1.0f) }
+                        );
+                        LR.colorGradient = gradient;
+
+                        LR.GetComponent<IndexScript>()._obj2.SetActive(false);
+
+                        Vector2 _p2Altered = _p3 + _p2.normalized * 0.5f;
+                        LR.SetPosition(1, new Vector3(_p2Altered.x, _p2Altered.y, -3.75f));
+                    }
+                    else
+                    {
+                        Gradient gradient = new Gradient();
+                        gradient.SetKeys(
+                            new GradientColorKey[] { new GradientColorKey(LR.startColor, 0.0f), new GradientColorKey(LR.startColor, 1.0f) },
+                            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1f, 1.0f) }
+                        );
+                        LR.colorGradient = gradient;
+                        
+                        LR.GetComponent<IndexScript>()._obj2.SetActive(true);
+                    }
                 }
 
                 string _textPrefix = "";

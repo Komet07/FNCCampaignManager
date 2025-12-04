@@ -66,8 +66,6 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             {
                 GameObject g = hit.collider.gameObject;
 
-                Debug.Log(hit.collider.gameObject.name);
-
                 for (int i = 0; i < FleetUIGalaxy.Instance._fleets.Count; i++)
                 {
                     if (FleetUIGalaxy.Instance._fleets[i]._obj == g)
@@ -109,7 +107,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         // 0: Regular, 1: Darker, 2: Hostile, 3: Allied, 4: Owned
 
         float[] _maxWidths = {65, 130};
-        float _bWidth = 8; // base width var, will be used later
+        float _bWidth = 10; // base width var, will be used later
         float _pWidth = 0; // Preferred menu width.
         float _cHeight = 0;
         float _tScaling = 0.2f;
@@ -156,7 +154,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         // Resize all to actual width
         foreach(GameObject _g in _ttMenuConst)
         {
-            _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling);
+            _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling + 4);
         }
 
         // Set Size of main Menu
@@ -294,20 +292,50 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             int i = _secondaryVar;
 
             _tooltipType = 0;
-            _lineCount = 1;
+            _lineCount = 2;
 
             Fleet _f = MapManager.Instance._map._fleets[i];
             int _fFac = _f._faction;
+            int _pFac = (MapManager.Instance._map._playerFactionId >= 0) ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID : -1;
+            int _fSec = _f._currentSector;
 
-            bool flag_1 = _fFac > -1 && _fFac < MapManager.Instance._map._factions.Count;
+            bool flag_1 = _fFac > -1 && _fFac < MapManager.Instance._map._factions.Count; // Is assigned to Faction?
+            bool flag_2 = _fSec > -1 && _fSec < MapManager.Instance._map._sectors.Count; // Is in a sector?
+            bool flag_3 = MapManager.Instance.Fleet_IsOwnerKnown(i); // Is the Owner Known
+
+            int _fAll = flag_1 ? MapManager.Instance._map._factions[_fFac]._allianceId : -1;
+            bool flag_4 = _fAll > -1 && _fAll < MapManager.Instance._map._alliances.Count; // Is in Alliance?
+
+            bool flag_5 = _f._travelling && MapManager.Instance.ReturnSector(_f._travelEnd) > -1; // Is fleet travelling & endpoint a valid sector
+            int _fDest = flag_5 ? MapManager.Instance.ReturnSector(_f._travelEnd) : -1; // Int of destination sector
+
+            bool flag_6 = _fFac == _pFac; // Is same faction as player?
+            bool flag_7 = MapManager.Instance.Faction_Allied(_fFac, _pFac); // Is Fleet Allied
+            bool flag_8 = MapManager.Instance.Faction_Hostile(_fFac, _pFac); // Is Fleet Hostile
  
-            string[] _t0 = {flag_1 ? MapManager.Instance._map._factions[_fFac]._shorthand : "NEU", _f._name};
+            string[] _t0 = {flag_3 ? (flag_1 ? (!(vM == "alliances") ? MapManager.Instance._map._factions[_fFac]._shorthand : (flag_4 ? MapManager.Instance._map._alliances[_fAll]._shorthand : "NEU")) : "NEU") : "UNK", flag_3 ? _f._name : "Fleet"};
 
             // Line 1 - Fleet Name
             _text[0] = $"{_t0[0]} {_t0[1]}";
             _tColor[0] = 0;
             _tType[0] = FontStyle.Bold;
 
+            // Line 2 - Fleet Status
+            string[] _t1 = {_f._status, _f._travelling ? "Dest: " + (flag_3 ? (flag_5 ? MapManager.Instance._map._sectors[_fDest].GetName(true) : "Empty Space") : "Unknown") : flag_2 ? MapManager.Instance._map._sectors[_fSec].GetName(true) : "Empty Space"};
+            _text[1] = $"{_t1[0]} - {_t1[1]}";
+            _tColor[1] = 1;
+            _tType[1] = FontStyle.Bold;
+
+            // OPTIONAL - Additional Rep stuff
+            string _tRep = flag_6 ? "<color=green>Owned</color>" : (flag_7 ? "<color=#007DE1>Allied</color>" : (flag_8 ? "<color=red>Hostile</color>" : ""));
+            if (_tRep != "")
+            {
+                _text[_lineCount] = _tRep;
+                _tColor[_lineCount] = 0;
+                _tType[_lineCount] = FontStyle.Bold;
+
+                _lineCount++;
+            }
         }
 
         MenuConstructor(_tooltipType, _lineCount, _text, _tColor, _tType);

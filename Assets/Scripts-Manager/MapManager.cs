@@ -43,7 +43,7 @@ public class Sector
         {
             for (int i = 0; i < MapManager.Instance._map._sectors.Count; i++)
             {
-                if (MapManager.Instance._map._sectors[i] == this && MapManager.Instance.IsInKnownOwnerList(i, false) && _hiddenName != "")
+                if (MapManager.Instance._map._sectors[i] == this && MapManager.Instance.IsInKnownOwnerList(i, false) && _hiddenName != "")
                 {
                 
                     return _hiddenName;

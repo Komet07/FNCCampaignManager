@@ -322,7 +322,7 @@ namespace UI
                         Fleet F = MapManager.Instance._map._fleets[_fleetList[i]._fleetIDs[j]];
                         if (F._faction >= 0 && F._faction < MapManager.Instance._map._factions.Count)
                         {
-                            _tPrefix = (MapManager.Instance.Fleet_IsOwnerKnown(_fleetList[i]._fleetIDs[j])) ? MapManager.Instance._map._factions[F._faction]._shorthand : "UNK";
+                            _tPrefix = MapManager.Instance.Fleet_IsOwnerKnown(_fleetList[i]._fleetIDs[j]) ? MapManager.Instance._map._factions[F._faction]._shorthand : "UNK";
 
                             int _pFInt = (MapManager.Instance._map._playerFactionId >= 0) ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID : -1;
 
@@ -340,7 +340,7 @@ namespace UI
                             }
                         }
 
-                        _tName = (MapManager.Instance.Fleet_IsOwnerKnown(_fleetList[i]._fleetIDs[j])) ? F._name : "Fleet " + _counter3;
+                        _tName = MapManager.Instance.Fleet_IsOwnerKnown(_fleetList[i]._fleetIDs[j]) ? F._name : "Fleet " + _counter3;
 
                         if (F._travelling)
                         {
