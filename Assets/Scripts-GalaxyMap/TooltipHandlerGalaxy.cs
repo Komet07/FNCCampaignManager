@@ -36,6 +36,8 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
     int _secondaryVar = 0;
 
+    bool _shift = false;
+
     public float _waitTimeRemaining // How much time is left?
     {
         get
@@ -176,13 +178,18 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
         if (currentHoverType == 0) // Empty Space
         {
-            _tooltipType = 0;
-            _lineCount = 1;
+            _tooltipType = _shift ? 1 : 0;
+            _lineCount = _shift ? 2 : 1;
 
             // Line 1 - "Empty Space"
             _text[0] = "Empty Space";
             _tType[0] = FontStyle.Bold;
             _tColor[0] = 0;
+
+            // Line 2 - "Empty Space Description" - only appears if shift is pressed
+            _text[1] = "This part contains no known sector...";
+            _tType[1] = FontStyle.BoldAndItalic;
+            _tColor[1] = 1;
 
             // If Debug on: Coordinates of Hex
             if (MapManager.Instance._map._debug)
@@ -196,8 +203,8 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         }
         else if (currentHoverType == 1) // (Named) Sector
         {
-            _tooltipType = 0;
-            _lineCount = 2;
+            _tooltipType = _shift ? 1 : 0; // WIDEN WHEN SHIFT IS PRESSED
+            _lineCount = _shift ? 3 : 2;
 
             int i = MapManager.Instance.ReturnSector(MapManager.Instance.GetMouseSectorPos);
             Sector _s = MapManager.Instance._map._sectors[i];
@@ -261,6 +268,10 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                 }
             }
 
+            // Line 3 : Sector Description (If Shift is pressed)
+            _text[2] = _s._description;
+            _tType[2] = FontStyle.BoldAndItalic;
+            _tColor[2] = 1;
 
             // OPTIONAL : If Special Condition to Player Faction, display additional line
             float _val2 = 0;
@@ -377,11 +388,21 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
             if (_currentWaitTime >= _tooltipWaitTime)
             {
+                
+                _shift = Input.GetKey(KeyCode.LeftShift);
+
+
                 TooltipHandlerMain();
             }
         }
 
         _currentWaitTime = Mathf.Clamp(_currentWaitTime, 0f, _tooltipWaitTime);
+
+        if (_currentWaitTime >= _tooltipWaitTime && _shift != Input.GetKey(KeyCode.LeftShift))
+        {
+            _shift = Input.GetKey(KeyCode.LeftShift);
+            TooltipHandlerMain();
+        }
 
         // Reset Timer if MousePositionDelta > 0 / some small margin.
         if ((Input.mousePositionDelta.magnitude > _marginSpeed) || ((Input.mousePosition - _startMPos).magnitude > _marginPos) || !MapManager.Instance.TooltipGIncompatCheck)
