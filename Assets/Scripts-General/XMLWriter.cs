@@ -354,6 +354,12 @@ public class XMLWriter : MonoBehaviour
                     _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
                     i--;
                 }
+
+                if (!_mapCopy._jumpGates[i].Point1Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID) && !_mapCopy._jumpGates[i].Point2Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID))
+                {
+                    _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
+                    i--;
+                }
             }
 
             // Remove all unknown connection types (JGs)

@@ -1906,10 +1906,15 @@ public class GMMenu : MonoBehaviour
 
             Text _tLT = _menu.GetComponent<IndexScript>()._obj6.GetComponent<Text>(); // LINE TYPE TEXT;
             string[] _tT = { "REGULAR", "DASHED", "DOTTED", "SLANTED" };
-            _tLT.text = "LINE TYPE: " + _tT[MapManager.Instance._map._connType[_cType]._lineType];
+            _tLT.text = $"LINE TYPE: {_tT[MapManager.Instance._map._connType[_cType]._lineType]}";
 
             Image _colImg = _menu.GetComponent<IndexScript>()._obj8.GetComponent<Image>();
             _colImg.color = MapManager.Instance._map._connType[_cType]._lineColor; // COLOR
+
+            Text _tRB = _menu.GetComponent<IndexScript>()._obj9.GetComponent<Text>(); // REQUIRE BOTH TEXT
+            string[] _tRBOpt = {"Yes", "No"};
+            int _tRB1 = MapManager.Instance._map._connType[_cType]._reqBothExplored ? 0 : 1;
+            _tRB.text = $"HIDE UNTIL BOTH ENDPOINTS EXPLORED: {_tRBOpt[_tRB1]}";
 
             return;
         }
@@ -2105,6 +2110,17 @@ public class GMMenu : MonoBehaviour
             _mConnColor.GetComponent<IndexScript>()._obj6.GetComponent<Text>().text = "BLUE: " + Mathf.RoundToInt(_sB.value);
 
             return;
+        }
+        else if (_a == 16) // CHANGE Req Both Requirement
+        {
+            if (_cType <= -1 || _cType >= MapManager.Instance._map._connType.Count)
+            {
+                return;
+            }
+
+            MapManager.Instance._map._connType[_cType]._reqBothExplored = !MapManager.Instance._map._connType[_cType]._reqBothExplored;
+
+            OBJ3_CONNECTION_FUNCTIONS(8); // Refresh Menu
         }
 
     }

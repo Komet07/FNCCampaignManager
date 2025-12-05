@@ -266,6 +266,10 @@ public class Faction
 
     public bool SectorDiscovered(int _s)
     {
+        if (_s < 0 || _s > MapManager.Instance._map._sectors.Count)
+        {
+            return false;
+        }
 
         for (int i = 0; i < _discoveredSectors.Count; i++)
         {
@@ -285,6 +289,10 @@ public class Faction
 
     public bool SectorExplored(int _s)
     {
+        if (_s < 0 || _s > MapManager.Instance._map._sectors.Count)
+        {
+            return false;
+        }
 
         for (int i = 0; i < _exploredSectors.Count; i++)
         {
@@ -304,6 +312,10 @@ public class Faction
 
     public bool SectorKnownOwner(int _s)
     {
+        if (_s < 0 || _s > MapManager.Instance._map._sectors.Count)
+        {
+            return false;
+        }
 
         for (int i = 0; i < _knownSectorOwnership.Count; i++)
         {
@@ -371,6 +383,49 @@ public class JumpGateConnection
 
     [XmlAttribute("discoverable_2")]
     public bool _discoverable2 = true; // Will only be shown once 'true' and system contents known -> JG 2
+
+    [XmlAttribute("requireBothExplored")]
+    public bool _reqBothExplored = false; // False by default. If true : Both systems need to be explored for the connection to be visible.
+
+    public bool Point1Vis(int _fac)
+    {
+        if (_fac == -1)
+        {
+            return true;
+        }
+
+        if (_fac < 0 || _fac > MapManager.Instance._map._factions.Count)
+        {
+            return false;
+        }
+
+        _reqBothExplored = _typeId != -1 && _typeId < MapManager.Instance._map._connType.Count ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
+
+        bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1;
+        bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2 : true;
+
+        return _main && _add; // GENERAL CASE
+    }
+
+    public bool Point2Vis(int _fac)
+    {
+        if (_fac == -1)
+        {
+            return true;
+        }
+
+        if (_fac < 0 || _fac > MapManager.Instance._map._factions.Count)
+        {
+            return false;
+        }
+
+        _reqBothExplored = _typeId != -1 && _typeId < MapManager.Instance._map._connType.Count ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
+
+        bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2;
+        bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1 : true;
+
+        return _main && _add; // GENERAL CASE
+    }
 }
 
 
@@ -391,6 +446,8 @@ public class ConnectionType
     public int _lineType = 0; // 0 = Regular, 1 = Dashed, 2 = Dotted, 3 = Slanted, 4 = None (Only Points)
 
     public int _pointType = 0; // 0 = Circle, 1 = Square, 2 = Diamond, 3 = Cross
+
+    public bool _reqBothExplored = false; // Inherit this setting to ALL connections of this type 
 }
 
 [System.Serializable]

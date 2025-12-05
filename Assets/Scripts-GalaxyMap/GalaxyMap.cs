@@ -1319,19 +1319,8 @@ public class GalaxyMap : MonoBehaviour
                     _visConn2 = true;
                 }
 
-                for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors.Count; j++)
-                {
-                    if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors[j] == MapManager.Instance._map._jumpGates[i]._sector1Id && MapManager.Instance._map._jumpGates[i]._discoverable1 == true)
-                    {
-                        _visConn1 = true;
-                        
-                    }
-
-                    if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors[j] == MapManager.Instance._map._jumpGates[i]._sector2Id && MapManager.Instance._map._jumpGates[i]._discoverable2 == true)
-                    {
-                        _visConn2 = true;
-                    }
-                }
+                _visConn1 = MapManager.Instance._map._jumpGates[i].Point1Vis(MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID);
+                _visConn2 = MapManager.Instance._map._jumpGates[i].Point2Vis(MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID);
             }
 
             if (_visConn1)

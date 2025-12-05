@@ -292,7 +292,6 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             int _cAll = flag_1 ? MapManager.Instance._map._factions[_cFac]._allianceId : -1;
             bool flag_2 = _cAll > -1 && _cAll < MapManager.Instance._map._alliances.Count; // is faction (if it exists) in alliance.
             bool flag_3 = MapManager.Instance.IsInKnownOwnerList(i, false); // Is this Owner known?
-            
 
             // Line 1 - Sector Name
             _text[0] = _s.GetName(!flag_gm);
@@ -302,7 +301,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             // Line 2 - Faction (Default)
             if (vM == "alliances") // Display Alliance affiliation
             {
-                _text[1] = flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name + (_shift ? "(" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")" : "") : "Unaligned") : "Unknown"; // Show Alliance name, + shorthand IF Shift
+                _text[1] = flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name + (_shift ? " (" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")" : "") : "Unaligned") : "Unknown"; // Show Alliance name, + shorthand IF Shift
                 _tColor[1] = 1;
                 _tType[1] = FontStyle.Bold;
             }
@@ -580,8 +579,8 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
             int _pFac = !flag_gm ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID : -1;
 
-            bool flag_4 = flag_2 ? (flag_gm ? true : (MapManager.Instance._map._factions[_pFac].SectorExplored(_s1) && _c._discoverable1)) : false; // Connection 1 Known?
-            bool flag_5 = flag_3 ? (flag_gm ? true : (MapManager.Instance._map._factions[_pFac].SectorExplored(_s2) && _c._discoverable2)) : false; // Connection 2 Known?
+            bool flag_4 = flag_2 ? (flag_gm ? true : _c.Point1Vis(_pFac)) : false; // Connection 1 Known?
+            bool flag_5 = flag_3 ? (flag_gm ? true : _c.Point2Vis(_pFac)) : false; // Connection 2 Known?
 
             // Line 1 - Connection Type
             _text[0] = flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Jumpgate Lane";
