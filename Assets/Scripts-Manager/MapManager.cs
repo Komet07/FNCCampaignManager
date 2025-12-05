@@ -399,7 +399,7 @@ public class JumpGateConnection
             return false;
         }
 
-        _reqBothExplored = _typeId != -1 && _typeId < MapManager.Instance._map._connType.Count ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
+        _reqBothExplored = (_typeId != -1 && _typeId < MapManager.Instance._map._connType.Count) ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
 
         bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1;
         bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2 : true;
@@ -419,7 +419,7 @@ public class JumpGateConnection
             return false;
         }
 
-        _reqBothExplored = _typeId != -1 && _typeId < MapManager.Instance._map._connType.Count ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
+        _reqBothExplored = (_typeId != -1 && _typeId < MapManager.Instance._map._connType.Count) ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
 
         bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2;
         bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1 : true;

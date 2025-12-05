@@ -95,7 +95,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                 JumpGateConnection _c = MapManager.Instance._map._jumpGates[i];
 
                 bool flag_gm = MapManager.Instance._map._playerFactionId == -1;
-                int _pFac = !flag_gm ? MapManager.Instance._map._playerFactionId : -1;
+                int _pFac = !flag_gm ? MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID : -1;
 
                 bool flag_1 = _c._sector1Id > -1 && _c._sector1Id < MapManager.Instance._map._sectors.Count; // Sector 1 Exists
                 bool flag_2 = _c._sector2Id > -1 && _c._sector2Id < MapManager.Instance._map._sectors.Count; // Sector 2 Exists
@@ -486,7 +486,6 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             MapManager.Instance.GetRepState(_pFac, _cFac, out _val2, out _specCon2);
             if (_pFac != -1 && (_pFac == _cFac || _specCon2 == "War" || _specCon2 == "Allied") && (vM == "factions" || vM == "alliances"))
             {
-                
                 _text[_lineCount] = _pFac == _cFac ? "OWNED" : (_specCon2 == "War" ? "HOSTILE" : "ALLIED");
                 _tColor[_lineCount] = _pFac == _cFac ? 4 : (_specCon2 == "War" ? 2 : 3);
                 _tType[_lineCount] = FontStyle.Bold;
