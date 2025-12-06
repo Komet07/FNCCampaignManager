@@ -830,6 +830,7 @@ public class XMLWriter : MonoBehaviour
             MapManager.Instance._map = _map;
 
             MapManager.Instance.ResetRefIDs();
+            MapManager.Instance.DistributeLegacyFuel();
 
             GalaxyMap.Instance._regen = true;
             GalaxyMap.Instance._regen2 = true;

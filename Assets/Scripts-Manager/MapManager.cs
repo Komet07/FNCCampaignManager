@@ -190,6 +190,9 @@ public class Map
 
     [XmlArray("Fleets"), XmlArrayItem("Fleet")]
     public List<Fleet> _fleets = new List<Fleet>() { };
+
+    [XmlArray("Shipsets"), XmlArrayItem("Shipset")]
+    public List<Shipset> _shipsets = new List<Shipset>() { };
     
 
     public static Map Load(string path)
@@ -799,6 +802,90 @@ public class Fleet
 
         }
     }
+
+    public void ConsumeFuelAmt(float _amount)
+    {
+        float _fuelSpent = _amount;
+
+        List<float> _hexLeftShip = new List<float>() {};
+
+        // FUEL USAGE INIT ROUND
+        for (int i = 0; i < _ships.Count; i++)
+        {
+            _hexLeftShip.Add(_amount / FuelConsumption);
+        }
+
+        // v - USE FUEL - v
+        int usedShipID = -1;
+        float lowestRangeLeft = Mathf.Infinity;
+
+        while (_fuelSpent > 0)
+        {
+            // SEARCH FOR SHIP WITH LOWEST RANGE LEFT
+            usedShipID = -1;
+            lowestRangeLeft = Mathf.Infinity;
+
+            for (int i = 0; i < _ships.Count; i++)
+            {
+                if (_ships[i].FuelRange - _hexLeftShip[usedShipID] < lowestRangeLeft && _ships[i]._currentFuel > 0 && _hexLeftShip[usedShipID] > 0)
+                {
+                    usedShipID = i;
+                    lowestRangeLeft = _ships[i].FuelRange;
+                }
+            }
+
+            if (usedShipID == -1)
+            {
+                _fuelSpent = 0;
+                break;
+            }
+
+            // USE TANKER FUEL FIRST IF PRESENT
+            if (getCurrentTFuel > 0)
+            {
+                int tankerID = -1;
+                float highestTankerFuel = 0;
+
+                for (int i = 0; i < _ships.Count; i++)
+                {
+                    if (_ships[i]._currentTankerFuel > highestTankerFuel)
+                    {
+                        tankerID = i;
+                        highestTankerFuel = _ships[i]._currentTankerFuel;
+                    }
+                }
+
+                _fuelSpent -= (_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel;
+                _hexLeftShip[usedShipID] -= ((_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel) / _ships[usedShipID]._fuelConsumption;
+                _ships[tankerID]._currentTankerFuel -= (_ships[tankerID]._currentTankerFuel > 1f) ? 1f : _ships[tankerID]._currentTankerFuel;
+                _ships[tankerID]._currentTankerFuel = Mathf.Clamp(_ships[tankerID]._currentTankerFuel, 0, _ships[tankerID]._maxTankerFuel);
+
+            }
+            else
+            {
+                _fuelSpent -= (_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel;
+                _hexLeftShip[usedShipID] -= ((_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel) / _ships[usedShipID]._fuelConsumption;
+                _ships[usedShipID]._currentFuel -= (_ships[usedShipID]._currentFuel > 1f) ? 1f : _ships[usedShipID]._currentFuel;
+                _ships[usedShipID]._currentFuel = Mathf.Clamp(_ships[usedShipID]._currentFuel, 0, _ships[usedShipID]._maxFuel);
+            }
+
+        }
+    }
+
+    public void SetFuelValue(float _amount) // Compare to current fuel and fill up / consume accordingly
+    {
+        // COMPARE AMOUNT 
+
+        if (_amount > getCurrentFuel)
+        {
+            float _a;
+            RefillFuel(_amount - getCurrentFuel, out _a); // Add difference
+        }
+        else if (_amount < getCurrentFuel)
+        {
+            ConsumeFuelAmt(getCurrentFuel - _amount); // Subtract difference
+        }
+    }
 }
 
 [System.Serializable]
@@ -838,6 +925,10 @@ public class Ship
     public List<Mount> _mounts = new List<Mount>();
     [XmlArray("modules"), XmlArrayItem("module")]
     public List<Module> _modules = new List<Module>();
+
+    [Header("Meta")]
+    public string _shipsetKey = ""; // Key for shipset
+    public int _shipDesignId = -1; // Points to design ID in shipset
 
     // v -- MASTER FUNCTIONS -- v
     public void Refit(ShipDesign _newDesign)
@@ -937,6 +1028,45 @@ public class Ship
 
     }
 
+    public Shipset _shipset
+    {
+        get
+        {
+            if (_shipsetKey == "")
+            {
+                return null;
+            }
+
+            for (int i = 0; i < MapManager.Instance._map._shipsets.Count; i++)
+            {
+                if (MapManager.Instance._map._shipsets[i]._key == _shipsetKey)
+                {
+                    return MapManager.Instance._map._shipsets[i];
+                }
+            }
+            
+            return null; // No valid shipset found
+        }
+    }
+
+    public ShipDesign _shipDesign
+    {
+        get
+        {
+            Shipset _s = _shipset;
+            if (_s == null)
+            {
+                return null;
+            }
+
+            if (_shipDesignId < _shipset.shipDesigns.Count && _shipDesignId >= 0 && _s.shipDesigns[_shipDesignId] != null)
+            {
+                return _s.shipDesigns[_shipDesignId];
+            }
+
+            return null;
+        }
+    }
 
     // v -- FUEL FUNCTIONS -- v
     public void RefuelToMax()
@@ -1676,6 +1806,8 @@ public class Shipset
     public string _key = ""; // IDENT. FOR THE SHIPSET
     public string _name = ""; // SHIPSET NAME
     
+    [Header("Contents"), XmlArray("shipDesigns"), XmlArrayItem("shipDesign")]
+    public List<ShipDesign> shipDesigns = new List<ShipDesign>();
 }
 
 [System.Serializable]
@@ -3763,6 +3895,23 @@ public class MapManager : MonoBehaviour
 
         return;
     }
+
+    // LEGACY DISTRIBUTIONS //
+    public void DistributeLegacyFuel()
+    {
+        for (int i = 0; i < _map._fleets.Count; i++)
+        {
+            if (_map._fleets[i]._currentFuel > 0)
+            {
+                float _1;
+                _map._fleets[i].RefillFuel(_map._fleets[i]._currentFuel, out _1);
+                _map._fleets[i]._currentFuel -= _map._fleets[i].getMaxFuel;
+            }
+        }
+    }
+
+
+
     // Start is called before the first frame update
     void Start()
     {

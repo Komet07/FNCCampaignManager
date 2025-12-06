@@ -457,6 +457,9 @@ namespace UI
                 float _vHeight = 240;
 
                 Fleet F = MapManager.Instance._map._fleets[_currentFleetID];
+
+                float[] _fuelVal = {F.getCurrentFuel, F.getMaxFuel};
+
                 if (MapManager.Instance._map._lockSelection || (MapManager.Instance._map._playerFactionId >= 0 && F._faction != MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID))
                 {
                     for (int i = 0; i < _gmObjs_IndivFM.Count; i++)
@@ -495,6 +498,8 @@ namespace UI
                         _iFMLocationText.GetComponent<Text>().text = "Location: Empty Space";
                     }
 
+                    
+
                     if (MapManager.Instance.IsFaction(F._faction))
                     {
                         _iFMStatusText.SetActive(true);
@@ -511,7 +516,7 @@ namespace UI
                     }
 
                     // -- FUEL SECTION --
-                    if (F._maxFuel > 0 && MapManager.Instance.IsFaction(F._faction))
+                    if (F.getMaxFuel > 0 && MapManager.Instance.IsFaction(F._faction))
                     {
                         _iFMFuelbarM.SetActive(true);
                         _iFMFuelHeader.SetActive(true);
@@ -520,8 +525,8 @@ namespace UI
 
                         _iFMFuelHeader.GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 160, -5);
                         _iFMFuelbarM.GetComponent<RectTransform>().localPosition = new Vector3(50, (_vHeight * -1) + 95, -5);
-                        _iFMFuelbarT.GetComponent<Text>().text = F._currentFuel + " / " + F._maxFuel;
-                        _iFMFuelbarA.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (F._currentFuel / F._maxFuel), 0, 900));
+                        _iFMFuelbarT.GetComponent<Text>().text = $"{_fuelVal[0]} / {_fuelVal[1]}";
+                        _iFMFuelbarA.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (_fuelVal[0] / _fuelVal[1]), 0, 900));
                     }
                     else
                     {
@@ -569,7 +574,10 @@ namespace UI
                 {
                     for (int i = 0; i < _gmObjs_IndivFM.Count; i++)
                     {
-                        _gmObjs_IndivFM[i].SetActive(true);
+                        if (_gmObjs_IndivFM[i] != null)
+                        {
+                            _gmObjs_IndivFM[i].SetActive(true);
+                        }
                     }
 
                     _iFMStatusText.SetActive(true);
@@ -600,17 +608,16 @@ namespace UI
                     _iFMFuelHeader.GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 60, -5);
 
                     // FUEL SECTION
-                    if (F._maxFuel > 0)
+                    if (F.getMaxFuel > 0)
                     {
                         _iFMFuelbarM.SetActive(true);
 
-
                         _vHeight += 100;
 
-
                         _iFMFuelbarM.GetComponent<RectTransform>().localPosition = new Vector3(50, (_vHeight * -1) + 95, -5);
-                        _iFMFuelbarT.GetComponent<Text>().text = F._currentFuel + " / " + F._maxFuel;
-                        _iFMFuelbarA.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (F._currentFuel / F._maxFuel), 0, 900));
+                        
+                        _iFMFuelbarT.GetComponent<Text>().text = $"{_fuelVal[0]} / {_fuelVal[1]}";
+                        _iFMFuelbarA.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (_fuelVal[0] / _fuelVal[1]), 0, 900));
                     }
                     else
                     {
@@ -620,17 +627,8 @@ namespace UI
                     // FUEL - GM SECTION
                     _vHeight += 35;
 
-                    _gmObjs_IndivFM[4].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 45, -5);
-                    _gmObjs_IndivFM[5].GetComponent<RectTransform>().localPosition = new Vector3(275, (_vHeight * -1) + 45, -5);
 
-                    if (!_gmObjs_IndivFM[5].GetComponent<InputField>().isFocused)
-                    {
-                        F._maxFuel = Mathf.Clamp(F._maxFuel, 0, Mathf.Infinity);
-                        _gmObjs_IndivFM[5].GetComponent<InputField>().text = F._maxFuel.ToString();
-                    }
-
-
-                    if (F._maxFuel > 0)
+                    if (_fuelVal[1] > 0)
                     {
                         _gmObjs_IndivFM[6].SetActive(true);
                         _gmObjs_IndivFM[7].SetActive(true);
@@ -642,8 +640,7 @@ namespace UI
 
                         if (!_gmObjs_IndivFM[7].GetComponent<InputField>().isFocused)
                         {
-                            F._currentFuel = Mathf.Clamp(F._currentFuel, 0, F._maxFuel);
-                            _gmObjs_IndivFM[7].GetComponent<InputField>().text = F._currentFuel.ToString();
+                            _gmObjs_IndivFM[7].GetComponent<InputField>().text = _fuelVal[0].ToString();
                         }
                     }
                     else
@@ -798,15 +795,15 @@ namespace UI
                 }
 
             }
-            else if (_a == 4)
+            else if (_a == 4) // DEPRECATED - DO NOT USE ANYMORE -> LEGACY CHANGE MAX FUEL VALUE
             {
-                Fleet F = MapManager.Instance._map._fleets[_currentFleetID];
-                F._maxFuel = float.Parse(_gmObjs_IndivFM[5].GetComponent<InputField>().text);
+                /* Fleet F = MapManager.Instance._map._fleets[_currentFleetID];
+                F._maxFuel = float.Parse(_gmObjs_IndivFM[5].GetComponent<InputField>().text); */
             }
-            else if (_a == 5)
+            else if (_a == 5) // CHANGE CURRENT FUEL VALUE
             {
                 Fleet F = MapManager.Instance._map._fleets[_currentFleetID];
-                F._currentFuel = float.Parse(_gmObjs_IndivFM[7].GetComponent<InputField>().text);
+                F.SetFuelValue(float.Parse(_gmObjs_IndivFM[7].GetComponent<InputField>().text));
             }
             else if (_a == 6) // Change Status - Context Menu
             {
