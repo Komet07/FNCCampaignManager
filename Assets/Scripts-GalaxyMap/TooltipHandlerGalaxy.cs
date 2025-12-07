@@ -556,7 +556,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             bool flag_5 = flag_3 ? (flag_gm ? true : _c.Point2Vis(_pFac)) : false; // Connection 2 Known?
 
             // Line 1 - Connection Type
-            _text.Add(flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Jumpgate Lane");
+            _text.Add(flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Lane");
             _tColor.Add(0);
             _tType.Add(FontStyle.Bold);
 
