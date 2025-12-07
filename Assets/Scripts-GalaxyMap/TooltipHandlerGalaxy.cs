@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
 using UI;
+using UnityEngine.Rendering;
 
 public class TooltipHandlerGalaxy : MonoBehaviour
 {
@@ -169,7 +170,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
     // -- VIS. CONFIG --
 
-    void MenuConstructor(int _type, List<string> _t, List<int> _c, List<FontStyle> _tType) // Set up visual of menu
+    void MenuConstructor(int _type, List<object[]> _const) // Set up visual of menu
     {
         Color32[] _colTypes = {new Color32(210,210,210,255), new Color32(150,150,150,255), new Color32(175, 0, 0, 255), new Color32(9, 129, 209, 255), new Color32(0,175,0,255)}; 
         // 0: Regular, 1: Darker, 2: Hostile, 3: Allied, 4: Owned
@@ -192,36 +193,47 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         GameObject og = _tooltipMenuObj[1]; // Original Text bar obj
 
         // Construct lines
-        for (int i = 0; i < _t.Count; i++)
+        for (int i = 0; i < _const.Count; i++)
         {
-            
-
-            GameObject n = Instantiate(og, og.transform.parent);
-
-           
-            // Vector2 _p1 = new Vector3();
-            n.transform.localPosition = og.transform.localPosition - new Vector3(0, _cHeight, 0);
-
-            n.GetComponent<Text>().text = _t[i];
-            n.GetComponent<Text>().color = _colTypes[_c[i]];
-            n.GetComponent<Text>().fontStyle = _tType[i];
-            float _a = n.GetComponent<Text>().preferredWidth * _tScaling; // PREFERRED width w/ text scaling
-            float _b = _a > _maxWidths[_type] ? _maxWidths[_type] : _a; // ACTUAL width w/ max setting
-
-            int _linesN = Mathf.CeilToInt(_a / _maxWidths[_type]); // Amount of lines needed for text.
-
-            if (_a / _maxWidths[_type] > 0.92f)
+            if (_const[i][0] == null)
             {
-                _linesN++;
+                continue;
             }
 
-            _cHeight += _linesN * (og.GetComponent<RectTransform>().rect.height * 0.225f);
+            if ((int)_const[i][0] == 0) // REGULAR TEXT
+            {
+                string _t = _const[i][1] != null ? (string)_const[i][1] : "";
+                int _c = _const[i][2] != null ? (int)_const[i][2] : 0;
+                FontStyle _f = _const[i][3] != null ? (FontStyle)_const[i][3] : FontStyle.Normal;
+            
+                GameObject n = Instantiate(og, og.transform.parent);
 
-            _pWidth = (_pWidth < _b) ? _b : _pWidth;
+            
+                // Vector2 _p1 = new Vector3();
+                n.transform.localPosition = og.transform.localPosition - new Vector3(0, _cHeight, 0);
 
-            n.SetActive(true);
+                n.GetComponent<Text>().text = _t;
+                n.GetComponent<Text>().color = _colTypes[_c];
+                n.GetComponent<Text>().fontStyle = _f;
+                float _a = n.GetComponent<Text>().preferredWidth * _tScaling; // PREFERRED width w/ text scaling
+                float _b = _a > _maxWidths[_type] ? _maxWidths[_type] : _a; // ACTUAL width w/ max setting
 
-            _ttMenuConst.Add(n);
+                int _linesN = Mathf.CeilToInt(_a / _maxWidths[_type]); // Amount of lines needed for text.
+
+                if (_a / _maxWidths[_type] % 1 > 0.92f)
+                {
+                    _linesN++;
+                }
+
+                _cHeight += _linesN * (og.GetComponent<RectTransform>().rect.height * 0.225f);
+
+                _pWidth = (_pWidth < _b) ? _b : _pWidth;
+
+                n.SetActive(true);
+
+                _ttMenuConst.Add(n);
+            }
+            
         }
 
         // Resize all to actual width
@@ -237,10 +249,18 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
     void MenuConfig() // Configure stats for menu
     {
+        List<object[]> _arg = new List<object[]>(); // Arguments for tooltip constructor.
+        object[] _line = new object[4]; // TEMP for inserting arguments into list.
+        /*
+        GENERAL ARGUMENTS:
+        0 - Type of line (0: Regular Text)
 
-        List<string> _text = new List<string>(); // Text strings
-        List<int> _tColor = new List<int>(); // Color Codes for text lines
-        List<FontStyle> _tType = new List<FontStyle>(); // Text types (regular, bold, italic, italic & Bold)
+        ARGUMENTS FOR REGULAR TEXT:
+        1 - Text string
+        2 - Color code
+        3 - Font Style (Normal, Bold, Italic, Bold&Italic)
+        */
+
         int _tooltipType = 0; // 0: Regular
 
         string vM = GalaxyMap.Instance._viewMode;
@@ -250,21 +270,28 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             _tooltipType = _shift ? 1 : 0;
 
             // Line 1 - "Empty Space"
-            _text.Add("Empty Space");
-            _tType.Add(FontStyle.Bold);
-            _tColor.Add(0);
+            _line[0] = 0;
+            _line[1] = "Empty Space";
+            _line[3] = FontStyle.Bold;
+            _line[2] = 0;
+            _arg.Add(_line.Clone() as object[]);
 
             // Line 2 - "Empty Space Description" - only appears if shift is pressed
-            _text.Add("This part contains no known sector...");
-            _tType.Add(FontStyle.BoldAndItalic);
-            _tColor.Add(1);
+            _line[0] = 0;
+            _line[1] = "This part contains no known sector...";
+            _line[3] = FontStyle.BoldAndItalic;
+            _line[2] = 1;
+            _arg.Add(_line.Clone() as object[]);
 
             // If Debug on: Coordinates of Hex
             if (MapManager.Instance._map._debug)
             {
                 Vector2 _pos = MapManager.Instance.GetScreenSectorPos(_startMPos);
-                _text.Add("(" + (int)_pos.x + " / " + (int)_pos.y + ")");
-                _tColor.Add(1);
+                _line[0] = 0;
+                _line[1] = "(" + (int)_pos.x + " / " + (int)_pos.y + ")";
+                _line[2] = 1;
+                _line[3] = 0;
+                _arg.Add(_line.Clone() as object[]);
             }
         }
         else if (currentHoverType == 1) // (Named) Sector
@@ -288,16 +315,20 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             bool flag_3 = MapManager.Instance.IsInKnownOwnerList(i, false); // Is this Owner known?
 
             // Line 1 - Sector Name
-            _text.Add(_s.GetName(!flag_gm));
-            _tColor.Add(0);
-            _tType.Add(FontStyle.Bold);
+            _line[0] = 0;
+            _line[1] = _s.GetName(!flag_gm);
+            _line[2] = 0;
+            _line[3] = FontStyle.Bold;
+            _arg.Add(_line.Clone() as object[]);
 
             // Line 2 - Faction (Default)
             if (vM == "alliances") // Display Alliance affiliation
             {
-                _text.Add(flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name + (_shift ? " (" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")" : "") : "Unaligned") : "Unknown"); // Show Alliance name, + shorthand IF Shift
-                _tColor.Add(1);
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = flag_3 ? (flag_2 ?  MapManager.Instance._map._alliances[_cAll]._name + (_shift ? " (" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")" : "") : "Unaligned") : "Unknown"; // Show Alliance name, + shorthand IF Shift
+                _line[2] = 1;
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
             }
             else if (vM == "relations") // Display Faction shorthand and relationship status
             {
@@ -316,9 +347,11 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
                 string[] t0 = {MapManager.Instance._map._factions[_cFac]._shorthand, _repName};
                 
-                _text.Add(flag_3 ? (flag_1 ? $"{t0[0]} ({t0[1]})" : "Neutral") : "Unknown"); // Line on Faction & Relationship state
-                _tColor.Add(_repName == "Owned" ? 4 : (_specCon == "War" ? 2 : (_specCon == "Allied" ? 3 : 1)));
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = flag_3 ? (flag_1 ? $"{t0[0]} ({t0[1]})" : "Neutral") : "Unknown"; // Line on Faction & Relationship state
+                _line[2] = _repName == "Owned" ? 4 : (_specCon == "War" ? 2 : (_specCon == "Allied" ? 3 : 1));
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
             }
             else if (vM == "regions") // Encode Region information (No Shift: Only the information for this region, Shift: All Regions)
             {
@@ -352,9 +385,11 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                     _tR[0] = _r._name; // Assign Name
                     _tR[1] = flag_S ? (flag_MeetsCriteria ? _r._regions[_sVal]._name : "Unknown") : "No Data";
 
-                    _text.Add($"{_tR[0]}: {_tR[1]}"); // Line : Region Name & Region Value
-                    _tColor.Add(1);
-                    _tType.Add(FontStyle.Bold);
+                    _line[0] = 0;
+                    _line[1] = $"{_tR[0]}: {_tR[1]}"; // Line : Region Name & Region Value
+                    _line[2] = 1;
+                    _line[3] = FontStyle.Bold;
+                    _arg.Add(_line.Clone() as object[]);
 
                 }
                 else
@@ -386,9 +421,11 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                         _tR[0] = _r._name; // Assign Name
                         _tR[1] = (flag_S && _sVal != -1) ? (flag_MeetsCriteria ? _r._regions[_sVal]._name : "Unknown") : "No Data";
 
-                        _text.Add($"{_tR[0]}: {_tR[1]}"); // Line shows region name & value
-                        _tColor.Add(1);
-                        _tType.Add(FontStyle.Bold);
+                        _line[0] = 0;
+                        _line[1] = $"{_tR[0]}: {_tR[1]}"; // Line shows region name & value
+                        _line[2] = 1;
+                        _line[3] = FontStyle.Bold;
+                        _arg.Add(_line.Clone() as object[]);
                     }
                 }
             }
@@ -411,55 +448,61 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
                 if (!_shift)
                 {
-                    _text.Add($"D: {_opt2[_dOpt]} / E: {_opt2[_eOpt]} / K: {_opt2[_kOpt]}"); // LINE : Show visibility states
-                    _tType.Add(FontStyle.Bold);
-                    _tColor.Add(1);
+                    _line[0] = 0;
+                    _line[1] = $"D: {_opt2[_dOpt]} / E: {_opt2[_eOpt]} / K: {_opt2[_kOpt]}"; // LINE : Show visibility states
+                    _line[3] = FontStyle.Bold;
+                    _line[2] = 1;
+                    _arg.Add(_line.Clone() as object[]);
 
                     if (_cFac == _fInt)
                     {
-                        _text.Add($"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'"); // LINE : Explains that sector ownership will auto-yes all three values
-                        _tType.Add(FontStyle.BoldAndItalic);
-                        _tColor.Add(1);
+                        _line[0] = 0;
+                        _line[1] = $"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'"; // LINE : Explains that sector ownership will auto-yes all three values
+                        _line[3] = FontStyle.BoldAndItalic;
+                        _line[2] = 1;
+                        _arg.Add(_line.Clone() as object[]);
                     }
                 }
                 else
                 {
-                    _text.Add($"Discovered: {_opt[_dOpt]}"); // ONE LINE FOR EACH STATE
-                    _tType.Add(FontStyle.Bold);
-                    _tColor.Add(_dOpt == 0 ? 4 : 2);
+                    _line[0] = 0;
+                    _line[1] = $"Discovered: {_opt[_dOpt]}"; // ONE LINE FOR EACH STATE
+                    _line[3] = FontStyle.Bold; // Multi-assignment of FontStyle.Bold not necessary -> only done once for all three lines
+                    _line[2] = _dOpt == 0 ? 4 : 2;
+                    _arg.Add(_line.Clone() as object[]);
 
-                    _text.Add($"Explored: {_opt[_eOpt]}");
-                    _tType.Add(FontStyle.Bold);
-                    _tColor.Add(_eOpt == 0 ? 4 : 2);
+                    _line[1] = $"Explored: {_opt[_eOpt]}";
+                    _line[2] = _eOpt == 0 ? 4 : 2;
+                    _arg.Add(_line.Clone() as object[]);
 
-                    _text.Add($"Knows Sector Owner: {_opt[_kOpt]}");
-                    _tType.Add(FontStyle.Bold);
-                    _tColor.Add(_kOpt == 0 ? 4 : 2);
+                    _line[1] = $"Knows Sector Owner: {_opt[_kOpt]}";
+                    _line[2] = _kOpt == 0 ? 4 : 2;
+                    _arg.Add(_line.Clone() as object[]);
 
                     if (_cFac == _fInt)
                     {
-                        _text.Add($"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'");
-                        _tType.Add(FontStyle.BoldAndItalic);
-                        _tColor.Add(1);
+                        _line[1] = $"> Sector is owned by {MapManager.Instance._map._factions[_cFac]._shorthand} so all three are 'Yes'";
+                        _line[3] = FontStyle.BoldAndItalic;
+                        _line[2] = 1;
+                        _arg.Add(_line.Clone() as object[]);
                     }
                 }
             }
             else // "Faction" && default if no other case provided
             {
-                _text.Add(flag_3 ? (flag_1 ?  MapManager.Instance._map._factions[_cFac]._name : "Neutral") : "Unknown");
-                _tColor.Add(1);
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = flag_3 ? (flag_1 ?  MapManager.Instance._map._factions[_cFac]._name : "Neutral") : "Unknown";
+                _line[2] = 1;
+                _line[3] = FontStyle.Bold;
 
                 if (flag_2 && flag_3) // ADD ALLIANCE SHORTHAND TO FACTION
                 {
-                    _text.Add(" (" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")");
+                    _line[1] += " (" + MapManager.Instance._map._alliances[_cAll]._shorthand + ")";
                 }
+
+                _arg.Add(_line.Clone() as object[]);
             }
 
-            // Line 3 : Sector Description (If Shift is pressed)
-            _text.Add(_s._description != "" ? _s._description : "This sector appears to have no description...");
-            _tType.Add(FontStyle.BoldAndItalic);
-            _tColor.Add(1);
 
             // OPTIONAL : If Special Condition to Player Faction, display additional line
             float _val2 = 0;
@@ -468,17 +511,31 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             MapManager.Instance.GetRepState(_pFac, _cFac, out _val2, out _specCon2);
             if (_pFac != -1 && (_pFac == _cFac || _specCon2 == "War" || _specCon2 == "Allied") && (vM == "factions" || vM == "alliances"))
             {
-                _text.Add(_pFac == _cFac ? "OWNED" : (_specCon2 == "War" ? "HOSTILE" : "ALLIED")); // LINE : Show special relationship states
-                _tColor.Add(_pFac == _cFac ? 4 : (_specCon2 == "War" ? 2 : 3));
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = _pFac == _cFac ? "OWNED" : (_specCon2 == "War" ? "HOSTILE" : "ALLIED"); // LINE : Show special relationship states
+                _line[2] = _pFac == _cFac ? 4 : (_specCon2 == "War" ? 2 : 3);
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
+            }
+
+            // LINE : Sector Description (If Shift is pressed)
+            if (_shift)
+            {
+                _line[0] = 0;
+                _line[1] = _s._description != "" ? _s._description : "This sector appears to have no description...";
+                _line[3] = FontStyle.BoldAndItalic;
+                _line[2] = 1;
+                _arg.Add(_line.Clone() as object[]);
             }
 
             // If Debug on: Coordinates of Hex
             if (MapManager.Instance._map._debug)
             {
-                _text.Add("(" + _s._posXInt + " / " + _s._posYInt + ")"); // DEBUG COORDINATES
-                _tColor.Add(1);
-                _tType.Add(FontStyle.Normal);
+                _line[0] = 0;
+                _line[1] = "(" + _s._posXInt + " / " + _s._posYInt + ")"; // DEBUG COORDINATES
+                _line[2] = 1;
+                _line[3] = FontStyle.Normal;
+                _arg.Add(_line.Clone() as object[]);
             }
         }
         else if (currentHoverType == 2) // Fleet
@@ -509,23 +566,29 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             string[] _t0 = {flag_3 ? (flag_1 ? (!(vM == "alliances") ? MapManager.Instance._map._factions[_fFac]._shorthand : (flag_4 ? MapManager.Instance._map._alliances[_fAll]._shorthand : "NEU")) : "NEU") : "UNK", flag_3 ? _f._name : "Fleet"};
 
             // Line 1 - Fleet Name
-            _text.Add($"{_t0[0]} {_t0[1]}");
-            _tColor.Add(0);
-            _tType.Add(FontStyle.Bold);
+            _line[0] = 0;
+            _line[1] = $"{_t0[0]} {_t0[1]}";
+            _line[2] = 0;
+            _line[3] = FontStyle.Bold;
+            _arg.Add(_line.Clone() as object[]);
 
             // Line 2 - Fleet Status
             string[] _t1 = {_f._status, _f._travelling ? "Dest: " + (flag_3 ? (flag_5 ? MapManager.Instance._map._sectors[_fDest].GetName(true) : "Empty Space") : "Unknown") : flag_2 ? MapManager.Instance._map._sectors[_fSec].GetName(true) : "Empty Space"};
-            _text.Add($"{_t1[0]} - {_t1[1]}");
-            _tColor.Add(1);
-            _tType.Add(FontStyle.Bold);
-
+            _line[0] = 0;
+            _line[1] = $"{_t1[0]} - {_t1[1]}";
+            _line[2] = 1;
+            _line[3] = FontStyle.Bold;
+            _arg.Add(_line.Clone() as object[]);
+            
             // OPTIONAL - Additional Rep stuff
             string _tRep = flag_6 ? "<color=green>Owned</color>" : (flag_7 ? "<color=#007DE1>Allied</color>" : (flag_8 ? "<color=red>Hostile</color>" : ""));
             if (_tRep != "")
             {
-                _text.Add(_tRep); // Line on REP
-                _tColor.Add(0);
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = _tRep; // Line on REP
+                _line[2] = 0;
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
             }
         }
         else if (currentHoverType == 3) // Connection
@@ -556,36 +619,45 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             bool flag_5 = flag_3 ? (flag_gm ? true : _c.Point2Vis(_pFac)) : false; // Connection 2 Known?
 
             // Line 1 - Connection Type
-            _text.Add(flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Lane");
-            _tColor.Add(0);
-            _tType.Add(FontStyle.Bold);
+            _line[0] = 0;
+            _line[1] = flag_1 ? MapManager.Instance._map._connType[_cTId]._name : "Lane";
+            _line[2] = 0;
+            _line[3] = FontStyle.Bold;
+            _arg.Add(_line.Clone() as object[]);
 
             // Sectors
             if (_shift)
             {
                 string[] _t = {flag_4 ? MapManager.Instance._map._sectors[_s1].GetName(true) : "Unknown", flag_5 ? MapManager.Instance._map._sectors[_s2].GetName(true) : "Unknown"};
 
-                _text.Add($"{_t[0]} - {_t[1]}"); // Both endpoints in one line
-                _tColor.Add(1);
-                _tType[1] = FontStyle.Bold;
+                _line[0] = 0;
+                _line[1] = $"{_t[0]} - {_t[1]}"; // Both endpoints in one line
+                _line[2] = 1;
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
             }
             else
             {
                 string[] _t = {flag_4 ? MapManager.Instance._map._sectors[_s1].GetName(true) : "Unknown", flag_5 ? MapManager.Instance._map._sectors[_s2].GetName(true) : "Unknown"};
 
-                _text.Add($"{_t[0]}"); // ENDPOINT 1
-                _tColor.Add(1);
-                _tType.Add(FontStyle.Bold);
+                _line[0] = 0;
+                _line[1] = $"{_t[0]}"; // ENDPOINT 1
+                _line[2] = 1;
+                _line[3] = FontStyle.Bold;
+                _arg.Add(_line.Clone() as object[]);
 
-                _text.Add($"{_t[1]}"); // ENDPOINT 2
-                _tColor.Add(1);
-                _tType.Add(FontStyle.Bold);
+                _line[1] = $"{_t[1]}"; // ENDPOINT 2 - All Params except text identical to 1
+                _arg.Add(_line.Clone() as object[]);
             }
 
 
         }
 
-        MenuConstructor(_tooltipType, _text, _tColor, _tType);
+        MenuConstructor(_tooltipType, _arg);
+        for (int i = 0; i < _arg.Count; i++)
+        {
+            Debug.Log(_arg[i][1]);
+        }
     }
 
     void MenuVisibilityMaster()
