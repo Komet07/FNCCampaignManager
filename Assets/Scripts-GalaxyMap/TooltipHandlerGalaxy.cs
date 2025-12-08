@@ -191,6 +191,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         _ttMenuConst = new List<GameObject>();
 
         GameObject og = _tooltipMenuObj[1]; // Original Text bar obj
+        GameObject ogBar = _tooltipMenuObj[2]; // Original Bar obj
 
         // Construct lines
         for (int i = 0; i < _const.Count; i++)
@@ -233,24 +234,87 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
                 _ttMenuConst.Add(n);
             }
-            
-        }
+            else if ((int)_const[i][0] == 1) // BARS
+            {
+                /* 
+                BARS - Allow for display of various bar & bar types - i.e relation values, fuel bars, etc.
 
-        // Resize all to actual width
-        foreach(GameObject _g in _ttMenuConst)
-        {
-            _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling + 4);
+                ARGUMENTS:
+                Type of Line (0 - Aligned Left -> Fills up, 1 - Centered -> Can go both ways (pos & neg))
+                Line width value
+                Line color
+                Line text -> For extra context (i.e. Fuel amount)
+                */
+
+                string _t = _const[i][4] != null ? (string)_const[i][4] : "";
+                Color32 _c = _const[i][3] != null ? (Color32)_const[i][3] : new Color32(200,200,200,255);
+                int _bType = _const[i][1] != null ? (int)_const[i][1] : 0;
+                float _val = _const[i][2] != null ? (float)_const[i][2] : 0f;
+
+                float _barWidth = _maxWidths[_type];
+
+                GameObject n = Instantiate(ogBar, ogBar.transform.parent);
+                GameObject nBar = n.GetComponent<IndexScript>()._obj1;
+                GameObject nText = n.GetComponent<IndexScript>()._obj2;
+
+                if (_bType == 0) // ALIGN LEFT -> PLACE LEFT
+                {
+                    nBar.GetComponent<RectTransform>().pivot = new Vector2(1f, 1.5f);
+
+                    n.transform.localPosition = ogBar.transform.localPosition - new Vector3(0, _cHeight, 0);
+                    nBar.transform.localPosition = new Vector3(0,0,0);
+                }
+
+                nBar.GetComponent<Image>().color = _c;
+
+                nText.GetComponent<Text>().text = _t;
+
+                n.transform.localPosition = ogBar.transform.localPosition - new Vector3(0, _cHeight, 0);
+
+                _cHeight += ogBar.GetComponent<RectTransform>().rect.height;
+
+                n.SetActive(true);
+                _ttMenuConst.Add(n);
+
+            }
+            
         }
 
         // Set Size of main Menu
         _tooltipMenuObj[0].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth + _bWidth);
         _tooltipMenuObj[0].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _cHeight + 6);
+
+        // Resize all to actual width
+        for (int i = 0; i < _ttMenuConst.Count; i++)
+        {
+            GameObject _g = _ttMenuConst[i];
+
+            int _v = (int)_const[i][0];
+
+            if (_v == 0)
+            {
+                _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling + 4);
+            }
+            else if (_v == 1)
+            {
+                float _scaleFac = (int)_const[i][1] == 0 ? 1f : 0.5f;
+                _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth);
+                _g.transform.localPosition = new Vector3((_pWidth + _bWidth) / 2, _g.transform.localPosition.y, 0);
+                _g.GetComponent<IndexScript>()._obj1.transform.localPosition = (int)_const[i][1] == 0 ? new Vector3(0,0,0) : new Vector3(_pWidth * _scaleFac / 2,0,0);
+                _g.GetComponent<IndexScript>()._obj1.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth * _scaleFac * Mathf.Abs((float)_const[i][2]));
+                _g.GetComponent<IndexScript>()._obj2.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling);
+
+            }
+                
+        }
+
+        
     }
 
     void MenuConfig() // Configure stats for menu
     {
         List<object[]> _arg = new List<object[]>(); // Arguments for tooltip constructor.
-        object[] _line = new object[4]; // TEMP for inserting arguments into list.
+        object[] _line = new object[5]; // TEMP for inserting arguments into list.
         /*
         GENERAL ARGUMENTS:
         0 - Type of line (0: Regular Text)
@@ -259,6 +323,12 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         1 - Text string
         2 - Color code
         3 - Font Style (Normal, Bold, Italic, Bold&Italic)
+
+        ARGUMENTS FOR BARS:
+        1 - Type of Bar
+        2 - Bar Value
+        3 - Bar Color
+        4 - Bar Text (If any)
         */
 
         int _tooltipType = 0; // 0: Regular
@@ -579,6 +649,16 @@ public class TooltipHandlerGalaxy : MonoBehaviour
             _line[2] = 1;
             _line[3] = FontStyle.Bold;
             _arg.Add(_line.Clone() as object[]);
+
+            // BAR : FUEL
+            float _fuelPerc = _f.getMaxFuel > 0 ? _f.getCurrentFuel / _f.getMaxFuel : 0f;
+            string[] _tFBar = {Mathf.RoundToInt(_fuelPerc*100).ToString() + "%", _f.getCurrentFuel + "/" + _f.getMaxFuel + " - " + Mathf.RoundToInt(_fuelPerc*100).ToString() + "%"};
+            _line[0] = 1; // BAR
+            _line[1] = 0; // Type 0 - Align Left
+            _line[2] = _fuelPerc; // Value
+            _line[3] = new Color32(140, 152, 226, 255); // Same color as in Fleet UI
+            _line[4] = "FUEL: " + (_shift ? _tFBar[1] : _tFBar[0]); // Text
+            _arg.Add(_line.Clone() as object[]);
             
             // OPTIONAL - Additional Rep stuff
             string _tRep = flag_6 ? "<color=green>Owned</color>" : (flag_7 ? "<color=#007DE1>Allied</color>" : (flag_8 ? "<color=red>Hostile</color>" : ""));
@@ -654,10 +734,6 @@ public class TooltipHandlerGalaxy : MonoBehaviour
         }
 
         MenuConstructor(_tooltipType, _arg);
-        for (int i = 0; i < _arg.Count; i++)
-        {
-            Debug.Log(_arg[i][1]);
-        }
     }
 
     void MenuVisibilityMaster()

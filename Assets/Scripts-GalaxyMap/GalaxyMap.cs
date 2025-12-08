@@ -307,7 +307,7 @@ public class GalaxyMap : MonoBehaviour
             int _tID = MapManager.Instance._map._jumpGates[i]._typeId;
             if (_tID != -1 && _tID < MapManager.Instance._map._connType.Count)
             {
-                Debug.Log("Connection - Type ID:" + _tID);
+                
                 ConnectionType _ct = MapManager.Instance._map._connType[_tID];
 
                 LineRenderer _lr = _jgClone.GetComponent<LineRenderer>();
@@ -333,7 +333,7 @@ public class GalaxyMap : MonoBehaviour
                     // Use distance for offset
                     _m.SetTexture("_MainTex", _spriteLineDash);
                     _lr.textureScale = new Vector2((10f / _ct._lineWidth), 1);
-                    Debug.Log(_lr.textureScale);
+                    
                 }
                 else if (_ct._lineType == 2) // DOTTED
                 {
@@ -358,7 +358,7 @@ public class GalaxyMap : MonoBehaviour
                 _lr.startWidth = _w;
                 _lr.endWidth = _w;
 
-                Debug.Log("Connection - Line Width:" + _ct._lineWidth);
+                // Debug.Log("Connection - Line Width:" + _ct._lineWidth);
 
             }
             // Activate object
