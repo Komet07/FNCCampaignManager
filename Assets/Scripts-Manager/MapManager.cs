@@ -3856,7 +3856,7 @@ public class MapManager : MonoBehaviour
     }
 
     // Return strings for enums of a ship
-    public string[] Return_ShipEnumStrings(Ship _ship)
+    public string[] Return_ShipEnumStrings(Ship _ship, bool _abbr)
     {
         string[] _s = new string[4]; // 0: Type, 1: Subtype, 2: Size, 3: Condition
 
@@ -3866,17 +3866,17 @@ public class MapManager : MonoBehaviour
         {
             default:
                 {
-                    _s[0] = "Military";
+                    _s[0] = _abbr ? "Mil" : "Military";
                     break;
                 }
             case Ship.Type.Military:
                 {
-                    _s[0] = "Military";
+                    _s[0] = _abbr ? "Mil" : "Military";
                     break;
                 }
             case Ship.Type.Civilian:
                 {
-                    _s[0] = "Civilian";
+                    _s[0] = _abbr ? "Civ" : "Civilian";
                     break;
                 }
         }

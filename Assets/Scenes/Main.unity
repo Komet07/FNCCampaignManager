@@ -12397,6 +12397,8 @@ MonoBehaviour:
   _iFMTravelHeader: {fileID: 692036033}
   _iFMTravelText: {fileID: 1298134719}
   _iFMShipHeader: {fileID: 2098348924}
+  _iFMShipCard: {fileID: 1965541773}
+  _iFMShipCards: []
   _iFMObjs:
   - {fileID: 1641156163}
   _contextMenuO: {fileID: 1536436617}
@@ -49482,7 +49484,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1641156164
 RectTransform:
   m_ObjectHideFlags: 0
@@ -49535,7 +49537,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: < CONTENTS OF THIS FLEET ARE NOT VISIBLE >
+  m_Text: 
 --- !u!222 &1641156166
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -59020,7 +59022,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1965541774
 RectTransform:
   m_ObjectHideFlags: 0
@@ -59094,10 +59096,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d7187ad4a8794c909f6150d4d646c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IndexScript
-  _obj1: {fileID: 0}
-  _obj2: {fileID: 0}
-  _obj3: {fileID: 0}
-  _obj4: {fileID: 0}
+  _obj1: {fileID: 952367291}
+  _obj2: {fileID: 1864450840}
+  _obj3: {fileID: 477576448}
+  _obj4: {fileID: 1292896033}
   _obj5: {fileID: 0}
   _obj6: {fileID: 0}
   _obj7: {fileID: 0}

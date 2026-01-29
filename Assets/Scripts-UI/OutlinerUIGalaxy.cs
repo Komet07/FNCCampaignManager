@@ -157,6 +157,10 @@ namespace UI
         public GameObject _iFMTravelHeader;
         public GameObject _iFMTravelText;
         public GameObject _iFMShipHeader;
+        public GameObject _iFMShipCard; // Base obj for ship cards
+        public List<GameObject> _iFMShipCards = new List<GameObject>() { }; // INSTANTIATED ship cards -> details of ships in fleet
+        private int _maxShipCards = 5;
+        private int _currentShipCardIndex = 0;
 
         public List<GameObject> _iFMObjs = new List<GameObject>() { };
 
@@ -170,6 +174,87 @@ namespace UI
         protected int _contextMenuOIndex = -1;
         protected int _contextMenuOInt2 = 0;
 
+        void BuildShipCards(Fleet _f, float _vIn, out float _vOut, bool _remove)
+        {
+            _vOut = _vIn;
+
+            if (_currentFleetID < 0 || _currentFleetID >= MapManager.Instance._map._fleets.Count || _f == null || _remove) // INVALID FLEET ENTRY
+            {
+                for (int i = 0; i < _iFMShipCards.Count; i++) // REMOVE ALL
+                {
+                    GameObject _obj = _iFMShipCards[i];
+                    _iFMShipCards.Remove(_iFMShipCards[i]);
+                    Destroy(_obj);
+                    i--;
+                }
+
+                return;
+            }
+
+            _currentShipCardIndex = Mathf.Clamp(_currentShipCardIndex, 0, _f._ships.Count > _maxShipCards ? _f._ships.Count - _maxShipCards : 0);
+
+            int _sCards = Mathf.Clamp(_f._ships.Count - _currentShipCardIndex, 0, _maxShipCards);
+
+            // Add / remove cards as needed
+
+            if (_sCards > _iFMShipCards.Count)
+            {
+                for (int i = _iFMShipCards.Count; i < _sCards; i++)
+                {
+                    GameObject _obj = Instantiate(_iFMShipCard, _iFMShipCard.transform.parent);
+                    _obj.SetActive(true);
+                    _iFMShipCards.Add(_obj);
+                }
+            }
+            else if (_sCards < _iFMShipCards.Count)
+            {
+                for (int i = 0; i < _iFMShipCards.Count; i++)
+                {
+                    if (i >= _sCards)
+                    {
+                        GameObject _obj = _iFMShipCards[i];
+                        _iFMShipCards.Remove(_iFMShipCards[i]);
+                        Destroy(_obj);
+                        i--;
+                    }
+                }
+            }
+
+            // position cards
+            
+            for (int i = 0; i < _iFMShipCards.Count; i++)
+            {
+                _iFMShipCards[i].GetComponent<RectTransform>().localPosition = new Vector3(5, _vOut * -1, -5);
+                _vOut += 85;
+            }
+
+            // update cards
+
+            for (int i = 0; i < _iFMShipCards.Count; i++)
+            {
+                int _shipIndex = _currentShipCardIndex + i;
+                Ship _s = _f._ships[_shipIndex];
+
+                string[] _enumVal = MapManager.Instance.Return_ShipEnumStrings(_s, true);
+
+                string[] _sLine1Stats = {_s._identifier, _s._name, _s._className, _s._classType};
+                string[] _sLine2Stats = {_enumVal[3], _s._currentFuel.ToString(), _s._maxFuel.ToString(), _s._fuelConsumption.ToString()};
+                string[] _sLine1RStats = {_enumVal[0].ToUpper()};
+                string[] _sLine2RStats = {_enumVal[1].ToUpper(), _enumVal[2].ToUpper()};
+
+                string _t1 = $"/// {_sLine1Stats[0]} {_sLine1Stats[1]} - {_sLine1Stats[2]}-Class {_sLine1Stats[3]}";
+                string _t1R = _sLine1RStats[0];
+                string _t2 = $"CONDITION: {_sLine2Stats[0]} - FUEL: {_sLine2Stats[1]}/{_sLine2Stats[2]}/{_sLine2Stats[3]}";
+                string _t2R = $"{_sLine2RStats[0]} ({_sLine2RStats[1]})";
+
+                GameObject _obj = _iFMShipCards[i];
+
+                _obj.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _t1;
+                _obj.GetComponent<IndexScript>()._obj2.GetComponent<Text>().text = _t2;
+                _obj.GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = _t1R;
+                _obj.GetComponent<IndexScript>()._obj4.GetComponent<Text>().text = _t2R;
+            }
+        }
 
         public void RebuildFleetMenu()
         {
@@ -449,6 +534,7 @@ namespace UI
                 /* 
                 GOAL : Structure Fleet Outliner modularly and reposition / adjust UI elements based on which sections are shown / not shown
                 */
+
                 if (_currentFleetID < 0 || _currentFleetID >= MapManager.Instance._map._fleets.Count)
                 {
                     _currentFleetID = -1;
@@ -582,13 +668,21 @@ namespace UI
                         {
                             _iFMObjs[0].GetComponent<Text>().text = "";
                         }
+
+                        BuildShipCards(F, _vHeight, out _vHeight, false);
                     }
                     else
                     {
                         _vHeight += 80;
                         _iFMObjs[0].GetComponent<Text>().text = "< CONTENTS OF THIS FLEET ARE UNKNOWN >";
                         _iFMObjs[0].GetComponent<RectTransform>().localPosition = new Vector3(500, (_vHeight * -1) + 50, -5);
+
+                        BuildShipCards(F, _vHeight, out _vHeight, true);
                     }
+
+                    
+
+
                 }
                 else
                 {
@@ -806,6 +900,8 @@ namespace UI
                     {
                         _iFMObjs[0].GetComponent<Text>().text = "";
                     }
+
+                    BuildShipCards(F, _vHeight, out _vHeight, false);
                     
                 }
 
