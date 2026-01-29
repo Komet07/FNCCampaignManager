@@ -164,6 +164,14 @@ namespace UI
 
         public List<GameObject> _iFMObjs = new List<GameObject>() { };
 
+        [Header("Individual Ship Menu")]
+        public bool _indivShipIsOn = false;
+        public int _currentShipID = -1;
+
+        public List<GameObject> _iSMObjs = new List<GameObject>() { };
+        public List<Text> _iSMTexts = new List<Text>() { };
+        public List<GameObject> _gmObjs_IndivSM = new List<GameObject>() { };
+
         // Context Menu - Outliner
         [Header("Context Menu - Outliner")]
         public GameObject _contextMenuO;
@@ -245,7 +253,7 @@ namespace UI
                 string[] _sLine1RStats = {_enumVal[0].ToUpper()};
                 string[] _sLine2RStats = {_enumVal[1].ToUpper(), _enumVal[2].ToUpper()};
 
-                string _t1 = $"/// {_sLine1Stats[0]} {_sLine1Stats[1]} - {_sLine1Stats[2]}-Class {_sLine1Stats[3]}";
+                string _t1 = $"<color=#f18700>///</color> {_sLine1Stats[0]} {_sLine1Stats[1]} - {_sLine1Stats[2]}-Class {_sLine1Stats[3]}";
                 string _t1R = _sLine1RStats[0];
                 string _t2 = $"CONDITION: {_sLine2Stats[0]} - FUEL: {_sLine2Stats[1]}/{_sLine2Stats[2]}/{_sLine2Stats[3]}";
                 string _t2R = $"{_sLine2RStats[0]} ({_sLine2RStats[1]})";
@@ -516,6 +524,9 @@ namespace UI
 
         public void INITIALIZE_INDIV_FLEET_MENU(int _fleetID)
         {
+            _currentShipID = -1;
+            _indivShipIsOn = false;
+
             if (_fleetID < 0)
             {
                 _indivFleetIsOn = false;
@@ -585,19 +596,19 @@ namespace UI
                         if (F._faction >= 0 && F._faction < MapManager.Instance._map._factions.Count)
                         {
                             _iFMOwnerText.GetComponent<Text>().text = "Faction: " + MapManager.Instance._map._factions[F._faction]._shorthand;
-                            _iFMTitleText.GetComponent<Text>().text = "Fleet - " + MapManager.Instance._map._factions[F._faction]._shorthand + " " + F._name;
+                            _iFMTitleText.GetComponent<Text>().text = "<color=#f18700>FLEET</color> - " + MapManager.Instance._map._factions[F._faction]._shorthand + " " + F._name;
                         }
                         else
                         {
                             _iFMOwnerText.GetComponent<Text>().text = "Faction: Neutral";
-                            _iFMTitleText.GetComponent<Text>().text = "Fleet - NEU " + F._name;
+                            _iFMTitleText.GetComponent<Text>().text = "<color=#f18700>FLEET</color> - NEU " + F._name;
                         }
                     }
                     else
                     {
                         _iFMNameText.GetComponent<Text>().text = "Name: Unknown";
                         _iFMOwnerText.GetComponent<Text>().text = "Faction: Unknown";
-                        _iFMTitleText.GetComponent<Text>().text = "Fleet - Unknown";
+                        _iFMTitleText.GetComponent<Text>().text = $"<color=#f18700>FLEET</color> - Unknown";
                     }
 
                     if (F._currentSector >= 0 && F._currentSector < MapManager.Instance._map._sectors.Count)
@@ -722,7 +733,7 @@ namespace UI
                     _iFMNameText.GetComponent<Text>().text = "Name:";
                     _iFMOwnerText.GetComponent<Text>().text = "Faction:";
                     string _fPrefix = (F._faction >= 0) ? MapManager.Instance._map._factions[F._faction]._shorthand : "NEU";
-                    _iFMTitleText.GetComponent<Text>().text = $"Fleet - {_fPrefix} {F._name}";
+                    _iFMTitleText.GetComponent<Text>().text = $"<color=#f18700>FLEET</color> - {_fPrefix} {F._name}";
                     _iFMLocationText.GetComponent<Text>().text = "Location:";
                     _iFMStatusText.GetComponent<Text>().text = "Status:";
                     _iFMTransponderText.GetComponent<Text>().text = "Transponder:              ";
@@ -1089,7 +1100,124 @@ namespace UI
             else if (_a == 24) // ADD BLANK SHIP TO FLEET
             {
                 MapManager.Instance._map._fleets[_currentFleetID].AddShip();
+                _iFMObjs[1].GetComponent<Scrollbar>().value = 1; // Make new ship visible in UI
             }
+            else if (_a == 25) // OPEN SHIP ITEM FROM IFM
+            {
+                _indivShipIsOn = true;
+            }
+        }
+
+        public void INDIV_FLEET_FUNCTIONS_2(GameObject _obj)
+        {
+            for (int i = 0; i < _iFMShipCards.Count; i++)
+            {
+                if (_iFMShipCards[i] == _obj)
+                {
+                    _currentShipID = i + _currentShipCardIndex;
+                    return;
+                }
+            }
+        }
+
+        public void INDIV_SHIP_FUNCTIONS(int _a)
+        {
+            if (_a == 0) // Display Elements
+            {
+                /* 
+                GOAL : Structure Ship Outliner modularly and reposition / adjust UI elements based on which sections are shown / not shown
+                */
+
+                /// FAILSAFE CHECKS
+                /// -> Ensure that the current Fleet and Ship IDs are valid, exit if not
+                
+                if (_currentFleetID < 0 || _currentFleetID >= MapManager.Instance._map._fleets.Count)
+                {
+                    _currentFleetID = -1;
+                    _indivShipIsOn = false;
+                    return;
+                }
+
+                if (_currentShipID < 0 || _currentShipID >= MapManager.Instance._map._fleets[_currentFleetID]._ships.Count)
+                {
+                    _currentShipID = -1;
+                    _indivShipIsOn = false;
+                    return;
+                }
+                
+                /// SHIP VARIABLES
+                /// -> Gather all important ship variables here for later reference
+                
+                Ship _s = MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID];
+                Fleet F = MapManager.Instance._map._fleets[_currentFleetID];
+                
+                string _ident = _s._identifier;
+                string _name = _s._name;
+                string _class = _s._className;
+                string _type = _s._classType;
+
+                /// TITLE
+                /// -> Display Ident, Name & relevant info
+                /// Needs no differentiation between GM and Non-GM because only the faction owner can see their own ships anyways
+                
+                Text _title = _iSMTexts[0];
+                _title.text = $"<color=#f18700>SHIP</color> - {_ident} {_name} ({_class}-class {_type})";
+
+                if (MapManager.Instance._map._lockSelection || (MapManager.Instance._map._playerFactionId >= 0 && F._faction != MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)) // Non-GM
+                {
+                    for (int i = 0; i < _gmObjs_IndivSM.Count; i++) // Deactivate all GM Objects
+                    {
+                        _gmObjs_IndivSM[i].SetActive(false);
+                    }
+
+                    /// BASE SEGMENT
+                    /// -> Objects for Name, Ident, Class & other general info to edit
+                    
+                    Text _nameText = _iSMTexts[1];
+                    Text _identText = _iSMTexts[2];
+
+                    _nameText.text = $"Name: {_name}";
+                    _identText.text = $"Identifier: {_ident}";
+                }
+                else // GM
+                {
+                    for (int i = 0; i < _gmObjs_IndivSM.Count; i++) // Activate all GM Objects
+                    {
+                        _gmObjs_IndivSM[i].SetActive(true);
+                    }
+
+                    /// BASE SEGMENT
+                    /// -> Objects for Name, Ident, Class & other general info to edit
+                    
+                    Text _nameText = _iSMTexts[1];
+                    Text _identText = _iSMTexts[2];
+
+                    GameObject _nameField = _gmObjs_IndivSM[0];
+                    GameObject _identField = _gmObjs_IndivSM[1];
+
+                    _nameText.text = $"Name: ";
+                    _identText.text = $"Identifier: ";
+
+                    _nameField.GetComponent<InputField>().text = _name;
+                    _identField.GetComponent<InputField>().text = _ident;
+                }
+            
+
+
+            }
+            else if (_a == 1) // Close
+            {
+                _indivShipIsOn = false;
+            }
+            else if (_a == 2) // Change Name
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._name = _gmObjs_IndivSM[0].GetComponent<InputField>().text;
+            }
+            else if (_a == 3) // Change Identifier
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._identifier = _gmObjs_IndivSM[1].GetComponent<InputField>().text;
+            }
+
         }
 
         public void CONTEXT_MENU_FUNCTIONS(int _a)
@@ -1733,6 +1861,17 @@ namespace UI
             else
             {
                 _indivFleetMenu.SetActive(false);
+            }
+
+            if (_indivShipIsOn)
+            {
+                _iSMObjs[0].SetActive(true);
+
+                INDIV_SHIP_FUNCTIONS(0); // Rebuild menu
+            }
+            else
+            {
+                _iSMObjs[0].SetActive(false);
             }
 
             

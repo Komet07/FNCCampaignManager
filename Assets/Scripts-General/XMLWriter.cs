@@ -149,6 +149,12 @@ public class XMLWriter : MonoBehaviour
                     _mapCopy._fleets[i]._maxFuel = 0;
                     _mapCopy._fleets[i]._status = "";
                     _mapCopy._fleets[i]._currentFuel = 0;
+
+                    for (int j = 0; j < _mapCopy._fleets[i]._ships.Count; j++) // PURGE ALL SHIPS FROM THIS FLEET
+                    {
+                        _mapCopy._fleets[i]._ships.Remove(_mapCopy._fleets[i]._ships[j]);
+                        j--;
+                    }
                 }
             }
             
