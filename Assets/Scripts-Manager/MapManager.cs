@@ -673,11 +673,11 @@ public class Fleet
 
             for (int i = 0; i < _ships.Count; i++)
             {
-                if (_ships[i].FuelFraction * (_ships[i]._fuelConsumption > 0 ? _ships[i]._currentFuel / _ships[i]._fuelConsumption : 1f) <= lowestFuelAmount && _ships[i].FuelFraction < 1f && _ships[i]._maxFuel > 0)
+                if ((_ships[i]._fuelConsumption > 0 ? _ships[i]._currentFuel / _ships[i]._fuelConsumption : 1f) <= lowestFuelAmount && _ships[i].FuelFraction < 1f && _ships[i]._maxFuel > 0)
                 {
-                    Debug.Log(_ships[i].FuelFraction + " < " + lowestFuelAmount);
+                    Debug.Log((_ships[i]._fuelConsumption > 0 ? _ships[i]._currentFuel / _ships[i]._fuelConsumption : 1f) + " < " + lowestFuelAmount);
 
-                    lowestFuelAmount = _ships[i].FuelFraction;
+                    lowestFuelAmount = (_ships[i]._fuelConsumption > 0 ? _ships[i]._currentFuel / _ships[i]._fuelConsumption : 1f);
                     lowestShipID = i;
                 }
             }

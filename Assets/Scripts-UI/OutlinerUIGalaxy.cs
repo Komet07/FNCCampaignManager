@@ -188,6 +188,9 @@ namespace UI
                     i--;
                 }
 
+                // ADJUST SCROLLBAR
+                _iFMObjs[1].SetActive(false);
+
                 return;
             }
 
@@ -253,6 +256,26 @@ namespace UI
                 _obj.GetComponent<IndexScript>()._obj2.GetComponent<Text>().text = _t2;
                 _obj.GetComponent<IndexScript>()._obj3.GetComponent<Text>().text = _t1R;
                 _obj.GetComponent<IndexScript>()._obj4.GetComponent<Text>().text = _t2R;
+            }
+
+            // update Scrollbar
+
+            Scrollbar _sc = _iFMObjs[1].GetComponent<Scrollbar>();
+            GameObject _scObj = _iFMObjs[1];
+            _scObj.transform.SetAsLastSibling();
+
+            if (_f._ships.Count > _maxShipCards)
+            {
+                _scObj.SetActive(true);
+                _scObj.GetComponent<RectTransform>().localPosition = new Vector3(1000, _vIn * -1, -4);
+                
+                _currentShipCardIndex = Mathf.Clamp(Mathf.RoundToInt(_sc.value * (_f._ships.Count - _maxShipCards)),0, _f._ships.Count - _maxShipCards);
+                _scObj.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (_vOut - _vIn) / 5f);
+            }
+            else
+            {
+                _sc.value = 0;
+                _scObj.SetActive(false);
             }
         }
 
