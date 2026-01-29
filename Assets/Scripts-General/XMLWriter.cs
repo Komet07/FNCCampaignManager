@@ -91,7 +91,7 @@ public class XMLWriter : MonoBehaviour
                     // REMOVE FLEETS FROM LISTS
                     for (int j = 0; j < _mapCopy._factions.Count; j++)
                     {
-                        Debug.Log("A" + Random.Range(0, 10000));
+                        // Debug.Log("A" + Random.Range(0, 10000));
                         for (int k = 0; k < _mapCopy._factions[j]._knownFleets.Count; k++)
                         {
                             if (_mapCopy._factions[j]._knownFleets[k] == i)
@@ -105,7 +105,7 @@ public class XMLWriter : MonoBehaviour
                                 _mapCopy._factions[j]._knownFleets[k]--;
                             }
                         }
-                        Debug.Log("B" + Random.Range(0, 10000));
+                        // Debug.Log("B" + Random.Range(0, 10000));
                         for (int k = 0; k < _mapCopy._factions[j]._knownFleetContents.Count; k++)
                         {
                             if (_mapCopy._factions[j]._knownFleetContents[k] == i)
@@ -119,7 +119,7 @@ public class XMLWriter : MonoBehaviour
                                 _mapCopy._factions[j]._knownFleetContents[k]--;
                             }
                         }
-                        Debug.Log("C" + Random.Range(0, 10000));
+                        // Debug.Log("C" + Random.Range(0, 10000));
                         for (int k = 0; k < _mapCopy._factions[j]._knownFleetOwners.Count; k++)
                         {
                             if (_mapCopy._factions[j]._knownFleetOwners[k] == i)
@@ -353,12 +353,14 @@ public class XMLWriter : MonoBehaviour
                 {
                     _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
                     i--;
+                    continue;
                 }
 
                 if (!_mapCopy._jumpGates[i].Point1Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID) && !_mapCopy._jumpGates[i].Point2Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID))
                 {
                     _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
                     i--;
+                    continue;
                 }
             }
 

@@ -158,6 +158,8 @@ namespace UI
         public GameObject _iFMTravelText;
         public GameObject _iFMShipHeader;
 
+        public List<GameObject> _iFMObjs = new List<GameObject>() { };
+
         // Context Menu - Outliner
         [Header("Context Menu - Outliner")]
         public GameObject _contextMenuO;
@@ -568,7 +570,25 @@ namespace UI
                     // -- SHIP SECTION --
                     _vHeight += 50;
                     _iFMShipHeader.GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 50, -5);
-
+                    if (MapManager.Instance.IsFaction(F._faction))
+                    {
+                        if (F._ships.Count == 0)
+                        {
+                            _vHeight += 80;
+                            _iFMObjs[0].GetComponent<Text>().text = "< NO SHIPS IN FLEET >";
+                            _iFMObjs[0].GetComponent<RectTransform>().localPosition = new Vector3(500, (_vHeight * -1) + 50, -5);
+                        }
+                        else
+                        {
+                            _iFMObjs[0].GetComponent<Text>().text = "";
+                        }
+                    }
+                    else
+                    {
+                        _vHeight += 80;
+                        _iFMObjs[0].GetComponent<Text>().text = "< CONTENTS OF THIS FLEET ARE UNKNOWN >";
+                        _iFMObjs[0].GetComponent<RectTransform>().localPosition = new Vector3(500, (_vHeight * -1) + 50, -5);
+                    }
                 }
                 else
                 {
@@ -585,7 +605,7 @@ namespace UI
                     _iFMNameText.GetComponent<Text>().text = "Name:";
                     _iFMOwnerText.GetComponent<Text>().text = "Faction:";
                     string _fPrefix = (F._faction >= 0) ? MapManager.Instance._map._factions[F._faction]._shorthand : "NEU";
-                    _iFMTitleText.GetComponent<Text>().text = "Fleet - " + _fPrefix + " " + F._name;
+                    _iFMTitleText.GetComponent<Text>().text = $"Fleet - {_fPrefix} {F._name}";
                     _iFMLocationText.GetComponent<Text>().text = "Location:";
                     _iFMStatusText.GetComponent<Text>().text = "Status:";
                     _iFMTransponderText.GetComponent<Text>().text = "Transponder:              ";
@@ -767,7 +787,26 @@ namespace UI
 
                     // -- SHIP SECTION --
                     _vHeight += 50;
+                    
+                    // ACTIVATE
+                    _gmObjs_IndivFM[28].SetActive(true); // Add Ship Button
+
+                    // POSITION
+
                     _iFMShipHeader.GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 50, -5);
+                    _gmObjs_IndivFM[28].GetComponent<RectTransform>().localPosition = new Vector3(990, (_vHeight * -1) + 40, -5);
+
+                    if (F._ships.Count == 0)
+                    {
+                        _vHeight += 80;
+                        _iFMObjs[0].GetComponent<Text>().text = "< NO SHIPS IN FLEET >";
+                        _iFMObjs[0].GetComponent<RectTransform>().localPosition = new Vector3(500, (_vHeight * -1) + 50, -5);
+                    }
+                    else
+                    {
+                        _iFMObjs[0].GetComponent<Text>().text = "";
+                    }
+                    
                 }
 
                 _indivFleetMenu.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _vHeight);
@@ -927,6 +966,10 @@ namespace UI
             else if (_a == 23)
             {
                 _iFMLocationSelect = false;
+            }
+            else if (_a == 24) // ADD BLANK SHIP TO FLEET
+            {
+                MapManager.Instance._map._fleets[_currentFleetID].AddShip();
             }
         }
 

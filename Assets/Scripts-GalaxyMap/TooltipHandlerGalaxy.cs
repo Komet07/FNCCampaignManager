@@ -259,7 +259,7 @@ public class TooltipHandlerGalaxy : MonoBehaviour
 
                 if (_bType == 0) // ALIGN LEFT -> PLACE LEFT
                 {
-                    nBar.GetComponent<RectTransform>().pivot = new Vector2(1f, 1.5f);
+                    nBar.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1.5f);
 
                     n.transform.localPosition = ogBar.transform.localPosition - new Vector3(0, _cHeight, 0);
                     nBar.transform.localPosition = new Vector3(0,0,0);
@@ -300,8 +300,9 @@ public class TooltipHandlerGalaxy : MonoBehaviour
                 float _scaleFac = (int)_const[i][1] == 0 ? 1f : 0.5f;
                 _g.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth);
                 _g.transform.localPosition = new Vector3((_pWidth + _bWidth) / 2, _g.transform.localPosition.y, 0);
-                _g.GetComponent<IndexScript>()._obj1.transform.localPosition = (int)_const[i][1] == 0 ? new Vector3(0,0,0) : new Vector3(_pWidth * _scaleFac / 2,0,0);
+                
                 _g.GetComponent<IndexScript>()._obj1.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth * _scaleFac * Mathf.Abs((float)_const[i][2]));
+                _g.GetComponent<IndexScript>()._obj1.transform.localPosition = new Vector3(-(_pWidth * _scaleFac * (1 - Mathf.Abs((float)_const[i][2])) / 2),0,0);
                 _g.GetComponent<IndexScript>()._obj2.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _pWidth / _tScaling);
 
             }

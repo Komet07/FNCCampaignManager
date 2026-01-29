@@ -550,6 +550,27 @@ public class Fleet
     [XmlArray("Ships"), XmlArrayItem("Ship")]
     public List<Ship> _ships = new List<Ship>();
 
+    // <-- SHIP MANAGEMENT FUNCTIONS -->
+    public void AddShip() // Add blank new ship
+    {
+        Ship _s = new Ship();
+        _s._name = "New Ship";
+        _s._identifier = "XX-000";
+        _ships.Add(_s);
+    }
+    public void AddShip(ShipDesign _sD) // Add new ship based on set design
+    {
+
+        Ship _s = new Ship();
+        _s._name = "New Ship";
+        _s.Refit(_sD);
+        _ships.Add(_s);
+    }
+
+    public void AddShip(Ship _sPreset) // Add new ship based on preset ship - used for duplication, adding new ships to fleets, etc.
+    {
+        _ships.Add(_sPreset);
+    }
 
     // <-- FUEL FUNCTIONS -->
     public float getMaxFuel // GET MAX REG FUEL
@@ -933,9 +954,10 @@ public class Ship
     public enum Size {Fightercraft, Small, Large, Capital, Supercapital}
 
     [Header("General"), XmlAttribute("name")]
-    public string _name = "";
-    public string _className = "";
-    public string _classType = "";
+    public string _name = ""; // Ex: Boaty McBoatface
+    public string _className = ""; // Ex: Keystone-Class
+    public string _classType = ""; // Ex: Destroyer
+    public string _identifier = ""; // Ex: DD-071
     public Type _type = Type.Military;
     public SubType _subType = SubType.Warship;
     public Size _size = Size.Small;
@@ -3809,6 +3831,9 @@ public class MapManager : MonoBehaviour
         return false;
     }
 
+    /// - SHIPS -
+
+    // Return Ship Condition Color
     public Color32 Return_ShipConditionColor(Ship.Condition _c)
     {
         switch (_c)
@@ -3830,6 +3855,131 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    // Return strings for enums of a ship
+    public string[] Return_ShipEnumStrings(Ship _ship)
+    {
+        string[] _s = new string[4]; // 0: Type, 1: Subtype, 2: Size, 3: Condition
+
+        // 0: Ship Type (Mil or Civ)
+
+        switch (_ship._type)
+        {
+            default:
+                {
+                    _s[0] = "Military";
+                    break;
+                }
+            case Ship.Type.Military:
+                {
+                    _s[0] = "Military";
+                    break;
+                }
+            case Ship.Type.Civilian:
+                {
+                    _s[0] = "Civilian";
+                    break;
+                }
+        }
+
+        // 1: Ship Subtype (Warship, Freighter, etc.)
+
+        switch (_ship._subType)
+        {
+            default:
+                {
+                    _s[1] = "Warship";
+                    break;
+                }
+            case Ship.SubType.Warship:
+                {
+                    _s[1] = "Warship";
+                    break;
+                }
+            case Ship.SubType.Freighter:
+                {
+                    _s[1] = "Freighter";
+                    break;
+                }
+            case Ship.SubType.FuelTanker:
+                {
+                    _s[1] = "Fuel Tanker";
+                    break;
+                }
+            case Ship.SubType.TroopTransport:
+                {
+                    _s[1] = "Troop Transport";
+                    break;
+                }
+        }
+
+        // 2: Ship Size (Fightercraft, Small, Large, Capital, Supercapital)
+
+        switch (_ship._size)
+        {
+            default:
+                {
+                    _s[2] = "Small";
+                    break;
+                }
+            case Ship.Size.Fightercraft:
+                {
+                    _s[2] = "Fightercraft";
+                    break;
+                }
+            case Ship.Size.Small:
+                {
+                    _s[2] = "Small";
+                    break;
+                }
+            case Ship.Size.Large:
+                {
+                    _s[2] = "Large";
+                    break;
+                }
+            case Ship.Size.Capital:
+                {
+                    _s[2] = "Capital";
+                    break;
+                }
+            case Ship.Size.Supercapital:
+                {
+                    _s[2] = "Supercapital";
+                    break;
+                }
+        }
+
+        // 3: Ship Condition (OK, Damaged, Heavily Damaged, Destroyed)
+        switch (_ship._condition)
+        {
+            default:
+                {
+                    _s[3] = "OK";
+                    break;
+                }
+            case Ship.Condition.OK:
+                {
+                    _s[3] = "OK";
+                    break;
+                }
+            case Ship.Condition.Damaged:
+                {
+                    _s[3] = "Damaged";
+                    break;
+                }
+            case Ship.Condition.HeavilyDamaged:
+                {
+                    _s[3] = "Heavily Damaged";
+                    break;
+                }
+            case Ship.Condition.Destroyed:
+                {
+                    _s[3] = "Destroyed";
+                    break;
+                }
+        }
+
+        return _s;
+    }
     // MAP VALIDATION //
     public void ResetRefIDs()
     {
