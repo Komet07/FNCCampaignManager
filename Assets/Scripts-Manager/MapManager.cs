@@ -9,6 +9,7 @@ using UI;
 
 using SystemMap;
 using System.Linq;
+using UnityEditor;
 
 
 [System.Serializable]
@@ -987,6 +988,7 @@ public class Ship
     [Header("Meta")]
     public string _shipsetKey = ""; // Key for shipset
     public int _shipDesignId = -1; // Points to design ID in shipset
+    public bool _modified = false;
 
     // v -- MASTER FUNCTIONS -- v
     public void Refit(ShipDesign _newDesign)
@@ -997,6 +999,10 @@ public class Ship
         _type = _newDesign._type;
         _subType = _newDesign._subType;
         _size = _newDesign._size;
+
+        _shipsetKey = _newDesign._shipsetKey;
+        _shipDesignId = MapManager.Instance.GetDesignIdByDesign(_newDesign._shipsetKey, _newDesign);
+        _modified = false;
 
         // FUEL
         _maxFuel = _newDesign._maxFuel;
@@ -1009,6 +1015,26 @@ public class Ship
         _currentTankerFuel += (_leftoverFuel > 0) ? Mathf.Clamp(_leftoverFuel, 0, _maxTankerFuel - _currentTankerFuel) : 0; // ADD LEFTOVER FUEL FROM OLD DESIGN TO TANKER FUEL IF THAT HAPPENS
 
         _currentFuel += (_leftoverFuelB > 0) ? Mathf.Clamp(_leftoverFuelB, 0, _maxFuel - _currentFuel) : 0f; // TRY TO REINTEGRATE TANKER FUEL INTO REGULAR FUEL IF OVERFLOW IS PRESENT
+
+
+        _fuelConsumption = _newDesign._fuelConsumption;
+
+        // ADAPT IDENTIFIER
+        
+        if (_newDesign._preferredIdentifier != "")
+        {
+            string[] x = _identifier.Split("-", 2);
+            Debug.Log(x);
+
+            if (x.Length > 1)
+            {
+                _identifier = _newDesign._preferredIdentifier + "-" + x[1];
+            }
+            else
+            {
+                _identifier = _newDesign._preferredIdentifier + "-000";
+            }
+        }
 
         // MODULES - First update / add any missing mount categories, then remove any that aren't on the new design
 
@@ -1085,6 +1111,33 @@ public class Ship
         }
 
     }
+
+    public void CheckModified()
+    {
+        // METHOD: Compare ship to ship design, if any differences in core design elements, set modified to true
+
+        ShipDesign _sD = _shipDesign;
+
+        if (_sD == null)
+        {
+            _modified = true;
+            return;
+        }
+
+        if (_sD._className != _className || _sD._classType != _classType || _sD._type != _type || _sD._subType != _subType || _sD._size != _size)
+        {
+            _modified = true;
+            return;
+        }
+
+        if (_sD._maxFuel != _maxFuel || _sD._fuelConsumption != _fuelConsumption)
+        {
+            _modified = true;
+            return;
+        }
+
+        _modified = false;
+    } 
 
     public Shipset _shipset
     {
@@ -1831,8 +1884,9 @@ public class Mount
 public class ShipDesign
 {
     [Header("General")]
-    public string _className = "";
-    public string _classType = "";
+    public string _className = ""; // Ex: Raines
+    public string _classType = ""; // Ex: Frigate
+    public string _preferredIdentifier = ""; // Ex: FF
     public Ship.Type _type = Ship.Type.Military;
     public Ship.SubType _subType = Ship.SubType.Warship;
     public Ship.Size _size = Ship.Size.Small;
@@ -3714,6 +3768,24 @@ public class MapManager : MonoBehaviour
         OutlinerUIGalaxy.Instance.INITIALIZE_INDIV_FLEET_MENU(-1);
     }
 
+    public void RemoveShip(int _fleet, int _ship)
+    {
+        if (_fleet < 0 || _fleet>= _map._fleets.Count)
+        {
+            return;
+        }
+
+        if (_ship < 0 || _ship >= _map._fleets[_fleet]._ships.Count )
+        {
+            return;
+        }
+
+        // REMOVE SHIP
+        _map._fleets[_fleet]._ships.RemoveAt(_ship);
+
+        // REMOVE SHIP FROM LISTS
+        // -> None atm
+    }
 
     public Vector2 TurnSectorIntoRealPos(Vector2 _a)
     {
@@ -3980,6 +4052,37 @@ public class MapManager : MonoBehaviour
 
         return _s;
     }
+    // - SHIPSETS -
+    public int GetDesignIdByDesign(string _shipsetKey, ShipDesign _sd)
+    {
+        Shipset _s = null;
+
+        for (int i = 0; i < _map._shipsets.Count; i++)
+        {
+            if (_map._shipsets[i]._key == _shipsetKey)
+            {
+                _s = _map._shipsets[i];
+                break;
+            }
+        }
+
+        if (_s == null) {
+
+            return -1;
+
+        }
+
+        for (int i = 0; i < _s.shipDesigns.Count; i++)
+        {
+            if (_s.shipDesigns[i] == _sd)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     // MAP VALIDATION //
     public void ResetRefIDs()
     {

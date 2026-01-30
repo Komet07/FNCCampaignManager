@@ -181,6 +181,7 @@ namespace UI
         public List<GameObject> _contextMenuO_objs = new List<GameObject>() { };
         protected int _contextMenuOIndex = -1;
         protected int _contextMenuOInt2 = 0;
+        protected int _contextMenuOInt3 = 0;
 
         void BuildShipCards(Fleet _f, float _vIn, out float _vOut, bool _remove)
         {
@@ -1175,9 +1176,13 @@ namespace UI
                     
                     Text _nameText = _iSMTexts[1];
                     Text _identText = _iSMTexts[2];
+                    Text _classText = _iSMTexts[3];
+                    Text _typeText = _iSMTexts[4];
 
                     _nameText.text = $"Name: {_name}";
                     _identText.text = $"Identifier: {_ident}";
+                    _classText.text = $"Class: {_class}";
+                    _typeText.text = $"Type: {_type}";
                 }
                 else // GM
                 {
@@ -1191,15 +1196,23 @@ namespace UI
                     
                     Text _nameText = _iSMTexts[1];
                     Text _identText = _iSMTexts[2];
+                    Text _classText = _iSMTexts[3];
+                    Text _typeText = _iSMTexts[4];
 
                     GameObject _nameField = _gmObjs_IndivSM[0];
                     GameObject _identField = _gmObjs_IndivSM[1];
+                    GameObject _classField = _gmObjs_IndivSM[2];
+                    GameObject _typeField = _gmObjs_IndivSM[3];
 
                     _nameText.text = $"Name: ";
                     _identText.text = $"Identifier: ";
+                    _classText.text = $"Class: ";
+                    _typeText.text = $"Type: ";
 
                     _nameField.GetComponent<InputField>().text = _name;
                     _identField.GetComponent<InputField>().text = _ident;
+                    _classField.GetComponent<InputField>().text = _class;
+                    _typeField.GetComponent<InputField>().text = _type;
                 }
             
 
@@ -1216,6 +1229,33 @@ namespace UI
             else if (_a == 3) // Change Identifier
             {
                 MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._identifier = _gmObjs_IndivSM[1].GetComponent<InputField>().text;
+            }
+            else if (_a == 4) // Change Class
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._className = _gmObjs_IndivSM[2].GetComponent<InputField>().text;
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].CheckModified();
+            }
+            else if (_a == 5) // Change Type
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._classType = _gmObjs_IndivSM[3].GetComponent<InputField>().text;
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].CheckModified();
+            }
+            else if (_a == 6) // Delete Ship
+            {
+                MapManager.Instance.RemoveShip(_currentFleetID, _currentShipID);
+                _currentShipID = -1;
+                
+                if (_contextMenuO.activeSelf)
+                {
+                    CONTEXT_MENU_O_INIT();
+                }
+
+                INDIV_SHIP_FUNCTIONS(1); // Close this menu
+                INDIV_FLEET_FUNCTIONS(0); // Refresh in hierarchy
+            }
+            else if (_a == 7) // Open Refit Context Menu
+            {
+                CONTEXT_MENU_FUNCTIONS(100);
             }
 
         }
@@ -1627,7 +1667,153 @@ namespace UI
 
                 _contextMenuO.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _verticalHeight);
             }
+            if (_a == 100) // INDIVIDUAL SHIP MENU : REFIT (SHIPSET SELECTION) || 1XX Series : Individual Ship Menu
+            {
+                _contextMenuO.SetActive(true);
 
+                _contextMenuOIndex = _a;
+
+                // - Start Int for Shipset Count -
+                int _mObjs = 9;
+                if (MapManager.Instance._map._shipsets.Count <= _mObjs)
+                {
+                    _contextMenuOInt2 = 0;
+                }
+                else
+                {
+                    _contextMenuOInt2 = Mathf.Clamp(Mathf.RoundToInt(_contextMenuO_Scrollbar.value * (MapManager.Instance._map._shipsets.Count - _mObjs)), 0, MapManager.Instance._map._shipsets.Count - 1);
+                }
+
+                float _verticalHeight = 0;
+                // - Title -
+                _verticalHeight += 15;
+
+                GameObject _titleObj = Instantiate(_contextMenuO_TextTemplate, _contextMenuO.transform);
+
+                
+                Text _t = _titleObj.GetComponent<Text>();
+                _t.text = "Shipsets";
+                
+
+                _titleObj.SetActive(true);
+                _contextMenuO_objs.Add(_titleObj);
+
+                for (int i = 0; i < MapManager.Instance._map._shipsets.Count; i++)
+                {
+                    if (i >= _contextMenuOInt2 - 1 && i < _contextMenuOInt2 + _mObjs)
+                    {
+                        // - ASSIGN -
+                        GameObject _bObj = Instantiate(_contextMenuO_ButtonTemplate, _contextMenuO.transform);
+                        _bObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                        _verticalHeight += 6;
+
+                        Text _t2 = _bObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                        _t2.text = MapManager.Instance._map._shipsets[i]._name;
+
+                        _bObj.SetActive(true);
+                        _contextMenuO_objs.Add(_bObj);
+                        _bObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_O_EVALUATION(_bObj));
+                    }
+                        
+                }
+                    
+
+                // - CLOSE -
+                GameObject _cObj = Instantiate(_contextMenuO_ButtonTemplate, _contextMenuO.transform);
+                _cObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                _verticalHeight += 6;
+
+                Text _t7 = _cObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                _t7.text = "Close";
+
+                _cObj.SetActive(true);
+                _contextMenuO_objs.Add(_cObj);
+                _cObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_O_INIT());
+
+                _contextMenuO_Scrollbar.transform.SetAsLastSibling();
+                _contextMenuO_Scrollbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _verticalHeight);
+
+
+                _contextMenuO.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _verticalHeight);
+            }
+            if (_a == 101) // INDIVIDUAL SHIP MENU : REFIT (SHIP DESIGN SELECTION)
+            {
+                int _shipset = _contextMenuOInt3;
+
+                if (_shipset < 0 || _shipset >= MapManager.Instance._map._shipsets.Count)
+                {
+                    _contextMenuOIndex = -1;
+                    CONTEXT_MENU_O_INIT();
+                    return;
+                }
+
+                _contextMenuO.SetActive(true);
+
+                _contextMenuOIndex = _a;
+
+                // - Start Int for Shipset Count -
+                int _mObjs = 9;
+                if (MapManager.Instance._map._shipsets[_shipset].shipDesigns.Count <= _mObjs)
+                {
+                    _contextMenuOInt2 = 0;
+                }
+                else
+                {
+                    _contextMenuOInt2 = Mathf.Clamp(Mathf.RoundToInt(_contextMenuO_Scrollbar.value * (MapManager.Instance._map._shipsets.Count - _mObjs)), 0, MapManager.Instance._map._shipsets.Count - 1);
+                }
+
+                float _verticalHeight = 0;
+                // - Title -
+                _verticalHeight += 15;
+
+                GameObject _titleObj = Instantiate(_contextMenuO_TextTemplate, _contextMenuO.transform);
+
+                
+                Text _t = _titleObj.GetComponent<Text>();
+                _t.text = "Ship Designs";
+                
+
+                _titleObj.SetActive(true);
+                _contextMenuO_objs.Add(_titleObj);
+
+                for (int i = 0; i < MapManager.Instance._map._shipsets[_shipset].shipDesigns.Count; i++)
+                {
+                    if (i >= _contextMenuOInt2 - 1 && i < _contextMenuOInt2 + _mObjs)
+                    {
+                        // - ASSIGN -
+                        GameObject _bObj = Instantiate(_contextMenuO_ButtonTemplate, _contextMenuO.transform);
+                        _bObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                        _verticalHeight += 6;
+
+                        Text _t2 = _bObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                        _t2.text = MapManager.Instance._map._shipsets[_shipset].shipDesigns[i]._className + "-class " + MapManager.Instance._map._shipsets[_shipset].shipDesigns[i]._preferredIdentifier;
+
+                        _bObj.SetActive(true);
+                        _contextMenuO_objs.Add(_bObj);
+                        _bObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_O_EVALUATION(_bObj));
+                    }
+                        
+                }
+                    
+
+                // - CLOSE -
+                GameObject _cObj = Instantiate(_contextMenuO_ButtonTemplate, _contextMenuO.transform);
+                _cObj.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 6, 0);
+                _verticalHeight += 6;
+
+                Text _t7 = _cObj.GetComponent<IndexScript>()._obj1.GetComponent<Text>();
+                _t7.text = "Close";
+
+                _cObj.SetActive(true);
+                _contextMenuO_objs.Add(_cObj);
+                _cObj.GetComponent<Button>().onClick.AddListener(() => CONTEXT_MENU_O_INIT());
+
+                _contextMenuO_Scrollbar.transform.SetAsLastSibling();
+                _contextMenuO_Scrollbar.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _verticalHeight);
+
+
+                _contextMenuO.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _verticalHeight);
+            }
         }
 
         public void CONTEXT_MENU_O_EVALUATION(GameObject _obj)
@@ -1741,6 +1927,50 @@ namespace UI
                 RebuildFleetMenu();
                 CONTEXT_MENU_FUNCTIONS(_contextMenuOIndex);
                 return;
+            }
+            else if (_contextMenuOIndex == 100) // Shipset selection -> advance to Ship design selection
+            {
+                int _a = 0;
+                _contextMenuOIndex = 101;
+
+                for (int i = 0; i < _contextMenuO_objs.Count; i++)
+                {
+                    if (_obj == _contextMenuO_objs[i])
+                    {
+                        _a = (i - 1) + _contextMenuOInt2;
+                    }
+                }
+
+                _contextMenuOInt3 = _a;
+                CONTEXT_MENU_FUNCTIONS(_contextMenuOIndex); // Advance to ship design selection
+
+                return;
+            }
+            else if (_contextMenuOIndex == 101)
+            {
+                if (_contextMenuOInt3 < 0 || _contextMenuOInt3 >= MapManager.Instance._map._shipsets.Count)
+                {
+                    CONTEXT_MENU_O_INIT();
+                    return;
+                }
+
+                int _a = 0;
+
+                for (int i = 0; i < _contextMenuO_objs.Count; i++)
+                {
+                    if (_obj == _contextMenuO_objs[i])
+                    {
+                        _a = (i - 1) + _contextMenuOInt2;
+                    }
+                }
+
+                if (_a < 0 || _a >= MapManager.Instance._map._shipsets[_contextMenuOInt3].shipDesigns.Count)
+                {
+                    CONTEXT_MENU_O_INIT();
+                    return;
+                }
+
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].Refit(MapManager.Instance._map._shipsets[_contextMenuOInt3].shipDesigns[_a]);
             }
 
 
