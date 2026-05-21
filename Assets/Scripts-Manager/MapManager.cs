@@ -974,6 +974,7 @@ public class Ship
     [Header("Fuel Information - Tanker")]
     public float _maxTankerFuel = 0;
     public float _currentTankerFuel = 0;
+    public bool _isTanker = false;
 
     [Header("Modules")]
     [XmlArray("mountTypes"), XmlArrayItem("mountType")]
@@ -1188,10 +1189,6 @@ public class Ship
 
     public void Refuel(float _amount)
     {
-        if (_amount < 0) // SHOULDN'T END UP WITH LESS FUEL THAN BEFORE
-        {
-            return;
-        }
 
         if (_amount > (_maxFuel - _currentFuel))
         {
@@ -1200,6 +1197,11 @@ public class Ship
         else
         {
             _currentFuel += _amount;
+
+            if (_currentFuel < 0)
+            {
+                _currentFuel = 0;
+            }
         }
     }
 
@@ -2383,6 +2385,19 @@ public class MapManager : MonoBehaviour
                 if (_map._factions[i]._allianceId == b)
                 {
                     _map._factions[i]._allianceId = -1;
+                }
+                else if (_map._factions[i]._allianceId > b)
+                {
+                    _map._factions[i]._allianceId--;
+                }
+            }
+
+            // Update ref ids on other alliances
+            for (int j = 0; j < _map._alliances.Count; j++)
+            {
+                if (_map._alliances[j]._refId > b)
+                {
+                    _map._alliances[j]._refId--;
                 }
             }
         }

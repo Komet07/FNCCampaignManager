@@ -1157,6 +1157,8 @@ namespace UI
                 string _class = _s._className;
                 string _type = _s._classType;
 
+                float _vHeight = 240;
+
                 /// TITLE
                 /// -> Display Ident, Name & relevant info
                 /// Needs no differentiation between GM and Non-GM because only the faction owner can see their own ships anyways
@@ -1183,6 +1185,26 @@ namespace UI
                     _identText.text = $"Identifier: {_ident}";
                     _classText.text = $"Class: {_class}";
                     _typeText.text = $"Type: {_type}";
+
+                    // -- FUEL SECTION --
+                    float[] _fuelVal = {_s._currentFuel, _s._maxFuel, _s._fuelConsumption};
+                    
+                    // _iSMObjs -> 1: Header, 2: Bar Main, 3: Bar Actual, 4: Bar Consumption
+                    // _iSMTexts -> 5: Bar Text
+
+                    _vHeight += 100;
+
+                    _iSMObjs[1].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 80, -5);
+                    _iSMObjs[2].GetComponent<RectTransform>().localPosition = new Vector3(50, (_vHeight * -1) + 25, -5);
+                    _iSMTexts[5].text = $"{_fuelVal[0]} / {_fuelVal[1]} / {_fuelVal[2]}";
+                    _iSMObjs[3].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp(900 * (_fuelVal[0] / _fuelVal[1]), 0, 900));
+
+                    float _fcPos = (_fuelVal[1] != 0) ? Mathf.Clamp(900 * (1 - (_fuelVal[0] / _fuelVal[1])), 0, 900) : 0;
+                    float _fCSize = (_fuelVal[1] != 0) ? Mathf.Clamp(900 * (_fuelVal[2] / _fuelVal[1]), 0, 900 - _fcPos) : 0;
+
+                    _iSMObjs[4].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _fCSize);
+                    _iSMObjs[4].GetComponent<RectTransform>().localPosition = new Vector3(50, _vHeight * -1 + 95, -5);
+                    
                 }
                 else // GM
                 {
@@ -1213,6 +1235,39 @@ namespace UI
                     _identField.GetComponent<InputField>().text = _ident;
                     _classField.GetComponent<InputField>().text = _class;
                     _typeField.GetComponent<InputField>().text = _type;
+
+                    // -- FUEL SECTION --
+                    float[] _fuelVal = {_s._currentFuel, _s._maxFuel, _s._fuelConsumption};
+                    
+                    // 1 : BAR
+
+                    // _iSMObjs -> 1: Header, 2: Bar Main, 3: Bar Actual, 4: Bar Consumption
+                    // _iSMTexts -> 5: Bar Text
+
+                    _vHeight += 170;
+
+                    _iSMObjs[1].GetComponent<RectTransform>().localPosition = new Vector3(10, (_vHeight * -1) + 160, -5);
+                    _iSMObjs[2].GetComponent<RectTransform>().localPosition = new Vector3(50, (_vHeight * -1) + 95, -5);
+                    _iSMTexts[5].text = $"{_fuelVal[0]} / {_fuelVal[1]} / {_fuelVal[2]}";
+                    _iSMObjs[3].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Clamp((_fuelVal[1] != 0) ? 900 * (_fuelVal[0] / _fuelVal[1]) : 0, 0, 900));
+
+                    float _fcPos = (_fuelVal[1] != 0) ? Mathf.Clamp(900 * (1 - (_fuelVal[0] / _fuelVal[1])), 0, 900) : 0;
+                    float _fCSize = (_fuelVal[1] != 0) ? Mathf.Clamp(900 * (_fuelVal[2] / _fuelVal[1]), 0, 900 - _fcPos) : 0;
+
+                    _iSMObjs[4].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _fCSize);
+                    _iSMObjs[4].GetComponent<RectTransform>().localPosition = new Vector3(900 - _fcPos, 0, -5);
+
+                    // 2 : Fuel text & fields
+
+                    // _gmObjs_IndivSM --> 5: Max AMT, 6: Current AMT, 7: Consumption AMT (Texts) - 8: CFuel Input, 9: MFuel Input, 10: FCInput
+
+                    GameObject _cFuelField = _gmObjs_IndivSM[8];
+                    GameObject _mFuelField = _gmObjs_IndivSM[9];
+                    GameObject _consumptionField = _gmObjs_IndivSM[10];
+
+                    _cFuelField.GetComponent<InputField>().text = _fuelVal[0].ToString();
+                    _mFuelField.GetComponent<InputField>().text = _fuelVal[1].ToString();
+                    _consumptionField.GetComponent<InputField>().text = _fuelVal[2].ToString();
                 }
             
 
@@ -1256,6 +1311,21 @@ namespace UI
             else if (_a == 7) // Open Refit Context Menu
             {
                 CONTEXT_MENU_FUNCTIONS(100);
+            }
+            else if (_a == 8) // Change current fuel
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].Refuel(float.Parse(_gmObjs_IndivSM[8].GetComponent<InputField>().text) - MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._currentFuel);
+            }
+            else if (_a == 9) // Change max fuel
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._maxFuel = float.Parse(_gmObjs_IndivSM[9].GetComponent<InputField>().text);
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._currentFuel = Mathf.Clamp(MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._currentFuel, 0, MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._maxFuel);
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].CheckModified();
+            }
+            else if (_a == 10) // Change fuel consumption
+            {
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._fuelConsumption = float.Parse(_gmObjs_IndivSM[10].GetComponent<InputField>().text);
+                MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].CheckModified();
             }
 
         }
@@ -2054,7 +2124,9 @@ namespace UI
 
             if (_indivFleetIsOn)
             {
-                _indivFleetMenu.SetActive(true);
+                _indivFleetMenu.SetActive((!_indivShipIsOn) ? true : false);
+
+                
 
                 INDIV_FLEET_FUNCTIONS(0);
 
