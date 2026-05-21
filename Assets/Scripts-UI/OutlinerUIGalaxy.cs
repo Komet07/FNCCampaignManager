@@ -256,7 +256,7 @@ namespace UI
 
                 string _t1 = $"<color=#f18700>///</color> {_sLine1Stats[0]} {_sLine1Stats[1]} - {_sLine1Stats[2]}-Class {_sLine1Stats[3]}";
                 string _t1R = _sLine1RStats[0];
-                string _t2 = $"CONDITION: {_sLine2Stats[0]} - FUEL: {_sLine2Stats[1]}/{_sLine2Stats[2]}/{_sLine2Stats[3]}";
+                string _t2 = /*"CONDITION: {_sLine2Stats[0]} - */$"FUEL: {_sLine2Stats[1]}/{_sLine2Stats[2]}/{_sLine2Stats[3]}";
                 string _t2R = $"{_sLine2RStats[0]} ({_sLine2RStats[1]})";
 
                 GameObject _obj = _iFMShipCards[i];
