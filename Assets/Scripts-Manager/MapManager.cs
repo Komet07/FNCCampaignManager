@@ -587,6 +587,8 @@ public class Fleet
                 f += _s._maxFuel;
             }
 
+            f += _currentFuel;
+
             return f;
         }
     }
@@ -620,6 +622,8 @@ public class Fleet
 
                 f += _s._currentFuel;
             }
+
+            f += _currentFuel;
 
             return f;
         }

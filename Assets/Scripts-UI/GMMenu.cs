@@ -123,7 +123,7 @@ public class GMMenu : MonoBehaviour
 
     // Export variables
     [Header("Export Settings")]
-    bool _lockSel = false;
+    bool _lockSel = true;
     int _playerFaction = -1;
 
     // Context Menu - Galaxy-Level
@@ -3140,7 +3140,7 @@ public class GMMenu : MonoBehaviour
             {
                 _paintToolSubType++;
 
-                if (_paintToolSubType > 2)
+                if (_paintToolSubType > 3)
                 {
                     _paintToolSubType = 0;
                 }
@@ -3212,7 +3212,7 @@ public class GMMenu : MonoBehaviour
                     return; // CONDITIONAL CASES TO QUIT
                 }
 
-                int val = Mathf.Clamp(_paintToolSubType, 0, 2); // COVERS ALL THREE MODES - 0: DISCOVERED, 1: EXPLORED, 2: KNOWN SECTOR
+                int val = Mathf.Clamp(_paintToolSubType, 0, 3); // COVERS ALL THREE MODES - 0: DISCOVERED, 1: EXPLORED, 2: KNOWN SECTOR
                 
                 if (val == 0) // DISCOVER
                 {
@@ -3267,6 +3267,53 @@ public class GMMenu : MonoBehaviour
                     else
                     {
                         MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership.Add(_paintToolS1);
+                    }
+                }
+                else if (val == 3) // ALL THREE
+                {
+                    if (MapManager.Instance._map._factions[_paintToolType].SectorDiscovered(_paintToolS1) && MapManager.Instance._map._factions[_paintToolType].SectorExplored(_paintToolS1) && MapManager.Instance._map._factions[_paintToolType].SectorKnownOwner(_paintToolS1))
+                    {
+                        for (int i = 0; i < MapManager.Instance._map._factions[_paintToolType]._discoveredSectors.Count; i++)
+                        {
+                            if (MapManager.Instance._map._factions[_paintToolType]._discoveredSectors[i] == _paintToolS1)
+                            {
+                                MapManager.Instance._map._factions[_paintToolType]._discoveredSectors.Remove(MapManager.Instance._map._factions[_paintToolType]._discoveredSectors[i]);
+                                i--;
+                            }
+                                
+                        }
+
+                        for (int i = 0; i < MapManager.Instance._map._factions[_paintToolType]._exploredSectors.Count; i++)
+                        {
+                            if (MapManager.Instance._map._factions[_paintToolType]._exploredSectors[i] == _paintToolS1)
+                            {
+                                MapManager.Instance._map._factions[_paintToolType]._exploredSectors.Remove(MapManager.Instance._map._factions[_paintToolType]._exploredSectors[i]);
+                                i--;
+                            }
+                        }
+
+                        for (int i = 0; i < MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership.Count; i++)
+                        {
+                            if (MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership[i] == _paintToolS1)
+                            {
+                                MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership.Remove(MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership[i]);
+                                i--;
+                            }
+                        }
+                    }
+                    else {
+                        if (!MapManager.Instance._map._factions[_paintToolType].SectorDiscovered(_paintToolS1))
+                        {
+                            MapManager.Instance._map._factions[_paintToolType]._discoveredSectors.Add(_paintToolS1);
+                        }
+                        if (!MapManager.Instance._map._factions[_paintToolType].SectorExplored(_paintToolS1))
+                        {
+                            MapManager.Instance._map._factions[_paintToolType]._exploredSectors.Add(_paintToolS1);
+                        }
+                        if (!MapManager.Instance._map._factions[_paintToolType].SectorKnownOwner(_paintToolS1))
+                        {
+                            MapManager.Instance._map._factions[_paintToolType]._knownSectorOwnership.Add(_paintToolS1);
+                        }
                     }
                 }
 
@@ -3361,7 +3408,7 @@ public class GMMenu : MonoBehaviour
                 }
 
                 
-                _paintToolSubType = Mathf.Clamp(_paintToolSubType, 0, 2);
+                _paintToolSubType = Mathf.Clamp(_paintToolSubType, 0, 3);
 
                 GalaxyMap.Instance._viewMode = "special_SectorVisibility"; // TOGGLE MODE THAT DISPLAYS ALL SECTORS MAKING IT EASY TO CHECK WHETHER OR NOT THEY SEE IT
                 GalaxyMap.Instance._selFacInt = _paintToolType;
@@ -3371,10 +3418,10 @@ public class GMMenu : MonoBehaviour
                 _paintToolMenu.GetComponent<IndexScript>()._obj6.SetActive(false);
                 _paintToolMenu.GetComponent<IndexScript>()._obj7.SetActive(false);
 
-                string[] _t1Text = {"Discovered", "Explored", "Knows Sector Owner"};
+                string[] _t1Text = {"Discovered", "Explored", "Knows Sector Owner", "All"};
 
                 _tObj[0].text = "(TAB) MODE: FACTION SECTOR VIS. (" + MapManager.Instance._map._factions[_paintToolType]._shorthand.ToUpper() + ")";
-                _tObj[1].text = "(< / >) TYPE: " + (_t1Text[_paintToolSubType]);
+                _tObj[1].text = "(< / >) TYPE: " + _t1Text[_paintToolSubType];
 
                 _paintToolS1 = Mathf.Clamp(_paintToolS1, -1, MapManager.Instance._map._sectors.Count - 1);
             }
@@ -3403,7 +3450,7 @@ public class GMMenu : MonoBehaviour
 
                 if (_paintToolSubType < 0)
                 {
-                    _paintToolSubType = 2;
+                    _paintToolSubType = 3;
                 }
             }
         }

@@ -121,6 +121,7 @@ namespace UI
         public GameObject _fleetMenu;
         public GameObject _fleetScrollbar;
         public GameObject _AddButton;
+        public InputField _fleetSearchBar;
 
         public List<GameObject> _fleetMObjs1 = new List<GameObject>() { };
         public List<GameObject> _fleetMObjsSH = new List<GameObject>() { };
@@ -321,10 +322,37 @@ namespace UI
 
             _fleetMenu.SetActive(true);
 
+            string _s = _fleetSearchBar.text.ToLower();
+
+            
+
             float _counter2 = 0;
             for (int i = 0; i < MapManager.Instance._map._fleets.Count; i++)
             {
-                if (MapManager.Instance.Fleet_IsVisible(i))
+                bool flag_search = true;
+                int _sector = MapManager.Instance._map._fleets[i]._currentSector;
+
+                if (!string.IsNullOrEmpty(_s))
+                {
+                    if (MapManager.Instance._map._fleets[i]._name.ToLower().Contains(_s))
+                    {
+                        flag_search = true;
+                    }
+                    else if (_sector != -1 && MapManager.Instance._map._sectors[_sector].GetName(true).ToLower().Contains(_s))
+                    {
+                        flag_search = true;
+                    }
+                    else if (_sector == -1 && "empty space".Contains(_s))
+                    {
+                        flag_search = true;
+                    }
+                    else
+                    {
+                        flag_search = false;
+                    }
+                }
+
+                if (MapManager.Instance.Fleet_IsVisible(i) && flag_search)
                 {
                     _counter2++;
 
@@ -587,7 +615,10 @@ namespace UI
                 {
                     for (int i = 0; i < _gmObjs_IndivFM.Count; i++)
                     {
-                        _gmObjs_IndivFM[i].SetActive(false);
+                        if (_gmObjs_IndivFM[i] != null)
+                        {
+                            _gmObjs_IndivFM[i].SetActive(false);
+                        }
                     }
 
                     if (MapManager.Instance.Fleet_IsOwnerKnown(_currentFleetID))
@@ -1321,6 +1352,13 @@ namespace UI
                 MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._maxFuel = float.Parse(_gmObjs_IndivSM[9].GetComponent<InputField>().text);
                 MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._currentFuel = Mathf.Clamp(MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._currentFuel, 0, MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID]._maxFuel);
                 MapManager.Instance._map._fleets[_currentFleetID]._ships[_currentShipID].CheckModified();
+
+                if (MapManager.Instance._map._fleets[_currentFleetID]._currentFuel > 0)
+                {
+                    float _1 = 0;
+                    MapManager.Instance._map._fleets[_currentFleetID].RefillFuel(MapManager.Instance._map._fleets[_currentFleetID]._currentFuel, out _1);
+                    MapManager.Instance._map._fleets[_currentFleetID]._currentFuel = _1;
+                }
             }
             else if (_a == 10) // Change fuel consumption
             {

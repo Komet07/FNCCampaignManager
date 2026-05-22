@@ -23,7 +23,7 @@ public class XMLWriter : MonoBehaviour
     public bool _bulk = false;
     public string _saveFileName = "save1";
     public string _exportFileName = "";
-    public bool _exportLock = false;
+    public bool _exportLock = true;
     public int _playerFaction = -1;
 
     public float _secWaitTime = 5f;

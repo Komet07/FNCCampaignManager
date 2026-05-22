@@ -1304,6 +1304,11 @@ public class GalaxyMap : MonoBehaviour
             bool _visConn1 = true;
             bool _visConn2 = true;
 
+            Vector3 _d1 = _jgConnections[i].GetComponent<IndexScript>()._obj1.transform.position;
+            Vector3 _d2 = _jgConnections[i].GetComponent<IndexScript>()._obj2.transform.position;
+
+            Vector3 _dX = _d1 - _d2;
+
             if (MapManager.Instance._map._playerFactionId >= 0)
             {
                 _visConn1 = false;
@@ -1328,12 +1333,17 @@ public class GalaxyMap : MonoBehaviour
                 _jgConnections[i].GetComponent<IndexScript>()._obj1.SetActive(true);
                 Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().startColor;
                 _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(_col.r, _col.g, _col.b, 200);
+                _jgConnections[i].GetComponent<LineRenderer>().SetPosition(0, _d1);
+
             }
             else
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj1.SetActive(false);
                 Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().startColor;
                 _jgConnections[i].GetComponent<LineRenderer>().startColor = new Color32(_col.r, _col.g, _col.b, 0);
+
+                _jgConnections[i].GetComponent<LineRenderer>().SetPosition(0, _d2 + (_dX.normalized * 0.25f));
+                
             }
 
             if (_visConn2)
@@ -1341,12 +1351,16 @@ public class GalaxyMap : MonoBehaviour
                 _jgConnections[i].GetComponent<IndexScript>()._obj2.SetActive(true);
                 Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().endColor;
                 _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(_col.r, _col.g, _col.b, 200);
+
+                _jgConnections[i].GetComponent<LineRenderer>().SetPosition(1, _d2);
             }
             else
             {
                 _jgConnections[i].GetComponent<IndexScript>()._obj2.SetActive(false);
                 Color32 _col = _jgConnections[i].GetComponent<LineRenderer>().endColor;
                 _jgConnections[i].GetComponent<LineRenderer>().endColor = new Color32(_col.r, _col.g, _col.b, 0);
+
+                _jgConnections[i].GetComponent<LineRenderer>().SetPosition(1, _d1 - (_dX.normalized * 0.25f));
             }
 
         }
