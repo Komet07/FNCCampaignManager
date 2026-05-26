@@ -2166,7 +2166,7 @@ public class MapManager : MonoBehaviour
             // Update JG Connections
             for (int j = 0; j < _map._jumpGates.Count; j++)
             {
-                if (_map._jumpGates[j]._sector1Id == b || !_map._jumpGates[j]._discoverable1)
+                if (_map._jumpGates[j]._sector1Id == b)
                 {
                     _map._jumpGates[j]._sector1Id = -1;
                     _map._jumpGates[j]._name = "";
@@ -2177,7 +2177,7 @@ public class MapManager : MonoBehaviour
                     _map._jumpGates[j]._sector1Id--;
                 }
 
-                if (_map._jumpGates[j]._sector2Id == b || !_map._jumpGates[j]._discoverable2)
+                if (_map._jumpGates[j]._sector2Id == b)
                 {
                     _map._jumpGates[j]._sector2Id = -1;
                     _map._jumpGates[j]._name = "";
@@ -2214,9 +2214,9 @@ public class MapManager : MonoBehaviour
                         _map._factions[j]._exploredSectors.Remove(_map._factions[j]._exploredSectors[k]);
                         k--;
                     }
-                    else if (_map._factions[j]._exploredSectors[k] >= b)
+                    else if (_map._factions[j]._exploredSectors[k] > b)
                     {
-                        _map._factions[j]._exploredSectors[k] = _map._factions[j]._exploredSectors[k] - 1;
+                        _map._factions[j]._exploredSectors[k]--;
                     }
                 }
                 // Update PlayerFaction _knownSectorOwnership
@@ -2248,7 +2248,7 @@ public class MapManager : MonoBehaviour
             }
             for (int i = 0; i < _map._jumpGates.Count; i++)
             {
-                if (_map._jumpGates[i]._sector1Id == -1 || _map._jumpGates[i]._sector2Id == -1)
+                if (_map._jumpGates[i]._sector1Id == -1 && _map._jumpGates[i]._sector2Id == -1)
                 {
                     _map._jumpGates.Remove(_map._jumpGates[i]);
                     i--;
@@ -2257,11 +2257,11 @@ public class MapManager : MonoBehaviour
 
             for (int i = 0; i < _map._fleets.Count; i++)
             {
-                if (_map._fleets[i]._currentSector == i)
+                if (_map._fleets[i]._currentSector == b)
                 {
                     _map._fleets[i]._currentSector = -1;
                 }
-                else if (_map._fleets[i]._currentSector > i)
+                else if (_map._fleets[i]._currentSector > b)
                 {
                     _map._fleets[i]._currentSector--;
                 }
@@ -2431,6 +2431,19 @@ public class MapManager : MonoBehaviour
                 if (_map._factions[j]._refId > b)
                 {
                     _map._factions[j]._refId--;
+                }
+            }
+
+            // Update faction references in fleets
+            for (int j = 0; j < _map._fleets.Count; j++)
+            {
+                if (_map._fleets[j]._faction == b)
+                {
+                    _map._fleets[j]._faction = -1;
+                }
+                else if (_map._fleets[j]._faction > b)
+                {
+                    _map._fleets[j]._faction--;
                 }
             }
         }

@@ -1234,7 +1234,7 @@ namespace UI
                     float _fCSize = (_fuelVal[1] != 0) ? Mathf.Clamp(900 * (_fuelVal[2] / _fuelVal[1]), 0, 900 - _fcPos) : 0;
 
                     _iSMObjs[4].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _fCSize);
-                    _iSMObjs[4].GetComponent<RectTransform>().localPosition = new Vector3(50, _vHeight * -1 + 95, -5);
+                    _iSMObjs[4].GetComponent<RectTransform>().localPosition = new Vector3(900 - _fcPos, 0, -5);
                     
                 }
                 else // GM
