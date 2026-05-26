@@ -655,12 +655,9 @@ public class GalaxyMap : MonoBehaviour
                 bool _knowsSectorOwner = true;
                 if (MapManager.Instance._map._playerFactionId >= 0 && MapManager.Instance._map._sectors[i]._controlFaction != MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
                 {
-                    _knowsSectorOwner = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID].SectorKnownOwner(i);
+                    _knowsSectorOwner = MapManager.Instance.IsInKnownOwnerList(i, false);
 
-                    if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                    {
-                        _knowsSectorOwner = true;
-                    }
+                    
                 }
                 if (_knowsSectorOwner)
                 {
@@ -739,18 +736,8 @@ public class GalaxyMap : MonoBehaviour
                 bool _knowsSectorOwner = true;
                 if (MapManager.Instance._map._playerFactionId >= 0)
                 {
-                    _knowsSectorOwner = false;
-                    for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
-                    {
-                        if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
-                        {
-                            _knowsSectorOwner = true;
-                        }
-                    }
-                    if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                    {
-                        _knowsSectorOwner = true;
-                    }
+                    _knowsSectorOwner = MapManager.Instance.IsInKnownOwnerList(i, false);
+                    
                 }
                 if (_knowsSectorOwner)
                 {
@@ -842,19 +829,7 @@ public class GalaxyMap : MonoBehaviour
                 bool _knowsSectorOwner = true;
                 if (MapManager.Instance._map._playerFactionId >= 0)
                 {
-                    _knowsSectorOwner = false;
-                    for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
-                    {
-                        if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
-                        {
-                            _knowsSectorOwner = true;
-                        }
-
-                        if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                        {
-                            _knowsSectorOwner = true;
-                        }
-                    }
+                    MapManager.Instance.IsInKnownOwnerList(i, false);
                 }
 
                 if (MapManager.Instance._map._debug)
@@ -1029,22 +1004,10 @@ public class GalaxyMap : MonoBehaviour
                 bool _knownCategory = true;
                 if (MapManager.Instance._map._playerFactionId >= 0)
                 {
-                    _knowsSectorOwner = false;
+                    _knowsSectorOwner = MapManager.Instance.IsInKnownOwnerList(i, false);
                     _knownCategory = false;
                     if (MapManager.Instance._map._regCats[_selFacInt]._knowledgeType == 0) // Explored Sector
                     {
-                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors.Count; j++)
-                        {
-                            if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors[j] == i)
-                            {
-                                _knowsSectorOwner = true;
-                            }
-
-                            if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                            {
-                                _knowsSectorOwner = true;
-                            }
-                        }
 
                         for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._exploredSectors.Count; j++)
                         {
@@ -1060,19 +1023,6 @@ public class GalaxyMap : MonoBehaviour
                     }
                     else if (MapManager.Instance._map._regCats[_selFacInt]._knowledgeType == 1) // Known Sector owner
                     {
-                        for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
-                        {
-                            if (MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j] == i)
-                            {
-                                _knowsSectorOwner = true;
-                            }
-
-                            if (MapManager.Instance._map._sectors[i]._controlFaction == MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID)
-                            {
-                                _knowsSectorOwner = true;
-                            }
-                        }
-
                         for (int j = 0; j < MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership.Count; j++)
                         {
                             int a = MapManager.Instance._map._factions[MapManager.Instance._map._playerFactions[MapManager.Instance._map._playerFactionId]._regFactionID]._knownSectorOwnership[j];

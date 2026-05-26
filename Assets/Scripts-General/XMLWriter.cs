@@ -163,17 +163,10 @@ public class XMLWriter : MonoBehaviour
             {
                 int _playerF = _mapCopy._playerFactions[_player]._regFactionID;
 
-                bool _disco = false;
-                bool _kSO = false;
-                bool _explored = false;
-                for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._discoveredSectors.Count; j++)
-                {
-                    if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._discoveredSectors[j] == i)
-                    {
-                        _disco = true;
-                    }
+                bool _disco = MapManager.Instance.IsInDiscoveredList(i, false);
+                bool _kSO = MapManager.Instance.IsInKnownOwnerList(i, false);
+                bool _explored = MapManager.Instance.IsExplored(i, false);
 
-                }
                 for (int j = 0; j < _mapCopy._fleets.Count; j++)
                 {
                     if (_mapCopy._fleets[j]._faction == _playerF && _mapCopy._fleets[j]._currentSector == i && _mapCopy._fleetRevealSectors)
@@ -182,144 +175,12 @@ public class XMLWriter : MonoBehaviour
                         _explored = true;
                     }
                 }
-                if (_mapCopy._sectors[i]._controlFaction == _mapCopy._playerFactions[_player]._regFactionID)
-                {
-                    _disco = true;
-                    _kSO = true;
-                    _explored = true;
-                }
-                
-                for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership.Count; j++)
-                {
-                    if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._knownSectorOwnership[j] == i)
-                    {
-                        _kSO = true;
-                    }
-
-                }
-                
-                for (int j = 0; j < _mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors.Count; j++)
-                {
-                    if (_mapCopy._factions[_mapCopy._playerFactions[_player]._regFactionID]._exploredSectors[j] == i)
-                    {
-                        _explored = true;
-                    }
-
-                }
                 
                 if (!_disco)
                 {
                     
                     // Remove Sector from _sector List
-                    _mapCopy._sectors.Remove(_mapCopy._sectors[i]);
-
-                    // Update _sector ref IDs
-                    for (int j = 0; j < _mapCopy._sectors.Count; j++)
-                    {
-                        if (_mapCopy._sectors[j]._refID > i)
-                        {
-                            _mapCopy._sectors[j]._refID--;
-                        }
-                    }
-
-                    // Update JG Connections
-                    for (int j = 0; j < _mapCopy._jumpGates.Count; j++)
-                    {
-                        if (_mapCopy._jumpGates[j]._sector1Id == i || !_mapCopy._jumpGates[j]._discoverable1)
-                        {
-                            _mapCopy._jumpGates[j]._sector1Id = -1;
-                            _mapCopy._jumpGates[j]._name = "";
-                            _mapCopy._jumpGates[j]._name2 = "Gate: Unknown";
-                        }
-                        else if (_mapCopy._jumpGates[j]._sector1Id > i)
-                        {
-                            _mapCopy._jumpGates[j]._sector1Id--;
-                        }
-
-                        if (_mapCopy._jumpGates[j]._sector2Id == i || !_mapCopy._jumpGates[j]._discoverable2)
-                        {
-                            _mapCopy._jumpGates[j]._sector2Id = -1;
-                            _mapCopy._jumpGates[j]._name = "";
-                            _mapCopy._jumpGates[j]._name1 = "Gate: Unknown";
-                        }
-                        else if (_mapCopy._jumpGates[j]._sector2Id > i)
-                        {
-                            _mapCopy._jumpGates[j]._sector2Id--;
-                        }
-                    }
-
-
-                    // Update PlayerFaction _exploredSectors
-                    for (int j = 0; j < _mapCopy._factions.Count; j++)
-                    {
-                        // Update PlayerFaction _discoSectors
-                        for (int k = 0; k < _mapCopy._factions[j]._discoveredSectors.Count; k++)
-                        {
-                            if (_mapCopy._factions[j]._discoveredSectors[k] == i)
-                            {
-                                _mapCopy._factions[j]._discoveredSectors.Remove(_mapCopy._factions[j]._discoveredSectors[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._factions[j]._discoveredSectors[k] > i)
-                            {
-                                _mapCopy._factions[j]._discoveredSectors[k]--;
-                            }
-                        }
-                        // Update PlayerFaction _exploredSectors
-                        for (int k = 0; k < _mapCopy._factions[j]._exploredSectors.Count; k++)
-                        {
-                            if (_mapCopy._factions[j]._exploredSectors[k] == i)
-                            {
-                                _mapCopy._factions[j]._exploredSectors.Remove(_mapCopy._factions[j]._exploredSectors[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._factions[j]._exploredSectors[k] >= i)
-                            {
-                                _mapCopy._factions[j]._exploredSectors[k] = _mapCopy._factions[j]._exploredSectors[k]-1;
-                            }
-                        }
-                        // Update PlayerFaction _knownSectorOwnership
-                        for (int k = 0; k < _mapCopy._factions[j]._knownSectorOwnership.Count; k++)
-                        {
-                            if (_mapCopy._factions[j]._knownSectorOwnership[k] == i)
-                            {
-                                _mapCopy._factions[j]._knownSectorOwnership.Remove(_mapCopy._factions[j]._knownSectorOwnership[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._factions[j]._knownSectorOwnership[k] > i)
-                            {
-                                _mapCopy._factions[j]._knownSectorOwnership[k]--;
-                            }
-                        }
-                        // Update PlayerFaction _liveFeed
-                        for (int k = 0; k < _mapCopy._factions[j]._sectorLiveFeeds.Count; k++)
-                        {
-                            if (_mapCopy._factions[j]._sectorLiveFeeds[k] == i)
-                            {
-                                _mapCopy._factions[j]._sectorLiveFeeds.Remove(_mapCopy._factions[j]._sectorLiveFeeds[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._factions[j]._sectorLiveFeeds[k] > i)
-                            {
-                                _mapCopy._factions[j]._sectorLiveFeeds[k]--;
-                            }
-                        }
-                    }
-
-                    // UPDATE PLAYER FACTIONS
-
-                    // UPDATE FLEETS
-                    for (int j = 0; j < _mapCopy._fleets.Count; j++)
-                    {
-                        if (_mapCopy._fleets[j]._currentSector == i)
-                        {
-                            _mapCopy._fleets[j]._currentSector = -1;
-                        }
-                        else if (_mapCopy._fleets[j]._currentSector > i)
-                        {
-                            _mapCopy._fleets[j]._currentSector--;
-                        }
-                    }
+                    MapManager.Instance.RemoveObject(0,i);
 
                     // LOWER I BY 1
                     i--;
@@ -357,14 +218,14 @@ public class XMLWriter : MonoBehaviour
             {
                 if (_mapCopy._jumpGates[i]._sector1Id == -1 && _mapCopy._jumpGates[i]._sector2Id == -1)
                 {
-                    _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
+                    MapManager.Instance.RemoveObject(1,i);
                     i--;
                     continue;
                 }
 
                 if (!_mapCopy._jumpGates[i].Point1Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID) && !_mapCopy._jumpGates[i].Point2Vis(MapManager.Instance._map._playerFactions[_player]._regFactionID))
                 {
-                    _mapCopy._jumpGates.Remove(_mapCopy._jumpGates[i]);
+                    MapManager.Instance.RemoveObject(1,i);
                     i--;
                     continue;
                 }
@@ -419,126 +280,8 @@ public class XMLWriter : MonoBehaviour
                 if (!_known)
                 {
                     // Remove faction
-                    _mapCopy._factions.Remove(_mapCopy._factions[i]);
+                    MapManager.Instance.RemoveObject(2,i);
 
-                    // Update ref ids on other factions
-                    for (int j = 0; j < _mapCopy._factions.Count; j++)
-                    {
-                        if (_mapCopy._factions[j]._refId > i)
-                        {
-                            _mapCopy._factions[j]._refId--;
-                        }
-                    }
-
-                    for (int j = 0; j < _mapCopy._playerFactions.Count; j++)
-                    {
-                        if (_mapCopy._playerFactions[j]._regFactionID > i)
-                        {
-                            _mapCopy._playerFactions[j]._regFactionID--;
-                        }
-                    }
-
-                    // Set all sectors referencing the faction to -1 and update Ids of other factions
-                    for (int j = 0; j < _mapCopy._sectors.Count; j++)
-                    {
-                        if (_mapCopy._sectors[j]._controlFaction == i)
-                        {
-                            _mapCopy._sectors[j]._controlFaction = -1;
-                        }
-                        else if (_mapCopy._sectors[j]._controlFaction > i)
-                        {
-                            _mapCopy._sectors[j]._controlFaction--;
-                        }
-                    }
-
-                    // UPDATE FLEETS
-                    for (int j = 0; j < _mapCopy._fleets.Count; j++)
-                    {
-                        if (_mapCopy._fleets[j]._faction == i)
-                        {
-                            _mapCopy._fleets[j]._faction = -1;
-                        }
-                        else if (_mapCopy._fleets[j]._faction > i)
-                        {
-                            _mapCopy._fleets[j]._faction--;
-                        }
-                    }
-
-                    // Update membership IDs in alliances
-                    for (int j = 0; j < _mapCopy._alliances.Count; j++)
-                    {
-                        for (int k = 0; k < _mapCopy._alliances[j]._memberStates.Count; k++)
-                        {
-                            if (_mapCopy._alliances[j]._memberStates[k] == i)
-                            {
-                                _mapCopy._alliances[j]._memberStates.Remove(_mapCopy._alliances[j]._memberStates[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._alliances[j]._memberStates[k] > i)
-                            {
-                                _mapCopy._alliances[j]._memberStates[k]--;
-                            }
-                        }
-
-                    }
-
-                    // Remove faction from _knownFaction lists
-                    for (int j = 0; j < _mapCopy._factions.Count; j++)
-                    {
-                        for (int k = 0; k < _mapCopy._factions[j]._knownFactions.Count; k++)
-                        {
-                            if (_mapCopy._factions[j]._knownFactions[k] == i)
-                            {
-                                _mapCopy._factions[j]._knownFactions.Remove(_mapCopy._factions[j]._knownFactions[k]);
-                                k--;
-                            }
-                            else if (_mapCopy._factions[j]._knownFactions[k] > i)
-                            {
-                                _mapCopy._factions[j]._knownFactions[k]--;
-                            }
-                        }
-                    }
-
-                    // Remove reps referencing that faction
-                    for (int j = 0; j < _mapCopy._reps.Count; j++)
-                    {
-                        if (_mapCopy._reps[j]._faction1 == i || _mapCopy._reps[j]._faction2 == i)
-                        {
-                            _mapCopy._reps.Remove(_mapCopy._reps[j]);
-
-
-                            for (int k = 0; k < _mapCopy._factions.Count; k++)
-                            {
-                                for (int l = 0; l < _mapCopy._factions[k]._repIds.Count; l++)
-                                {
-                                    if (_mapCopy._factions[k]._repIds[l] == j)
-                                    {
-                                        _mapCopy._factions[k]._repIds.Remove(_mapCopy._factions[k]._repIds[l]);
-                                        l--;
-                                    }
-                                    else if (_mapCopy._factions[k]._repIds[l] > j)
-                                    {
-                                        _mapCopy._factions[k]._repIds[l]--;
-                                    }
-                                }
-                            }
-
-
-                            j--;
-                        }
-                        else
-                        {
-                            if (_mapCopy._reps[j]._faction1 > i)
-                            {
-                                _mapCopy._reps[j]._faction1--;
-                            }
-
-                            if (_mapCopy._reps[j]._faction2 > i)
-                            {
-                                _mapCopy._reps[j]._faction2--;
-                            }
-                        }
-                    }
                     i--;
                 }
             }

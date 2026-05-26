@@ -268,6 +268,9 @@ public class Faction
     [XmlArray("KnownFleetOwners"), XmlArrayItem("KnownFleetOwner")]
     public List<int> _knownFleetOwners = new List<int>() { };
 
+    [XmlArray("SharedMapFactions"), XmlArrayItem("SharedMapFaction")]
+    public List<ShareMapAgreement> _sharedMapFactions = new List<ShareMapAgreement>() { };
+
     public bool SectorDiscovered(int _s)
     {
         if (_s < 0 || _s > MapManager.Instance._map._sectors.Count)
@@ -405,8 +408,8 @@ public class JumpGateConnection
 
         _reqBothExplored = (_typeId != -1 && _typeId < MapManager.Instance._map._connType.Count) ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
 
-        bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1;
-        bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2 : true;
+        bool _main = MapManager.Instance.IsExplored(_sector1Id, _fac) && _discoverable1;
+        bool _add = _reqBothExplored ? MapManager.Instance.IsExplored(_sector2Id, _fac) && _discoverable2 : true;
 
         return _main && _add; // GENERAL CASE
     }
@@ -425,8 +428,8 @@ public class JumpGateConnection
 
         _reqBothExplored = (_typeId != -1 && _typeId < MapManager.Instance._map._connType.Count) ? MapManager.Instance._map._connType[_typeId]._reqBothExplored : false;
 
-        bool _main = MapManager.Instance._map._factions[_fac].SectorExplored(_sector2Id) && _discoverable2;
-        bool _add = _reqBothExplored ? MapManager.Instance._map._factions[_fac].SectorExplored(_sector1Id) && _discoverable1 : true;
+        bool _main = MapManager.Instance.IsExplored(_sector2Id, _fac) && _discoverable2;
+        bool _add = _reqBothExplored ? MapManager.Instance.IsExplored(_sector1Id, _fac) && _discoverable1 : true;
 
         return _main && _add; // GENERAL CASE
     }
@@ -513,6 +516,18 @@ public class Region
     public Color32 _regionColor = new Color32(255, 255, 255, 255);
 }
 
+
+// DIPLO CLASSES
+[System.Serializable]
+public class ShareMapAgreement
+{
+    public int _faction = -1;
+    public bool _chain = false;
+    public bool _includeFleets = false;
+}
+
+
+// SHIP CLASSES
 [System.Serializable]
 public class Fleet
 {
@@ -2017,16 +2032,33 @@ public class MapManager : MonoBehaviour
         SystemMapUI.Instance.RegenMap();
     }
 
-    public void SwitchPlayer()
+    public void SwitchPlayer(int _b)
     {
-        if (_map._playerFactionId >= _map._playerFactions.Count-1)
+        
+        
+        if (_b == 0)
+        {
+            _map._playerFactionId++;
+        }
+        else if (_b == 1)
+        {
+            _map._playerFactionId--;
+        }
+                
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            _map._playerFactionId = -1;
+        }
+        
+
+        if (_map._playerFactionId > _map._playerFactions.Count - 1)
         {
             _map._playerFactionId = -1;
             
         }
-        else
+        else if (_map._playerFactionId < -1)
         {
-            _map._playerFactionId++;
+            _map._playerFactionId = _map._playerFactions.Count - 1;
             
         }
 
@@ -2223,6 +2255,17 @@ public class MapManager : MonoBehaviour
                 }
             }
 
+            for (int i = 0; i < _map._fleets.Count; i++)
+            {
+                if (_map._fleets[i]._currentSector == i)
+                {
+                    _map._fleets[i]._currentSector = -1;
+                }
+                else if (_map._fleets[i]._currentSector > i)
+                {
+                    _map._fleets[i]._currentSector--;
+                }
+            }
 
             GalaxyMap.Instance._regen = true;
         }
@@ -2247,6 +2290,19 @@ public class MapManager : MonoBehaviour
                 else if (_map._sectors[j]._controlFaction > b)
                 {
                     _map._sectors[j]._controlFaction--;
+                }
+            }
+
+            // Update Player Factions
+            for (int j = 0; j < _map._playerFactions.Count; j++)
+            {
+                if (_map._playerFactions[j]._regFactionID == b)
+                {
+                    _map._playerFactions[j]._regFactionID = -1;
+                }
+                else if (_map._playerFactions[j]._regFactionID > b)
+                {
+                    _map._playerFactions[j]._regFactionID--;
                 }
             }
 
@@ -2959,6 +3015,7 @@ public class MapManager : MonoBehaviour
         
     }
 
+    /// VISION FUNCTIONS
     public bool IsInDiscoveredList(int _sec, bool flag)
     {
         if (_map._playerFactionId < 0 || (!_map._lockSelection && flag))
@@ -2968,11 +3025,108 @@ public class MapManager : MonoBehaviour
 
         int _facID = _map._playerFactions[_map._playerFactionId]._regFactionID;
 
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
         for (int i = 0; i < _map._factions[_facID]._discoveredSectors.Count; i++)
         {
             if (_map._factions[_facID]._discoveredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
             {
                 return true;
+            }
+        }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_IsInDiscoveredList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsInDiscoveredList(int _sec, int faction)
+    {
+
+        int _facID = faction;
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._discoveredSectors.Count; i++)
+        {
+            if (_map._factions[_facID]._discoveredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_IsInDiscoveredList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool Shared_IsInDiscoveredList(int _sec, int faction, List<int> _sharedFactions)
+    {
+
+        int _facID = faction;
+
+        _sharedFactions.Add(_facID);
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._discoveredSectors.Count; i++)
+        {
+            if (_map._factions[_facID]._discoveredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+        {
+            if (!_map._factions[_facID]._sharedMapFactions[i]._chain)
+            {
+                continue;
+            }
+
+            if (!_sharedFactions.Contains(_map._factions[_facID]._sharedMapFactions[i]._faction))
+            {
+                if (Shared_IsInDiscoveredList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, _sharedFactions))
+                {
+                    return true;
+                }
             }
         }
 
@@ -2993,6 +3147,11 @@ public class MapManager : MonoBehaviour
 
         int _facID = _map._playerFactions[_map._playerFactionId]._regFactionID;
 
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
         for (int i = 0; i < _map._factions[_facID]._knownSectorOwnership.Count; i++)
         {
             if (_map._factions[_facID]._knownSectorOwnership[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
@@ -3000,6 +3159,215 @@ public class MapManager : MonoBehaviour
                 return true;
             }
         }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_IsInKnownOwnerList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool IsInKnownOwnerList(int _sec, int faction)
+    {
+        int _facID = faction;
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._knownSectorOwnership.Count; i++)
+        {
+            if (_map._factions[_facID]._knownSectorOwnership[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_IsInKnownOwnerList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool Shared_IsInKnownOwnerList(int _sec, int faction, List<int> _sharedFactions)
+    {
+        int _facID = faction;
+
+        _sharedFactions.Add(_facID);
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._knownSectorOwnership.Count; i++)
+        {
+            if (_map._factions[_facID]._knownSectorOwnership[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+        {
+            if (!_map._factions[_facID]._sharedMapFactions[i]._chain)
+            {
+                continue;
+            }
+
+            if (!_sharedFactions.Contains(_map._factions[_facID]._sharedMapFactions[i]._faction))
+            {
+                if (Shared_IsInKnownOwnerList(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, _sharedFactions))
+                {
+                    return true;
+                }
+            }
+        }        
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsExplored(int _sec, bool flag)
+    {
+        if (_map._playerFactionId < 0 || (!_map._lockSelection && flag))
+        {
+            return true;
+        }
+
+        int _facID = _map._playerFactions[_map._playerFactionId]._regFactionID;
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._exploredSectors.Count; i++)
+        {
+            if (_map._factions[_facID]._exploredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                
+                if (Shared_IsExplored(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsExplored(int _sec, int faction)
+    {
+        int _facID = faction;
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._exploredSectors.Count; i++)
+        {
+            if (_map._factions[_facID]._exploredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        if (_map._factions[_facID]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_IsExplored(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, new List<int> { _facID }))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (_map._sectors[_sec]._controlFaction == _facID)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
+    public bool Shared_IsExplored(int _sec, int faction, List<int> _sharedFactions)
+    {
+        int _facID = faction;
+
+        _sharedFactions.Add(_facID);
+
+        if (_sec >= _map._sectors.Count || _sec < 0 || _facID >= _map._factions.Count || _facID < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._exploredSectors.Count; i++)
+        {
+            if (_map._factions[_facID]._exploredSectors[i] == _sec || _map._sectors[_sec]._controlFaction == _facID)
+            {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < _map._factions[_facID]._sharedMapFactions.Count; i++)
+        {
+            if (!_map._factions[_facID]._sharedMapFactions[i]._chain)
+            {
+                continue;
+            }
+
+            if (!_sharedFactions.Contains(_map._factions[_facID]._sharedMapFactions[i]._faction))
+            {
+                if (Shared_IsExplored(_sec, _map._factions[_facID]._sharedMapFactions[i]._faction, _sharedFactions))
+                {
+                    return true;
+                }
+            }
+        }      
 
         if (_map._sectors[_sec]._controlFaction == _facID)
         {
@@ -3196,6 +3564,17 @@ public class MapManager : MonoBehaviour
 
         }
 
+        if (_map._factions[_player]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_player]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_Fleet_IsVisible(_fleet, _map._factions[_player]._sharedMapFactions[i]._faction, new List<int> { _player}))
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
        
     }
@@ -3292,8 +3671,128 @@ public class MapManager : MonoBehaviour
 
         }
 
+        if (_map._factions[_player]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_player]._sharedMapFactions.Count; i++)
+            {
+                if (Shared_Fleet_IsVisible(_fleet, _map._factions[_player]._sharedMapFactions[i]._faction, new List<int> { _player}))
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
 
+    }
+
+    public bool Shared_Fleet_IsVisible(int _fleet, int _faction, List<int> _sharedFactions)
+    {
+        _fleet = Mathf.Clamp(_fleet, -1, _map._fleets.Count - 1);
+
+        if (_fleet < 0)
+        {
+            return false;
+        }
+
+        _sharedFactions.Add(_faction);
+
+        Fleet F = _map._fleets[_fleet];
+
+        /* if (F._currentSector < 0 && !F._travelling)
+        {
+            return false;
+        }  */
+
+        if (_faction == F._faction)
+        {
+            return true; // FLEETS BELONGING TO A FACTION SHOULD ALWAYS BE VISIBLE
+        }
+
+        for (int i = 0; i < _map._factions[_faction]._knownFleets.Count; i++)
+        {
+            if (_map._factions[_faction]._knownFleets[i] == _fleet)
+            {
+                return true;
+            }
+        }
+
+        if (!F._travelling) // Fleet is in System
+        {
+            
+
+            if (F._currentSector >= 0 && _map._sectors[F._currentSector]._controlFaction == _faction)
+            {
+                return true; // FLEETS IN A SYSTEM OWNED BY THAT FACTION ARE ALWAYS VISIBLE
+            }
+
+            for (int i = 0; i < _map._fleets.Count; i++)
+            {
+                if (_map._fleets[i]._faction == _faction && _map._fleets[i]._travelling == false && _map._fleets[i]._currentSector >= 0 && _map._fleets[i]._currentSector == F._currentSector)
+                {
+                    return true; // FLEET IS VISIBLE IF A FLEET OF THE PLAYER IS ALSO IN THE SECTOR
+                }
+            }
+        }
+        else
+        {
+            if (F._FTLTransponder)
+            {
+                if (F._FTLTransponderRange >= 0)
+                {
+                    Vector2 _p = TurnSectorIntoRealPos(F._travelStart);
+                    Vector2 _v = TurnSectorIntoRealPos(F._travelEnd) - _p;
+
+                    Vector2 _currentPos = _p + (_v * F._travelCompleted);
+                    Vector2 _currentSPos = PositionAsSectorPosition(_currentPos);
+
+                    for (int i = 0; i < _map._fleets.Count; i++)
+                    {
+                        if (_map._fleets[i]._faction == _faction && _map._fleets[i]._travelling)
+                        {
+                            
+                            Vector2 _currentPos2 = _p + (_v * F._travelCompleted);
+                            Vector2 _currentSPos2 = PositionAsSectorPosition(_currentPos2);
+
+                            int _a = SectorDistance(_currentSPos, _currentSPos2);
+
+                            if (_a <= F._FTLTransponderRange)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+        }
+
+        if (_map._factions[_faction]._sharedMapFactions.Count > 0)
+        {
+            for (int i = 0; i < _map._factions[_faction]._sharedMapFactions.Count; i++)
+            {
+                if (!_map._factions[_faction]._sharedMapFactions[i]._chain)
+                {
+                    continue;
+                }
+
+                if (!_sharedFactions.Contains(_map._factions[_faction]._sharedMapFactions[i]._faction))
+                {
+                    if (Shared_Fleet_IsVisible(_fleet, _map._factions[_faction]._sharedMapFactions[i]._faction, _sharedFactions))
+                    {
+                        return true;
+                    }
+                }
+
+                
+            }
+        }
+
+        return false;
     }
 
     public bool Fleet_ContentsKnown(int _fleet)

@@ -2141,21 +2141,20 @@ namespace UI
         void Update()
         {
             
-            float _sFactorWidth = 2560f / Screen.width;
             float _sFactorHeight = 1440f / Screen.height;
 
             // MOVE OUTLINER MAIN MENU IF LOCK SELECTION IS ON
             if (MapManager.Instance._map._lockSelection)
             {
-                _title.GetComponent<RectTransform>().localPosition = new Vector3(10, -170, -5) - new Vector3(Screen.width/2 * _sFactorWidth, -Screen.height/2 * _sFactorHeight);
-                _fleetButton.GetComponent<RectTransform>().localPosition = new Vector3(10, -200, -5) - new Vector3(Screen.width / 2 * _sFactorWidth, -Screen.height / 2 * _sFactorHeight);
+                _title.GetComponent<RectTransform>().localPosition = new Vector3(_title.GetComponent<RectTransform>().localPosition.x, -170, -5) - new Vector3(0, -Screen.height/2 * _sFactorHeight);
+                //_fleetButton.GetComponent<RectTransform>().localPosition = new Vector3(_title.GetComponent<RectTransform>().localPosition.x, -200, -5) - new Vector3(0, -Screen.height / 2 * _sFactorHeight);
                 _AddButton.SetActive(false);
             }
             else
             {
                 
-                _title.GetComponent<RectTransform>().localPosition = new Vector3(10, -550, -5) - new Vector3(Screen.width / 2 * _sFactorWidth, -Screen.height / 2 * _sFactorHeight);
-                _fleetButton.GetComponent<RectTransform>().localPosition = new Vector3(10, -580, -5) - new Vector3(Screen.width / 2 * _sFactorWidth, -Screen.height / 2 * _sFactorHeight);
+                _title.GetComponent<RectTransform>().localPosition = new Vector3(_title.GetComponent<RectTransform>().localPosition.x, -550, -5) - new Vector3(0, -Screen.height / 2 * _sFactorHeight);
+                //_fleetButton.GetComponent<RectTransform>().localPosition = new Vector3(_title.GetComponent<RectTransform>().localPosition.x, -580, -5) - new Vector3(0, -Screen.height / 2 * _sFactorHeight);
 
                 _AddButton.SetActive(true);
             }

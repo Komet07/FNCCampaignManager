@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using EventSystem = UnityEngine.EventSystems.EventSystem;
 using UnityEngine;
+using UnityEngine.UI;
 using UI;
 
 public class CamMovement : MonoBehaviour
@@ -22,6 +24,10 @@ public class CamMovement : MonoBehaviour
     public float orthoBoundaryMax = 10f;
 
     public bool _reset = false;
+
+    // CONTROLS BACKEND
+    public bool _canControl = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,14 +46,26 @@ public class CamMovement : MonoBehaviour
 
         //if (!GMMenu.Instance._menuObjectsL2.activeSelf)
         //{
-        float HorizontalMovement = Input.GetAxis("Horizontal") * (CamSpeed * (Camera.orthographicSize / 5));
-        float VerticalMovement = Input.GetAxis("Vertical") * (CamSpeed * (Camera.orthographicSize / 5));
-        float orthoMovement = Input.GetAxis("Zoom") * (ZoomSpeed);
+
+        GameObject _selected = EventSystem.current.currentSelectedGameObject;
+
+        if (_selected != null && _selected.GetComponent<InputField>() != null)
+        {
+            _canControl = false;
+        }
+        else
+        {
+            _canControl = true;
+        }
+
+        float HorizontalMovement = _canControl ? Input.GetAxis("Horizontal") * (CamSpeed * (Camera.orthographicSize / 5)) : 0;
+        float VerticalMovement = _canControl ? Input.GetAxis("Vertical") * (CamSpeed * (Camera.orthographicSize / 5)) : 0;
+        float orthoMovement = _canControl ? Input.GetAxis("Zoom") * ZoomSpeed : 0;
 
         float MouseXMovement = 0;
         float MouseYMovement = 0;
 
-        if (Input.GetMouseButton(0) && !OutlinerUIGalaxy.Instance._fleetIsOn)
+        if (Input.GetMouseButton(0) && !OutlinerUIGalaxy.Instance._fleetIsOn && _canControl)
         {
             MouseXMovement = Input.GetAxis("Mouse X") * -1 * (CamSpeed * Camera.orthographicSize / 2);
             MouseYMovement = Input.GetAxis("Mouse Y") * -1 * (CamSpeed * Camera.orthographicSize /2);
@@ -77,7 +95,7 @@ public class CamMovement : MonoBehaviour
         Camera.transform.position = new Vector3(Mathf.Clamp(Camera.transform.position.x, MapManager.Instance._map.xBoundaryMin, MapManager.Instance._map.xBoundaryMax), Mathf.Clamp(Camera.transform.position.y, MapManager.Instance._map.yBoundaryMin, MapManager.Instance._map.yBoundaryMax), -10);
         Camera.orthographicSize = Mathf.Clamp(Camera.orthographicSize, orthoBoundaryMin, orthoBoundaryMax);
 
-        if ((Input.GetKeyDown("r") || _reset) && MapManager.Instance.CameraResetIncompatCheck)
+        if ((Input.GetKeyDown("r") || _reset) && MapManager.Instance.CameraResetIncompatCheck && _canControl)
         {
             _reset = false;
             Camera.orthographicSize = 1.5f;

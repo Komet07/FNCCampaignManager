@@ -30,6 +30,7 @@ public class GMMenu : MonoBehaviour
     // Object Menu stuff
     public GameObject _menuObjects;
     public GameObject _menuObjectL1Button; // Original Menu Object L1 button
+    public GameObject _menuObjectL1Header; // Original Menu Object L1 header
     public GameObject _menuObjectL2Button; // Original Menu Object L2 button
 
     public GameObject _menuObjectsL2; // Menu for 2nd layer of stuff (List of sectors, Connections, etc.)
@@ -114,8 +115,10 @@ public class GMMenu : MonoBehaviour
     // Object Menu Object Lists
 
     public List<GameObject> _menuObject1Objects = new List<GameObject>() { };
+    public List<GameObject> _menuObject1Headers = new List<GameObject>() { };
     public List<GameObject> _menuObject2Objects = new List<GameObject>() { };
-    public List<string> _menuObject1Themes = new List<string>() { };
+    [SerializeField]
+    public List<List<string>> _menuObject1Themes = new List<List<string>>() { };
 
     // Map Settings
     [Header("Map Settings")]
@@ -496,6 +499,8 @@ public class GMMenu : MonoBehaviour
 
     void RebuildObjectMenuL1()
     {
+        _menuObject1Themes = new List<List<string>>() {new List<string>() {"Map", "Sectors", "Connections", "Regions"},new List<string>(){"Entities", "Factions", "Alliances", "Player Factions"} };
+
         // Destroy old buttons
         List<GameObject> _buttons = _menuObject1Objects;
         _menuObject1Objects = new List<GameObject>();
@@ -504,16 +509,47 @@ public class GMMenu : MonoBehaviour
             Destroy(_buttons[i]);
         }
 
+        // Destroy old headers
+        List<GameObject> _headers = _menuObject1Headers;
+        _menuObject1Headers = new List<GameObject>();
+        for (int i = 0; i < _headers.Count; i++)
+        {
+            Destroy(_headers[i]);
+        }
+
         // Generate new buttons
+
+        float _y = -45f;
+
         for (int i = 0; i < _menuObject1Themes.Count; i++)
         {
-            GameObject _buttonClone = Instantiate(_menuObjectL1Button, _menuObjects.transform);
-            _buttonClone.SetActive(true);
+            if (_menuObject1Themes[i].Count > 1) // Header
+            {
+                
+                GameObject _headerClone = Instantiate(_menuObjectL1Header, _menuObjects.transform);
+                _headerClone.SetActive(true);
 
-            _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _menuObject1Themes[i];
-            _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(40f, -14f + -20*_menuObject1Objects.Count);
+                _headerClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _menuObject1Themes[i][0].ToString();
+                _headerClone.GetComponent<RectTransform>().localPosition = new Vector2(-200f, _y);
 
-            _menuObject1Objects.Add(_buttonClone);
+                _menuObject1Headers.Add(_headerClone);
+                _y -= 45f;
+
+                for (int j = 0; j < _menuObject1Themes[i].Count - 1; j++)
+                {
+                    
+                    GameObject _buttonClone = Instantiate(_menuObjectL1Button, _menuObjects.transform);
+                    _buttonClone.SetActive(true);
+
+                    _buttonClone.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = _menuObject1Themes[i][j + 1].ToString();
+                    _buttonClone.GetComponent<RectTransform>().localPosition = new Vector2(-200f, _y);
+
+                    _menuObject1Objects.Add(_buttonClone);
+                    _y -= 35f;
+                }
+                
+            }
+            
         }
 
 
@@ -1124,11 +1160,13 @@ public class GMMenu : MonoBehaviour
 
     public void OBJ1(GameObject _obj)
     {
+
+        int[] _v = {0,1,5,2,3,4,6};
         for (int i = 0; i < _menuObject1Objects.Count; i++)
         {
             if (_obj == _menuObject1Objects[i])
             {
-                OBJ2_FUNCTIONS(0, i);
+                OBJ2_FUNCTIONS(0, _v[i]);
                 _menuObjectsL3Sector.SetActive(false);
                 _menuObjectsL3Faction.SetActive(false);
                 _menuObjectsL3Alliance.SetActive(false);
@@ -3938,6 +3976,17 @@ public class GMMenu : MonoBehaviour
 
             _changeOwnerMenu.transform.localPosition = new Vector3((Input.mousePosition.x - Screen.width / 2), (Input.mousePosition.y - Screen.height / 2), 0);
             float _verticalHeight = 6;
+            // NEUTRAL OPTION
+            GameObject _fObj1 = Instantiate(_changeOwnerMenu_ButtonTemplate, _changeOwnerMenu.transform);
+
+            _fObj1.GetComponent<IndexScript>()._obj1.GetComponent<Text>().text = "NEU";
+            _fObj1.transform.localPosition = new Vector3(26.5f, (_verticalHeight * -1) + 3f, 0);
+
+            _verticalHeight += 6;
+
+            _fObj1.SetActive(true);
+            _changeOwnerMenu_objs.Add(_fObj1);
+
             // FACTIONS
             for (int i = 0; i < MapManager.Instance._map._factions.Count; i++)
             {
@@ -3976,7 +4025,7 @@ public class GMMenu : MonoBehaviour
             return;
         }
 
-        MapManager.Instance._map._sectors[_changeOwnerSec]._controlFaction = a;
+        MapManager.Instance._map._sectors[_changeOwnerSec]._controlFaction = a - 1;
 
         CHANGE_OWNER_MENU_FUNCTIONS(0);
     }
@@ -4408,7 +4457,7 @@ public class GMMenu : MonoBehaviour
             }
                 
 
-            _menuObjects.GetComponent<RectTransform>().sizeDelta = new Vector2(80, 15 + 20 * _menuObject1Themes.Count);
+            _menuObjects.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 45 + 35f * _menuObject1Objects.Count + 45f * _menuObject1Headers.Count);
         }
         
         if (_menuObjectsL2.activeSelf)
